@@ -1,46 +1,41 @@
 "use client";
 
-import { useGet } from "@/src/hooks/useGet";
 import { useEffect, useState } from "react";
-import HeaderTopBar from "./HeaderTopBar"; // Keep your existing TopBar
-import Logo from "./Logo";
+import HeaderTopBar from "./HeaderTopBar";
 import MobileNav from "./MobileNav";
 import NavItems from "./NavItems";
-import { Specialty } from "./types";
 
 const Header = () => {
-  const { data } = useGet<Specialty[]>("/specialties", ["specialties"]);
-
-  const [showTopBar, setShowTopBar] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > lastScrollY && window.scrollY > 50) {
-        setShowTopBar(false);
-      } else {
-        setShowTopBar(true);
-      }
-      setLastScrollY(window.scrollY);
+      setScrolled(window.scrollY > 10);
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY]);
+  }, []);
 
   return (
     <header className="relative">
-      <div className="fixed top-0 left-0 w-full z-50 bg-white shadow-lg transition-all duration-300">
-        <HeaderTopBar show={showTopBar} />
-        <div className="h-20 md:h-24 lg:h-28 flex items-center">
-          <div className="container flex items-center justify-between">
-            <Logo />
-            <NavItems specialty={data?.data} />
-            <MobileNav specialty={data?.data} />
-          </div>
-        </div>
+      <div
+        className={`fixed top-0 left-0 w-full z-50 transition-shadow duration-300 ${
+          scrolled ? "shadow-md" : ""
+        }`}
+      >
+        {/* Top Row: Logo + Search + Actions */}
+        <HeaderTopBar />
+
+        {/* Bottom Row: Category Navigation */}
+        <NavItems />
+
+        {/* Mobile category drawer + bottom bar */}
+        <MobileNav />
       </div>
-      <div className={"h-20 md:h-24 lg:h-40"}></div>
+
+      {/* Spacer to push content below the fixed header */}
+      <div className="h-[104px] lg:h-[112px]" />
     </header>
   );
 };

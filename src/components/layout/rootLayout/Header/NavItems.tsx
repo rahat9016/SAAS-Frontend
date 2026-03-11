@@ -1,59 +1,55 @@
+"use client";
+
+import { ChevronDown, Menu } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { navLinks } from "./navLinks";
-import SpecialtiesMegaMenu from "./SpecialtiesMegaMenu";
-import { Specialty } from "./types";
 
-export default function NavItems({
-  specialty,
-}: {
-  specialty: Specialty[] | undefined;
-}) {
+export default function NavItems() {
   const pathname = usePathname();
-  const normalizedPath = pathname.replace(/^\/(en|bn)(?=\/|$)/, "") || "/";
+
   return (
-    <nav className="hidden lg:flex items-center">
-      {navLinks.map(({ label, href, hasChildren }) => {
-        const isActive =
-          href === "/"
-            ? normalizedPath === "/"
-            : normalizedPath.startsWith(href);
+    <nav className="hidden lg:block bg-gray-50 border-b border-gray-100">
+      <div className="container flex items-center h-10">
+        {/* All Categories with icon */}
+        <Link
+          href="/categories"
+          className="flex items-center gap-1.5 pr-5 mr-2 border-r border-gray-200 text-sm font-medium text-gray-700 hover:text-primary transition-colors"
+        >
+          <Menu size={16} />
+          <span>All Categories</span>
+          <ChevronDown size={14} />
+        </Link>
 
-        if (hasChildren) {
-          return <SpecialtiesMegaMenu key={label} specialty={specialty} />;
-        }
-        return (
-          <Link
-            key={label}
-            href={href}
-            className="group relative px-2 font-medium 2xl:font-normal text-sm 2xl:text-base"
-          >
-            <span
-              className={`relative z-10 px-2 sm:px-4 ${
-                isActive ? "text-primary" : "text-secondary-foreground"
-              }`}
-            >
-              {label}
-            </span>
+        {/* Nav links */}
+        <div className="flex items-center gap-0.5">
+          {navLinks.slice(1).map(({ label, href, isHighlighted }) => {
+            const isActive = pathname === href || pathname.startsWith(href.split("?")[0] + "/");
 
-            <span
-              className={`
-                absolute left-1/2 -bottom-1
-                h-0.75 bg-primary
-                transition-all duration-300 ease-out
-                -translate-x-1/2
-                ${isActive ? "w-9/12" : "w-0 group-hover:w-9/12"}
-              `}
-            />
-          </Link>
-        );
-      })}
-      <Link
-        href=""
-        className="ml-2 bg-primary hover:bg-primary/80 text-white text-sm 2xl:text-base font-medium rounded-sm px-4 2xl:px-6 py-3 2xl:py-4"
-      >
-        Online Report
-      </Link>
+            return (
+              <Link
+                key={label}
+                href={href}
+                className={`px-3 py-1.5 text-sm rounded-sm transition-colors whitespace-nowrap ${
+                  isHighlighted
+                    ? "font-bold text-red-500 hover:text-red-600"
+                    : isActive
+                    ? "text-primary font-medium"
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+              >
+                {label}
+              </Link>
+            );
+          })}
+        </div>
+
+        {/* More dropdown (for overflow) */}
+        <button className="ml-auto flex items-center gap-0.5 px-3 py-1.5 text-sm text-gray-500 hover:text-gray-700 transition-colors">
+          More
+          <ChevronDown size={14} />
+        </button>
+      </div>
     </nav>
   );
 }

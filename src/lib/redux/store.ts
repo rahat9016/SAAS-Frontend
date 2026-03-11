@@ -1,9 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./features/auth/authSlice";
+import cartReducer from "./features/cart/cartSlice";
 import filterReducer from "./features/filter/filterSlice";
 import organizerReducer from "./features/organizer/organizationSlice";
 import permissionReducer from "./features/permission/permissionSlice";
 import userReducer from "./features/user/userSlice";
+import wishlistReducer from "./features/wishlist/wishlistSlice";
+
 export const makeStore = () => {
   return configureStore({
     reducer: {
@@ -12,6 +15,8 @@ export const makeStore = () => {
       organizer: organizerReducer,
       permission: permissionReducer,
       filter: filterReducer,
+      cart: cartReducer,
+      wishlist: wishlistReducer,
     },
   });
 };
