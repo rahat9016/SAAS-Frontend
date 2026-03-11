@@ -6,6 +6,7 @@ import phone from "@/public/icons/phone.png";
 import phone_2 from "@/public/icons/phone_2.png";
 import Whatsapp from "@/public/icons/Whatsapp.svg";
 import logo from "@/public/logo.png";
+import { siteConfig } from "@/src/config/siteConfig";
 import Image from "next/image";
 import Link from "next/link";
 import { navLinks } from "./Header/navLinks";
@@ -25,29 +26,25 @@ const Footer = () => {
           <div className="w-full lg:w-5/12 xl:w-4/12">
             <Link
               href="/"
-              aria-label="Happy Hospital & 
-Diagnostic Center "
+              aria-label={siteConfig.name}
               className="shrink-0 flex items-center"
             >
               <Image
                 src={logo}
-                alt="Happy Hospital & 
-Diagnostic Center"
+                alt={siteConfig.name}
                 width={216}
                 height={216}
                 className="w-24 h-24"
               />
               <h2 className="text-base text-secondary-dark font-semibold">
-                Happy Hospital &<br />
-                Diagnostic Center 
+                {siteConfig.name}
               </h2>
             </Link>
             <p
               className="text-sm text-secondary-foreground mb-5 lg:mb-8 leading-relaxed"
               tabIndex={0}
             >
-              West Khabaspur, Faridpur Sadar, Faridpur District, Dhaka Division,
-              Bangladesh
+              {siteConfig.address}
             </p>
             <div>
               <h2 className="text-xl text-secondary-dark font-semibold">
@@ -140,7 +137,7 @@ Diagnostic Center"
                   className="w-6 h-6
                 "
                 />
-                <span className="mt-0.5">+88 02 9849422</span>
+                <span className="mt-0.5">{siteConfig.phone1}</span>
               </div>
               <div
                 className="flex items-center gap-3 text-secondary-foreground"
@@ -155,7 +152,7 @@ Diagnostic Center"
                   className="w-6 h-6
                 "
                 />
-                <span className="mt-0.5">+88 02 9863360</span>
+                <span className="mt-0.5">{siteConfig.phone2}</span>
               </div>
               <div
                 className="flex items-center gap-3 text-secondary-foreground"
@@ -171,10 +168,10 @@ Diagnostic Center"
                 "
                 />
                 <Link
-                  href="mailto:happymodelpharmacy@gmail.com"
+                  href={`mailto:${siteConfig.email}`}
                   className="mt-0.5 transition-colors"
                 >
-                  happymodelpharmacy@gmail.com
+                  {siteConfig.email}
                 </Link>
               </div>
             </div>
@@ -187,7 +184,7 @@ Diagnostic Center"
           className="px-4 text-center font-normal text-xs sm:text-sm text-secondary-foreground whitespace-nowrap"
           tabIndex={0}
         >
-          © 2025 Happy Hospital & Diagnostic Center 
+          © {new Date().getFullYear()} {siteConfig.name}
         </span>
         <div className="grow border-t border-text-secondary-foreground hidden sm:block"></div>
       </div>

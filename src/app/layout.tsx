@@ -3,6 +3,7 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 
 import ToastProvider from "../components/shared/Toast/ToastProvider";
+import { siteConfig } from "../config/siteConfig";
 import QueryProvider from "../lib/react-query/QueryProvider";
 import StoreProvider from "../lib/redux/provider/StoreProvider";
 import { UserFetcher } from "./UserFetcher";
@@ -15,8 +16,8 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Happy Hospital & Diagnostic Center ",
-  description: "Happy Hospital & Diagnostic Center ",
+  title: siteConfig.name,
+  description: siteConfig.description,
 };
 
 export default function RootLayout({

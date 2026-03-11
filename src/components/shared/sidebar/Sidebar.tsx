@@ -1,5 +1,6 @@
 "use client";
 
+import { siteConfig } from "@/src/config/siteConfig";
 import { logoutUser } from "@/src/lib/redux/features/auth/authSlice";
 import { useAppDispatch } from "@/src/lib/redux/hooks";
 import { cn } from "@/src/lib/utils";
@@ -69,7 +70,7 @@ export default function Sidebar({
           />
           <div>
             <h3 className="text-base text-secondary-dark font-semibold">
-              Happy Hospital & <br /> Diagnostic Center
+              {siteConfig.name}
             </h3>
           </div>
         </div>

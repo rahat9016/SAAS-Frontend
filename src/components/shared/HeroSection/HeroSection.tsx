@@ -1,10 +1,11 @@
 "use client";
 
+import { siteConfig } from "@/src/config/siteConfig";
 import { useGet } from "@/src/hooks/useGet";
 import { cn } from "@/src/lib/utils";
+import Image from "next/image";
 import HeroSectionSkeleton from "./HeroSectionSkeleton";
 import { IHeroItem } from "./types";
-import Image from "next/image";
 
 interface IHero {
   page?: string;
@@ -43,7 +44,7 @@ const HeroSection = ({
           {heroData && (
             <Image
               src={heroData[0].images[0]}
-              alt={heroData[0].title || "Happy Hospital Diagnostics"}
+              alt={heroData[0].title || siteConfig.name}
               fill
               priority
               className="object-cover object-center w-full h-full"
