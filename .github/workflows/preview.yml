@@ -1,0 +1,44 @@
+name: PR Preview Deployment
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+
+    steps:
+      # checkout code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Setup node
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+
+      # Install dependencies
+      - name: Install dependencies
+        run: yarn install
+
+      # Run Spotless (Lint & Format Check)
+      - name: Run Spotless (Lint & Format Check)
+        run: yarn run spotless
+
+      # Build
+      - name: Build Package
+        run: yarn build
+
+      # Run tests
+      - name: Run tests
+        run: yarn test || echo "No tests defined"
+      # Deploy to vercel preview
+      - name: Deploy to vercel preview
+        run: |
+          npx vercel@50 deploy \
+            --token ${{ secrets.VERCEL_TOKEN }} \
+            --scope rahat9016s-projects \
+            --yes

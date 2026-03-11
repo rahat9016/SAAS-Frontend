@@ -1,0 +1,19 @@
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  images: {
+    dangerouslyAllowSVG: true,
+    unoptimized: process.env.NODE_ENV === "development",
+    remotePatterns: [
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "8001",
+        pathname: "/uploads/**",
+      },
+    ],
+  },
+  allowedDevOrigins: ["localhost"],
+};
+
+export default nextConfig;
