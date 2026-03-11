@@ -9,10 +9,7 @@ import { ICareer } from "../types";
 export default function UpdateJob() {
   const params = useParams();
   const id = params.id as string;
-  const { data, isLoading } = useGet<ICareer>(`/careers/${id}`, [
-    "careers",
-    id,
-  ]);
+  const { isLoading } = useGet<ICareer>(`/careers/${id}`, ["careers", id]);
 
   return (
     <div>
