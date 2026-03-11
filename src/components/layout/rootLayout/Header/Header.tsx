@@ -7,6 +7,7 @@ import NavItems from "./NavItems";
 
 const Header = () => {
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -25,17 +26,17 @@ const Header = () => {
         }`}
       >
         {/* Top Row: Logo + Search + Actions */}
-        <HeaderTopBar />
+        <HeaderTopBar menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
 
-        {/* Bottom Row: Category Navigation */}
+        {/* Bottom Row: Category Navigation (desktop only) */}
         <NavItems />
-
-        {/* Mobile category drawer + bottom bar */}
-        <MobileNav />
       </div>
 
+      {/* Mobile category drawer + bottom bar */}
+      <MobileNav open={menuOpen} setOpen={setMenuOpen} />
+
       {/* Spacer to push content below the fixed header */}
-      <div className="h-[104px] lg:h-[112px]" />
+      <div className="h-[100px] lg:h-[112px]" />
     </header>
   );
 };
