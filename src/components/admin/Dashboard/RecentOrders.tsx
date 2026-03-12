@@ -19,8 +19,6 @@ import { useGet } from "@/src/hooks/useGet";
 import RecentOrdersSkeleton from "./Skeleton/RecentOrdersSkeleton";
 import type { OrderStatus, RecentOrder } from "@/src/types/dashboard/dashboard";
 
-
-
 const statusStyles: Record<OrderStatus, string> = {
   Completed: "bg-emerald-50 text-emerald-600 border-emerald-200",
   Processing: "bg-amber-50 text-amber-600 border-amber-200",
@@ -46,7 +44,7 @@ export default function RecentOrders() {
     <Card className="border-gray-100 shadow-sm rounded-2xl py-4 sm:py-5 h-full">
       <CardHeader className="pb-2 px-4 sm:px-6">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-[#4f46e5] to-[#818cf8] flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-linear-to-br from-[#4f46e5] to-[#818cf8] flex items-center justify-center shrink-0">
             <Package className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
           </div>
           <div>

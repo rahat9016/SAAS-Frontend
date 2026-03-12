@@ -13,57 +13,26 @@ import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
 import { TrendingUp } from "lucide-react";
 import { useGet } from "@/src/hooks/useGet";
 import RevenueChartSkeleton from "./Skeleton/RevenueChartSkeleton";
-import type { RevenueDataPoint } from "@/src/types/dashboard/dashboard";
-
-function CustomTooltip({
-  active,
-  payload,
-  label,
-}: {
-  active?: boolean;
-  payload?: { value: number; dataKey: string }[];
-  label?: string;
-}) {
-  if (active && payload && payload.length) {
-    return (
-      <div className="bg-white rounded-xl shadow-lg border border-gray-100 px-4 py-3 min-w-[160px]">
-        <p className="text-xs font-medium text-gray-400 mb-1.5">{label}</p>
-        {payload.map((entry) => (
-          <div
-            key={entry.dataKey}
-            className="flex items-center justify-between gap-4"
-          >
-            <span className="text-sm text-gray-600 capitalize">
-              {entry.dataKey}
-            </span>
-            <span className="text-sm font-semibold text-gray-900">
-              {entry.dataKey === "revenue"
-                ? `৳${(entry.value / 1000).toFixed(0)}k`
-                : entry.value}
-            </span>
-          </div>
-        ))}
-      </div>
-    );
-  }
-  return null;
-}
+import type { RevenueResponse } from "@/src/types/dashboard/dashboard";
+import CustomTooltip from "./CustomTooltip";
 
 export default function RevenueChart() {
-  const { data, isLoading } = useGet<RevenueDataPoint[]>(
+  const { data, isLoading } = useGet<RevenueResponse>(
     "/api/dashboard/revenue",
     ["dashboard", "revenue"]
   );
-  const revenueData = data?.data;
+  const revenue = data?.data;
 
-  if (isLoading || !revenueData) return <RevenueChartSkeleton />;
+  if (isLoading || !revenue) return <RevenueChartSkeleton />;
+
+  const { points, totalMonths, growthPercent } = revenue;
 
   return (
     <Card className="border-gray-100 shadow-sm rounded-2xl py-4 sm:py-5">
       <CardHeader className="pb-2 px-4 sm:px-6">
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-[#009dab] to-[#00c9db] flex items-center justify-center shrink-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-linear-to-br from-[#009dab] to-[#00c9db] flex items-center justify-center shrink-0">
               <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
             </div>
             <div>
@@ -71,13 +40,13 @@ export default function RevenueChart() {
                 Revenue Overview
               </CardTitle>
               <p className="text-[11px] sm:text-xs text-gray-400 mt-0.5">
-                Monthly revenue for the last 7 months
+                Monthly revenue for the last {totalMonths} months
               </p>
             </div>
           </div>
           <span className="hidden sm:inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-600">
             <TrendingUp className="w-3 h-3" />
-            +14.2%
+            {growthPercent}
           </span>
         </div>
       </CardHeader>
@@ -85,7 +54,7 @@ export default function RevenueChart() {
         <div className="w-full h-[220px] sm:h-[280px] lg:h-[320px]">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart
-              data={revenueData}
+              data={points}
               margin={{ top: 10, right: 10, left: -10, bottom: 0 }}
             >
               <defs>
@@ -147,7 +116,6 @@ export default function RevenueChart() {
             </AreaChart>
           </ResponsiveContainer>
         </div>
-        {/* Legend */}
         <div className="flex items-center justify-center gap-6 mt-4">
           <div className="flex items-center gap-2">
             <span className="w-3 h-3 rounded-full bg-[#009dab]" />

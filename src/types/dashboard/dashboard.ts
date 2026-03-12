@@ -37,6 +37,12 @@ export interface RevenueDataPoint {
   orders: number;
 }
 
+export interface RevenueResponse {
+  points: RevenueDataPoint[];
+  totalMonths: number;
+  growthPercent: string;
+}
+
 // ── Recent Orders ────────────────────────────────────────
 
 export type OrderStatus = "Completed" | "Processing" | "Cancelled";

@@ -12,5 +12,18 @@ const revenueData = [
 
 export async function GET() {
   await new Promise((res) => setTimeout(res, 1000));
-  return NextResponse.json({ data: revenueData });
+
+  const totalMonths = revenueData.length;
+  const previous = revenueData[totalMonths - 2].revenue;
+  const current = revenueData[totalMonths - 1].revenue;
+  const growth = ((current - previous) / previous) * 100;
+  const growthPercent = `${growth >= 0 ? "+" : ""}${growth.toFixed(1)}%`;
+
+  return NextResponse.json({
+    data: {
+      points: revenueData,
+      totalMonths,
+      growthPercent,
+    },
+  });
 }
