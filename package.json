@@ -72,6 +72,7 @@
     "react-select": "^5.10.2",
     "react-share": "^5.2.2",
     "react-toastify": "^11.0.5",
+    "recharts": "^3.8.0",
     "resolver": "^0.1.12",
     "tailwind-merge": "^3.4.0",
     "tiptap": "^1.32.2",

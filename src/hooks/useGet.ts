@@ -51,7 +51,7 @@ export const useGet = <T>(
         const response = await axiosInstance.get(endpoint, {
           params: filteredParams,
         });
-        return response.data;
+        return response as unknown as IGenericResponse<T>;
       } catch (error) {
         throw error;
       }

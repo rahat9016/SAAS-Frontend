@@ -20,6 +20,16 @@ instance.defaults.timeout = 60000;
 // Request interceptor
 instance.interceptors.request.use(
   function (config) {
+    // Handle local Next.js API routes — bypass external baseURL
+    if (config.url?.startsWith("/api/")) {
+      const origin =
+        typeof window !== "undefined"
+          ? window.location.origin
+          : "http://localhost:3000";
+      config.url = `${origin}${config.url}`;
+      config.baseURL = "";
+    }
+
     // <========
     // If the request is a POST request and the data is not FormData,
     // set Content-Type to application/json
