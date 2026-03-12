@@ -20,6 +20,7 @@ interface FileUploadControllerProps {
   imgClassName?: string;
   initialUrl?: string;
   label?: string;
+  accept?: string[];
 }
 
 export function FileUploadController({
@@ -27,6 +28,7 @@ export function FileUploadController({
   label,
   className,
   imgClassName,
+  accept,
 }: FileUploadControllerProps) {
   const { control, getValues } = useFormContext();
   const initialUrl = getValues(name);
@@ -162,7 +164,7 @@ export function FileUploadController({
                   <input
                     id={`${name}-file`}
                     type="file"
-                    accept={SUPPORTED_FORMATS.join(",")}
+                    accept={(accept || SUPPORTED_FORMATS).join(",")}
                     className="hidden"
                     onChange={handleFileChange}
                   />

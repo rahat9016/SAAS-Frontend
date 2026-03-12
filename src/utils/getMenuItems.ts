@@ -25,25 +25,34 @@ export function getMenuItems(): MenuItem[] {
   const menuItems: (MenuItem | false)[] = [
     { label: "Dashboard", icon: dashboard, href: "/admin" },
     {
-      label: "Appointment",
-      icon: Appointment,
-      href: "/admin/all-appointments",
+      label: "Categories",
+      icon: Specialties,
+      children: [
+        { label: "Parent Category", href: "/admin/parent-category" },
+        { label: "Category", href: "/admin/category" },
+        { label: "Sub Category", href: "/admin/sub-category" },
+      ],
     },
-    { label: "Doctors", icon: Doctors, href: "/admin/doctors" },
-    {
-      label: "Health Packages",
-      icon: HealthPackages,
-      href: "/admin/health-packages",
-    },
-    { label: "Specialties", icon: Specialties, href: "/admin/specialties" },
-    { label: "Membership", icon: Membership, href: "/admin/membership" },
-    { label: "Blogs", icon: Blogs, href: "/admin/blogs" },
-    { label: "Career", icon: Career, href: "/admin/applicant-list" },
-    {
-      label: "Contact & Support",
-      icon: ContactSupport,
-      href: "/admin/contact-support-list",
-    },
+    // {
+    //   label: "Appointment",
+    //   icon: Appointment,
+    //   href: "/admin/all-appointments",
+    // },
+    // { label: "Doctors", icon: Doctors, href: "/admin/doctors" },
+    // {
+    //   label: "Health Packages",
+    //   icon: HealthPackages,
+    //   href: "/admin/health-packages",
+    // },
+    // { label: "Specialties", icon: Specialties, href: "/admin/specialties" },
+    // { label: "Membership", icon: Membership, href: "/admin/membership" },
+    // { label: "Blogs", icon: Blogs, href: "/admin/blogs" },
+    // { label: "Career", icon: Career, href: "/admin/applicant-list" },
+    // {
+    //   label: "Contact & Support",
+    //   icon: ContactSupport,
+    //   href: "/admin/contact-support-list",
+    // },
     // {
     //   label: "User Management",
     //   icon: UserManagement,
@@ -55,7 +64,8 @@ export function getMenuItems(): MenuItem[] {
       href: "/admin/hero-management",
     },
     // { label: "Media", icon: Media, href: "/admin/image-gallery" },
-    { label: "Corporate", icon: Corporate, href: "/admin/corporate" },
+    // { label: "Corporate", icon: Corporate, href: "/admin/corporate" },
+    
 
     // {
     //   label: "Events",
