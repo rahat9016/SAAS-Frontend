@@ -5,17 +5,12 @@ import { logoutUser } from "@/src/lib/redux/features/auth/authSlice";
 import { useAppDispatch } from "@/src/lib/redux/hooks";
 import { cn } from "@/src/lib/utils";
 import { getMenuItems } from "@/src/utils/getMenuItems";
-import { LogOut } from "lucide-react";
+import { ChevronDown, LogOut } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 
 import Image from "next/image";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "../../ui/accordion";
 import { Button } from "../../ui/button";
 
 interface SidebarProps {
@@ -35,7 +30,34 @@ export default function Sidebar({
 
   const menuItems = getMenuItems();
 
-  const currentPath = pathname;
+  // Track which menu items are expanded
+  const [expandedItems, setExpandedItems] = useState<string[]>([]);
+
+  // Auto-expand parent item if a child is active
+  useEffect(() => {
+    menuItems.forEach((item) => {
+      if (item.children) {
+        const hasActiveChild = item.children.some(
+          (child) => pathname === child.href
+        );
+        if (
+          hasActiveChild &&
+          !expandedItems.includes(item.label)
+        ) {
+          setExpandedItems((prev) => [...prev, item.label]);
+        }
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
+
+  const toggleExpand = (label: string) => {
+    setExpandedItems((prev) =>
+      prev.includes(label)
+        ? prev.filter((l) => l !== label)
+        : [...prev, label]
+    );
+  };
 
   return (
     <>
@@ -77,98 +99,111 @@ export default function Sidebar({
 
         {/* Menu */}
         <nav className="flex-1 overflow-y-auto custom-scrollbar mt-4">
-          <Accordion
-            type="multiple"
-            className="flex flex-col h-full gap-1 w-full"
-          >
-            <div className="overflow-y-auto custom-scrollbar flex-1 py-1">
-              {menuItems.map((item) => {
-                const isActiveParent = item.href && currentPath === item.href;
+          <div className="flex flex-col gap-1 py-1">
+            {menuItems.map((item) => {
+              const isActiveParent = item.href && pathname === item.href;
+              const isActiveChild = item.children?.some(
+                (child) => pathname === child.href
+              );
+              const isActive = isActiveParent || isActiveChild;
+              const isExpanded = expandedItems.includes(item.label);
 
-                const isActiveChild = item.children?.some(
-                  (child) => currentPath === child.href
-                );
-
-                const isActive = isActiveParent || isActiveChild;
-
+              if (item.children) {
                 return (
-                  <AccordionItem
-                    key={item.label}
-                    value={item.label}
-                    className="border-b-0"
-                  >
-                    {item.children ? (
-                      <>
-                        <AccordionTrigger
-                          className={`px-3 sm:px-4 h-10 sm:h-11.5 flex items-center font-inter leading-none hover:no-underline text-sm sm:text-base ${
-                            isActive
-                              ? "bg-secondary text-white"
-                              : "text-[#8C8C8C] hover:bg-[#EAF6FB] hover:text-primary"
-                          }`}
-                        >
-                          <div className="flex items-center w-full">
-                            <Image
-                              src={item.icon}
-                              alt=""
-                              width={24}
-                              height={24}
-                              className={`${isActive ? "brightness-0 invert" : ""}`}
-                            />
-                            <span className="truncate">{item.label}</span>
-                          </div>
-                        </AccordionTrigger>
-
-                        <AccordionContent
-                          className={`flex flex-col w-full mt-1 ${
-                            isActiveChild ? "block" : ""
-                          }`}
-                        >
-                          {item.children.map((child) => {
-                            const isChildActive = currentPath === child.href;
-
-                            return (
-                              <Link
-                                key={child.label}
-                                href={child.href}
-                                onClick={() => setIsOpen(false)}
-                                className={`w-full h-10 sm:h-11.5 flex items-center gap-2 px-3 sm:px-4 text-xs sm:text-sm rounded-md font-inter pl-10 ${
-                                  isChildActive
-                                    ? "bg-primary text-white"
-                                    : "text-[#8C8C8C] hover:bg-[#EAF6FB] hover:text-primary"
-                                }`}
-                              >
-                                <span className="truncate">{child.label}</span>
-                              </Link>
-                            );
-                          })}
-                        </AccordionContent>
-                      </>
-                    ) : (
-                      <Link
-                        href={item.href ?? "#"}
-                        onClick={() => setIsOpen(false)}
-                        className={`w-full  h-10 sm:h-12 flex items-center gap-2.5 px-3 text-sm lg:text-base rounded-sm ${
-                          isActive
-                            ? "bg-secondary text-white font-medium"
-                            : "text-secondary-dark font-normal"
-                        }`}
-                      >
+                  <div key={item.label}>
+                    {/* Parent with children */}
+                    <button
+                      type="button"
+                      onClick={() => toggleExpand(item.label)}
+                      className={cn(
+                        "w-full h-11 flex items-center justify-between px-3 rounded-sm text-sm font-medium transition-colors cursor-pointer",
+                        isActive
+                          ? "bg-secondary text-white"
+                          : "text-secondary-dark hover:bg-[#EAF6FB] hover:text-primary"
+                      )}
+                    >
+                      <div className="flex items-center gap-2.5">
                         <Image
                           src={item.icon}
                           alt=""
-                          width={24}
-                          height={24}
-                          className={`${isActive ? "brightness-0 invert" : ""}`}
+                          width={22}
+                          height={22}
+                          className={cn(
+                            isActive ? "brightness-0 invert" : ""
+                          )}
                         />
-                        <h3>{item.label}</h3>
-                      </Link>
-                    )}
-                  </AccordionItem>
+                        <span className="truncate">{item.label}</span>
+                      </div>
+                      <ChevronDown
+                        className={cn(
+                          "h-4 w-4 shrink-0 transition-transform duration-200",
+                          isExpanded ? "rotate-180" : ""
+                        )}
+                      />
+                    </button>
+
+                    {/* Children with left border */}
+                    <div
+                      className={cn(
+                        "overflow-hidden transition-all duration-200",
+                        isExpanded
+                          ? "max-h-[500px] opacity-100"
+                          : "max-h-0 opacity-0"
+                      )}
+                    >
+                      <div className="ml-6 mt-1 border-l-2 border-gray-200 pl-3">
+                        {item.children.map((child) => {
+                          const isChildActive = pathname === child.href;
+
+                          return (
+                            <Link
+                              key={child.label}
+                              href={child.href}
+                              onClick={() => setIsOpen(false)}
+                              className={cn(
+                                "flex items-center h-10 px-3 rounded-sm text-sm transition-colors",
+                                isChildActive
+                                  ? "text-primary font-medium bg-[#EAF6FB]"
+                                  : "text-[#6B7280] hover:text-primary hover:bg-[#EAF6FB]"
+                              )}
+                            >
+                              <span className="truncate">{child.label}</span>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
                 );
-              })}
-            </div>
-          </Accordion>
+              }
+
+              // Simple link item (no children)
+              return (
+                <Link
+                  key={item.label}
+                  href={item.href ?? "#"}
+                  onClick={() => setIsOpen(false)}
+                  className={cn(
+                    "w-full h-11 flex items-center gap-2.5 px-3 text-sm rounded-sm transition-colors",
+                    isActive
+                      ? "bg-secondary text-white font-medium"
+                      : "text-secondary-dark font-normal hover:bg-[#EAF6FB] hover:text-primary"
+                  )}
+                >
+                  <Image
+                    src={item.icon}
+                    alt=""
+                    width={22}
+                    height={22}
+                    className={cn(isActive ? "brightness-0 invert" : "")}
+                  />
+                  <span className="truncate">{item.label}</span>
+                </Link>
+              );
+            })}
+          </div>
         </nav>
+
         <div className="pb-2 mt-4">
           <Button
             onClick={() => {

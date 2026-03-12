@@ -55,7 +55,7 @@ export default function CreateUpdateParentCategory({
   }, [isOpen, initialValues, methods]);
 
   const { mutate: createMutate, isPending: isCreating } = usePost(
-    "/parent-categories",
+    "/api/categories/parent-categories",
     () => {
       toast.success("Parent category created successfully!");
       onClose();
@@ -85,7 +85,7 @@ export default function CreateUpdateParentCategory({
 
     if (isUpdate && initialValues) {
       updateMutate({
-        url: `/parent-categories/${initialValues.id}`,
+        url: `/api/categories/parent-categories/${initialValues.id}`,
         data: formData,
       });
     } else {

@@ -34,7 +34,7 @@ export default function CreateUpdateSubCategory({
   const isUpdate = !!initialValues;
 
   const { data: categoriesData } = useGet<ICategory[]>(
-    "/categories",
+    "/api/categories/categories",
     ["categories"],
     {},
     { enabled: isOpen }
@@ -68,7 +68,7 @@ export default function CreateUpdateSubCategory({
   }, [isOpen, initialValues, methods]);
 
   const { mutate: createMutate, isPending: isCreating } = usePost(
-    "/sub-categories",
+    "/api/categories/sub-categories",
     () => {
       toast.success("Sub category created successfully!");
       onClose();
@@ -89,7 +89,7 @@ export default function CreateUpdateSubCategory({
   const onSubmit = (values: SubCategoryFormValues) => {
     if (isUpdate && initialValues) {
       updateMutate({
-        url: `/sub-categories/${initialValues.id}`,
+        url: `/api/categories/sub-categories/${initialValues.id}`,
         data: values as unknown as Record<string, unknown>,
       });
     } else {

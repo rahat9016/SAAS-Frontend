@@ -10,6 +10,20 @@ export const GetParentCategoryColumns = (
 ): ColumnDef<IParentCategory>[] => {
   return [
     {
+      header: "Icon",
+      accessorKey: "icon",
+      cell: (value) => {
+        const icon = value as string | undefined;
+        return icon ? (
+          <div className="w-9 h-9 border border-[#E6E6E6] flex items-center justify-center rounded-lg bg-light">
+            <Image src={icon} alt="icon" width={24} height={24} />
+          </div>
+        ) : (
+          <span className="text-sm text-gray-400">—</span>
+        );
+      },
+    },
+    {
       header: "Name",
       accessorKey: "name",
     },
@@ -25,20 +39,7 @@ export const GetParentCategoryColumns = (
         );
       },
     },
-    {
-      header: "Icon",
-      accessorKey: "icon",
-      cell: (value) => {
-        const icon = value as string | undefined;
-        return icon ? (
-          <div className="w-9 h-9 border border-[#E6E6E6] flex items-center justify-center rounded-lg bg-light">
-            <Image src={icon} alt="icon" width={24} height={24} />
-          </div>
-        ) : (
-          <span className="text-sm text-gray-400">—</span>
-        );
-      },
-    },
+    
     {
       header: "Action",
       accessorKey: "actions",

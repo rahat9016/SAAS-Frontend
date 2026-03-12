@@ -3,6 +3,7 @@ import dashboard from "@/public/icons/dashboard.svg";
 import Doctors from "@/public/icons/Doctors.svg";
 import HealthPackages from "@/public/icons/HealthPackages.svg";
 import Specialties from "@/public/icons/Specialities.svg";
+import Categories from "@/public/icons/Categories.svg";
 
 import Blogs from "@/public/icons/Blogs.svg";
 import Career from "@/public/icons/Career.svg";
@@ -26,7 +27,7 @@ export function getMenuItems(): MenuItem[] {
     { label: "Dashboard", icon: dashboard, href: "/admin" },
     {
       label: "Categories",
-      icon: Specialties,
+      icon: Categories,
       children: [
         { label: "Parent Category", href: "/admin/parent-category" },
         { label: "Category", href: "/admin/category" },

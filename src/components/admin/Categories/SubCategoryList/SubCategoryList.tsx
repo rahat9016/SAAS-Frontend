@@ -5,6 +5,7 @@ import { usePagination } from "@/src/hooks/usePagination";
 import { useSearchDebounce } from "@/src/hooks/useSearchDebounce";
 import { useAppSelector } from "@/src/lib/redux/hooks";
 import { useDelete } from "@/src/hooks/useDelete";
+import DeleteConfirmDialog from "@/src/components/shared/DeleteConfirmDialog";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import CategoriesTable from "../CategoriesTable";
@@ -17,6 +18,7 @@ export default function SubCategoryList() {
   const [selectedItem, setSelectedItem] = useState<
     ISubCategory | undefined
   >();
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const {
     setCurrentPage,
@@ -31,7 +33,7 @@ export default function SubCategoryList() {
   const { sortBy } = useAppSelector((state) => state.filter);
 
   const { data, isLoading } = useGet<ISubCategory[]>(
-    "/sub-categories",
+    "/api/categories/sub-categories",
     [
       "sub-categories",
       currentPage.toString(),
@@ -69,8 +71,13 @@ export default function SubCategoryList() {
   };
 
   const handleDelete = (id: string) => {
-    if (confirm("Are you sure you want to delete this sub category?")) {
-      deleteMutate({ url: `/sub-categories/${id}` });
+    setDeleteId(id);
+  };
+
+  const handleConfirmDelete = () => {
+    if (deleteId) {
+      deleteMutate({ url: `/api/categories/sub-categories/${deleteId}` });
+      setDeleteId(null);
     }
   };
 
@@ -105,6 +112,13 @@ export default function SubCategoryList() {
         isOpen={isModalOpen}
         onClose={handleModalClose}
         initialValues={selectedItem}
+      />
+      <DeleteConfirmDialog
+        isOpen={!!deleteId}
+        onClose={() => setDeleteId(null)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Sub Category"
+        description="Are you sure you want to delete this sub category? This action cannot be undone."
       />
     </div>
   );

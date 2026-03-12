@@ -31,7 +31,7 @@ export default function CreateUpdateCategory({
   const isUpdate = !!initialValues;
 
   const { data: parentCategoriesData } = useGet<IParentCategory[]>(
-    "/parent-categories",
+    "/api/categories/parent-categories",
     ["parent-categories"],
     {},
     { enabled: isOpen }
@@ -63,7 +63,7 @@ export default function CreateUpdateCategory({
   }, [isOpen, initialValues, methods]);
 
   const { mutate: createMutate, isPending: isCreating } = usePost(
-    "/categories",
+    "/api/categories/categories",
     () => {
       toast.success("Category created successfully!");
       onClose();
@@ -84,7 +84,7 @@ export default function CreateUpdateCategory({
   const onSubmit = (values: CategoryFormValues) => {
     if (isUpdate && initialValues) {
       updateMutate({
-        url: `/categories/${initialValues.id}`,
+        url: `/api/categories/categories/${initialValues.id}`,
         data: values as unknown as Record<string, unknown>,
       });
     } else {

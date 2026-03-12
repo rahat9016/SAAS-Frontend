@@ -5,6 +5,7 @@ import { usePagination } from "@/src/hooks/usePagination";
 import { useSearchDebounce } from "@/src/hooks/useSearchDebounce";
 import { useAppSelector } from "@/src/lib/redux/hooks";
 import { useDelete } from "@/src/hooks/useDelete";
+import DeleteConfirmDialog from "@/src/components/shared/DeleteConfirmDialog";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import CategoriesTable from "../CategoriesTable";
@@ -17,6 +18,7 @@ export default function ParentCategoryList() {
   const [selectedItem, setSelectedItem] = useState<
     IParentCategory | undefined
   >();
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const {
     setCurrentPage,
@@ -31,7 +33,7 @@ export default function ParentCategoryList() {
   const { sortBy } = useAppSelector((state) => state.filter);
 
   const { data, isLoading } = useGet<IParentCategory[]>(
-    "/parent-categories",
+    "/api/categories/parent-categories",
     [
       "parent-categories",
       currentPage.toString(),
@@ -69,8 +71,13 @@ export default function ParentCategoryList() {
   };
 
   const handleDelete = (id: string) => {
-    if (confirm("Are you sure you want to delete this parent category?")) {
-      deleteMutate({ url: `/parent-categories/${id}` });
+    setDeleteId(id);
+  };
+
+  const handleConfirmDelete = () => {
+    if (deleteId) {
+      deleteMutate({ url: `/api/categories/parent-categories/${deleteId}` });
+      setDeleteId(null);
     }
   };
 
@@ -105,6 +112,13 @@ export default function ParentCategoryList() {
         isOpen={isModalOpen}
         onClose={handleModalClose}
         initialValues={selectedItem}
+      />
+      <DeleteConfirmDialog
+        isOpen={!!deleteId}
+        onClose={() => setDeleteId(null)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Parent Category"
+        description="Are you sure you want to delete this parent category? This action cannot be undone."
       />
     </div>
   );
