@@ -4,15 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
 import { Award } from "lucide-react";
 import { useGet } from "@/src/hooks/useGet";
 import BestSellingProductsSkeleton from "./Skeleton/BestSellingProductsSkeleton";
-
-interface BestSellingProduct {
-  rank: number;
-  name: string;
-  sold: number;
-  revenue: string;
-  percent: number;
-  color: string;
-}
+import type { BestSellingProduct } from "@/src/types/dashboard/dashboard";
 
 export default function BestSellingProducts() {
   const { data, isLoading } = useGet<BestSellingProduct[]>(

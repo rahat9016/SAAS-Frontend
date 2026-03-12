@@ -1,33 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
-import {
-  ShoppingCart,
-  ClipboardList,
-  TrendingUp,
-  Users,
-  ArrowUpRight,
-  ArrowDownRight,
-  type LucideIcon,
-} from "lucide-react";
+import { ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { useGet } from "@/src/hooks/useGet";
 import StatsCardsSkeleton from "./Skeleton/StatsCardsSkeleton";
-
-interface DashboardStat {
-  label: string;
-  value: string;
-  change: string;
-  isPositive: boolean;
-  iconName: string;
-  gradient: string;
-}
-
-const iconMap: Record<string, LucideIcon> = {
-  ShoppingCart,
-  ClipboardList,
-  TrendingUp,
-  Users,
-};
+import { statsCardConfigs } from "@/src/data/dashboard/statsCardConfigs";
+import type { DashboardStatResponse } from "@/src/types/dashboard/dashboard";
 
 const containerVariants = {
   hidden: {},
@@ -48,13 +26,16 @@ const cardVariants = {
 };
 
 export default function StatsCards() {
-  const { data, isLoading } = useGet<DashboardStat[]>(
+  const { data, isLoading } = useGet<DashboardStatResponse[]>(
     "/api/dashboard/stats",
     ["dashboard", "stats"]
   );
-  const stats = data?.data;
+  const statsData = data?.data;
 
-  if (isLoading || !stats) return <StatsCardsSkeleton />;
+  if (isLoading || !statsData) return <StatsCardsSkeleton />;
+
+  // Map dynamic data by key for easy lookup
+  const statsMap = new Map(statsData.map((s) => [s.key, s]));
 
   return (
     <motion.div
@@ -63,26 +44,29 @@ export default function StatsCards() {
       initial="hidden"
       animate="show"
     >
-      {stats.map((stat) => {
-        const Icon = iconMap[stat.iconName] || ShoppingCart;
+      {statsCardConfigs.map((config) => {
+        const Icon = config.icon;
+        const stat = statsMap.get(config.key);
+        if (!stat) return null;
+
         return (
           <motion.div
-            key={stat.label}
+            key={config.key}
             variants={cardVariants}
             className="group relative bg-white rounded-xl sm:rounded-2xl border border-gray-100 p-3 sm:p-4 xl:p-6 shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden"
           >
             <div
-              className={`absolute -top-6 -right-6 sm:-top-8 sm:-right-8 w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-linear-to-br ${stat.gradient} opacity-10 group-hover:opacity-20 transition-opacity duration-300`}
+              className={`absolute -top-6 -right-6 sm:-top-8 sm:-right-8 w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-linear-to-br ${config.gradient} opacity-10 group-hover:opacity-20 transition-opacity duration-300`}
             />
             <div
-              className={`absolute top-3 right-3 sm:top-4 sm:right-4 lg:top-5 lg:right-5 w-9 h-9 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-lg sm:rounded-xl bg-linear-to-br ${stat.gradient} flex items-center justify-center shadow-lg z-10`}
+              className={`absolute top-3 right-3 sm:top-4 sm:right-4 lg:top-5 lg:right-5 w-9 h-9 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-lg sm:rounded-xl bg-linear-to-br ${config.gradient} flex items-center justify-center shadow-lg z-10`}
             >
               <Icon className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-white" />
             </div>
 
             <div className="relative z-10 pr-12 sm:pr-14 lg:pr-16">
               <p className="text-xs sm:text-sm font-medium text-gray-500 mb-0.5 sm:mb-1 truncate">
-                {stat.label}
+                {config.label}
               </p>
               <h3 className="text-lg sm:text-xl lg:text-[1.7rem] font-bold text-gray-900 tracking-tight">
                 {stat.value}

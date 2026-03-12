@@ -13,12 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
 import { TrendingUp } from "lucide-react";
 import { useGet } from "@/src/hooks/useGet";
 import RevenueChartSkeleton from "./Skeleton/RevenueChartSkeleton";
-
-interface RevenueDataPoint {
-  month: string;
-  revenue: number;
-  orders: number;
-}
+import type { RevenueDataPoint } from "@/src/types/dashboard/dashboard";
 
 function CustomTooltip({
   active,
