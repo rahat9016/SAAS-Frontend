@@ -60,6 +60,11 @@ export function getMenuItems(): MenuItem[] {
     //   href: "/admin/user-management",
     // },
     {
+      label: "Brands",
+      icon: Corporate,
+      href: "/admin/brands",
+    },
+    {
       label: "Hero Management",
       icon: HeroManagement,
       href: "/admin/hero-management",
