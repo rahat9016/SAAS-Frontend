@@ -69,7 +69,14 @@ export function getMenuItems(): MenuItem[] {
       icon: HeroManagement,
       href: "/admin/hero-management",
     },
-    // { label: "Media", icon: Media, href: "/admin/image-gallery" },
+    {
+      label: "Content Management",
+      icon: HeroManagement,
+      children: [
+        { label: "Media Gallery", href: "/admin/media-gallery" },
+        { label: "Banner & Poster", href: "/admin/banner-poster" },
+      ],
+    },
     // { label: "Corporate", icon: Corporate, href: "/admin/corporate" },
     
 

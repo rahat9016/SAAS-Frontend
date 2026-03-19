@@ -1,0 +1,1018 @@
+export interface TemplateTextElement {
+  id: string;
+  content: string;
+  x: number; // percentage from left
+  y: number; // percentage from top
+  fontSize: number; // px
+  fontWeight: number;
+  color: string;
+  rotation: number; // degrees
+  fontFamily?: string;
+  textTransform?: "uppercase" | "lowercase" | "capitalize" | "none";
+  letterSpacing?: number;
+  maxWidth?: number; // percentage
+  lineHeight?: number;
+  textStroke?: string;
+  opacity?: number;
+}
+
+export interface TemplateShape {
+  type: "circle" | "rect" | "line" | "dots" | "triangle" | "chevrons";
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  color: string;
+  opacity?: number;
+  rotation?: number;
+  borderRadius?: number;
+  border?: string;
+}
+
+export interface TemplateImageZone {
+  id: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  clipPath?: string;
+  placeholder: string;
+}
+
+export interface TemplateSocialMedia {
+  show: boolean;
+  x: number;
+  y: number;
+  icons: string[];
+  color: string;
+  size: number;
+}
+
+export interface PosterTemplate {
+  id: string;
+  name: string;
+  category: "poster" | "banner";
+  canvasWidth: number;
+  canvasHeight: number;
+  backgroundColor: string;
+  backgroundGradient?: string;
+  shapes: TemplateShape[];
+  imageZones: TemplateImageZone[];
+  textElements: TemplateTextElement[];
+  socialMedia?: TemplateSocialMedia;
+}
+
+// ============================================================
+// TEMPLATE 1: Fashion Show Poster (Yellow/Cream)
+// ============================================================
+const fashionShowPoster: PosterTemplate = {
+  id: "fashion-show",
+  name: "Fashion Show",
+  category: "poster",
+  canvasWidth: 600,
+  canvasHeight: 850,
+  backgroundColor: "#FDF6EC",
+  shapes: [
+    {
+      type: "circle",
+      x: 25,
+      y: 55,
+      width: 22,
+      height: 22,
+      color: "#F5D77E",
+      opacity: 0.5,
+    },
+    {
+      type: "circle",
+      x: 55,
+      y: 15,
+      width: 8,
+      height: 8,
+      color: "#F5D77E",
+      opacity: 0.6,
+    },
+    {
+      type: "rect",
+      x: 60,
+      y: 80,
+      width: 35,
+      height: 6,
+      color: "#F5D77E",
+      opacity: 0.9,
+      rotation: 0,
+    },
+    {
+      type: "dots",
+      x: 40,
+      y: 25,
+      width: 12,
+      height: 12,
+      color: "#2D2D2D",
+      opacity: 0.15,
+    },
+    {
+      type: "line",
+      x: 65,
+      y: 45,
+      width: 20,
+      height: 1,
+      color: "#2D2D2D",
+      opacity: 0.3,
+      rotation: -30,
+    },
+    {
+      type: "line",
+      x: 68,
+      y: 50,
+      width: 18,
+      height: 1,
+      color: "#2D2D2D",
+      opacity: 0.2,
+      rotation: -30,
+    },
+  ],
+  imageZones: [
+    {
+      id: "main-image",
+      x: 20,
+      y: 15,
+      width: 55,
+      height: 70,
+      placeholder: "Upload Model Photo",
+    },
+  ],
+  textElements: [
+    {
+      id: "subtitle-top",
+      content: "YOUR PRESENT",
+      x: 25,
+      y: 5,
+      fontSize: 12,
+      fontWeight: 500,
+      color: "#4A4A4A",
+      rotation: 0,
+      textTransform: "uppercase",
+      letterSpacing: 3,
+    },
+    {
+      id: "title-main",
+      content: "FASHION",
+      x: 35,
+      y: 10,
+      fontSize: 72,
+      fontWeight: 900,
+      color: "#1A1A1A",
+      rotation: 0,
+      textTransform: "uppercase",
+      letterSpacing: -2,
+      lineHeight: 0.9,
+    },
+    {
+      id: "side-text",
+      content: "AT RIVERANTUM 1995",
+      x: 2,
+      y: 50,
+      fontSize: 11,
+      fontWeight: 500,
+      color: "#4A4A4A",
+      rotation: -90,
+      textTransform: "uppercase",
+      letterSpacing: 4,
+    },
+    {
+      id: "collection-badge",
+      content: "COLLECTION",
+      x: 25,
+      y: 62,
+      fontSize: 10,
+      fontWeight: 700,
+      color: "#FFFFFF",
+      rotation: 0,
+      textTransform: "uppercase",
+      letterSpacing: 2,
+    },
+    {
+      id: "offer-text",
+      content: "SUGAR\nFREE",
+      x: 18,
+      y: 55,
+      fontSize: 14,
+      fontWeight: 800,
+      color: "#1A1A1A",
+      rotation: 0,
+      textTransform: "uppercase",
+    },
+    {
+      id: "description",
+      content: "Lorem Ipsum\nDolor",
+      x: 62,
+      y: 45,
+      fontSize: 13,
+      fontWeight: 400,
+      color: "#6B6B6B",
+      rotation: 0,
+    },
+    {
+      id: "date-info",
+      content: "MAY 14 | START AT 8 PM",
+      x: 80,
+      y: 30,
+      fontSize: 10,
+      fontWeight: 500,
+      color: "#4A4A4A",
+      rotation: 90,
+      textTransform: "uppercase",
+      letterSpacing: 3,
+    },
+    {
+      id: "event-name",
+      content: "FASHION\nSHOW",
+      x: 60,
+      y: 80,
+      fontSize: 18,
+      fontWeight: 800,
+      color: "#1A1A1A",
+      rotation: 0,
+      textTransform: "uppercase",
+    },
+    {
+      id: "website",
+      content: "WWW.YOURWEBSITE.COM",
+      x: 25,
+      y: 93,
+      fontSize: 9,
+      fontWeight: 400,
+      color: "#999999",
+      rotation: 0,
+      letterSpacing: 2,
+    },
+  ],
+  socialMedia: {
+    show: true,
+    x: 80,
+    y: 93,
+    icons: ["facebook", "instagram", "twitter"],
+    color: "#999999",
+    size: 14,
+  },
+};
+
+// ============================================================
+// TEMPLATE 2: Fashion Sale Poster (Dark/Grayscale)
+// ============================================================
+const fashionSalePoster: PosterTemplate = {
+  id: "fashion-sale",
+  name: "Fashion Sale",
+  category: "poster",
+  canvasWidth: 600,
+  canvasHeight: 850,
+  backgroundColor: "#2A2A2A",
+  shapes: [
+    {
+      type: "circle",
+      x: 30,
+      y: 30,
+      width: 40,
+      height: 40,
+      color: "#404040",
+      opacity: 0.3,
+      border: "1px solid rgba(255,255,255,0.1)",
+    },
+    {
+      type: "circle",
+      x: 32,
+      y: 32,
+      width: 36,
+      height: 36,
+      color: "transparent",
+      opacity: 1,
+      border: "1px solid rgba(255,255,255,0.08)",
+    },
+    {
+      type: "dots",
+      x: 8,
+      y: 12,
+      width: 18,
+      height: 6,
+      color: "#FFFFFF",
+      opacity: 0.15,
+    },
+    {
+      type: "dots",
+      x: 55,
+      y: 55,
+      width: 10,
+      height: 10,
+      color: "#FFFFFF",
+      opacity: 0.12,
+    },
+    {
+      type: "rect",
+      x: 5,
+      y: 72,
+      width: 25,
+      height: 4,
+      color: "#FFFFFF",
+      opacity: 0.08,
+    },
+  ],
+  imageZones: [
+    {
+      id: "main-image",
+      x: 18,
+      y: 10,
+      width: 55,
+      height: 70,
+      placeholder: "Upload Model Photo",
+    },
+  ],
+  textElements: [
+    {
+      id: "special-offer",
+      content: "SPECIAL OFFER",
+      x: 55,
+      y: 4,
+      fontSize: 12,
+      fontWeight: 500,
+      color: "#CCCCCC",
+      rotation: 0,
+      textTransform: "uppercase",
+      letterSpacing: 4,
+    },
+    {
+      id: "disc-text",
+      content: "DISC",
+      x: 8,
+      y: 68,
+      fontSize: 28,
+      fontWeight: 800,
+      color: "#FFFFFF",
+      rotation: 0,
+      textTransform: "uppercase",
+    },
+    {
+      id: "discount-number",
+      content: "30",
+      x: 12,
+      y: 73,
+      fontSize: 100,
+      fontWeight: 900,
+      color: "#FFFFFF",
+      rotation: 0,
+    },
+    {
+      id: "percent-off",
+      content: "%\nOFF",
+      x: 42,
+      y: 73,
+      fontSize: 32,
+      fontWeight: 800,
+      color: "#FFFFFF",
+      rotation: 0,
+      textTransform: "uppercase",
+      lineHeight: 0.95,
+    },
+    {
+      id: "brand-vertical",
+      content: "FASHION",
+      x: 82,
+      y: 25,
+      fontSize: 52,
+      fontWeight: 900,
+      color: "#FFFFFF",
+      rotation: 90,
+      textTransform: "uppercase",
+      letterSpacing: 4,
+      opacity: 0.9,
+    },
+    {
+      id: "sale-vertical",
+      content: "SALE",
+      x: 92,
+      y: 40,
+      fontSize: 48,
+      fontWeight: 900,
+      color: "#888888",
+      rotation: 90,
+      textTransform: "uppercase",
+      letterSpacing: 6,
+      textStroke: "1px rgba(255,255,255,0.3)",
+    },
+    {
+      id: "shop-now",
+      content: "SHOP NOW",
+      x: 8,
+      y: 92,
+      fontSize: 14,
+      fontWeight: 600,
+      color: "#FFFFFF",
+      rotation: 0,
+      textTransform: "uppercase",
+      letterSpacing: 3,
+    },
+    {
+      id: "website",
+      content: "www.yourwebsite.com",
+      x: 30,
+      y: 45,
+      fontSize: 8,
+      fontWeight: 400,
+      color: "#888888",
+      rotation: 0,
+      letterSpacing: 1,
+    },
+  ],
+  socialMedia: {
+    show: true,
+    x: 75,
+    y: 92,
+    icons: ["facebook", "instagram", "twitter"],
+    color: "#888888",
+    size: 14,
+  },
+};
+
+// ============================================================
+// TEMPLATE 3: Modern Sale Poster (Muted Mauve/Cream)
+// ============================================================
+const modernSalePoster: PosterTemplate = {
+  id: "modern-sale",
+  name: "Modern Sale",
+  category: "poster",
+  canvasWidth: 600,
+  canvasHeight: 850,
+  backgroundColor: "#F5EDE8",
+  shapes: [
+    {
+      type: "circle",
+      x: 50,
+      y: 20,
+      width: 30,
+      height: 30,
+      color: "#D4C5B9",
+      opacity: 0.5,
+    },
+    {
+      type: "circle",
+      x: 15,
+      y: 75,
+      width: 18,
+      height: 18,
+      color: "#D4C5B9",
+      opacity: 0.4,
+    },
+    {
+      type: "rect",
+      x: 0,
+      y: 85,
+      width: 100,
+      height: 15,
+      color: "#8B6F7E",
+      opacity: 0.85,
+    },
+    {
+      type: "rect",
+      x: 5,
+      y: 15,
+      width: 30,
+      height: 3,
+      color: "#8B6F7E",
+      opacity: 0.6,
+    },
+    {
+      type: "rect",
+      x: 60,
+      y: 60,
+      width: 35,
+      height: 25,
+      color: "#8B6F7E",
+      opacity: 0.3,
+    },
+    {
+      type: "dots",
+      x: 75,
+      y: 70,
+      width: 8,
+      height: 8,
+      color: "#F5EDE8",
+      opacity: 0.5,
+    },
+    {
+      type: "chevrons",
+      x: 5,
+      y: 70,
+      width: 10,
+      height: 10,
+      color: "#8B6F7E",
+      opacity: 0.5,
+    },
+    {
+      type: "triangle",
+      x: 70,
+      y: 68,
+      width: 6,
+      height: 8,
+      color: "#8B6F7E",
+      opacity: 0.3,
+    },
+  ],
+  imageZones: [
+    {
+      id: "main-image",
+      x: 18,
+      y: 18,
+      width: 55,
+      height: 60,
+      placeholder: "Upload Model Photo",
+    },
+  ],
+  textElements: [
+    {
+      id: "discount-badge",
+      content: "50%\nOFF",
+      x: 8,
+      y: 20,
+      fontSize: 28,
+      fontWeight: 800,
+      color: "#3D3D3D",
+      rotation: 0,
+      textTransform: "uppercase",
+      lineHeight: 1,
+    },
+    {
+      id: "brand-split-1",
+      content: "FA\nSHI\nON",
+      x: 68,
+      y: 15,
+      fontSize: 46,
+      fontWeight: 900,
+      color: "#3D3D3D",
+      rotation: 0,
+      textTransform: "uppercase",
+      lineHeight: 0.95,
+      textStroke: "1px #3D3D3D",
+      opacity: 0.8,
+    },
+    {
+      id: "sale-main",
+      content: "SALE",
+      x: 15,
+      y: 88,
+      fontSize: 72,
+      fontWeight: 900,
+      color: "#2D2D2D",
+      rotation: 0,
+      textTransform: "uppercase",
+      letterSpacing: 8,
+    },
+    {
+      id: "website-side",
+      content: "WEBSITE.COM",
+      x: 92,
+      y: 50,
+      fontSize: 10,
+      fontWeight: 500,
+      color: "#8B6F7E",
+      rotation: 90,
+      textTransform: "uppercase",
+      letterSpacing: 3,
+    },
+  ],
+  socialMedia: {
+    show: true,
+    x: 70,
+    y: 95,
+    icons: ["facebook", "instagram"],
+    color: "#F5EDE8",
+    size: 14,
+  },
+};
+
+// ============================================================
+// TEMPLATE 4: Social Banner (Landscape Pink)
+// ============================================================
+const socialBanner: PosterTemplate = {
+  id: "social-banner",
+  name: "Social Banner",
+  category: "banner",
+  canvasWidth: 900,
+  canvasHeight: 350,
+  backgroundColor: "#E8D5CE",
+  shapes: [
+    {
+      type: "circle",
+      x: 42,
+      y: 15,
+      width: 45,
+      height: 85,
+      color: "#D4BFB5",
+      opacity: 0.5,
+    },
+    {
+      type: "circle",
+      x: 10,
+      y: 65,
+      width: 18,
+      height: 45,
+      color: "#D4BFB5",
+      opacity: 0.3,
+    },
+    {
+      type: "circle",
+      x: 80,
+      y: 5,
+      width: 12,
+      height: 30,
+      color: "#D4BFB5",
+      opacity: 0.25,
+    },
+    {
+      type: "dots",
+      x: 55,
+      y: 8,
+      width: 8,
+      height: 20,
+      color: "#C5A89A",
+      opacity: 0.3,
+    },
+    {
+      type: "chevrons",
+      x: 28,
+      y: 75,
+      width: 8,
+      height: 20,
+      color: "#C5A89A",
+      opacity: 0.4,
+    },
+    {
+      type: "rect",
+      x: 3,
+      y: 72,
+      width: 22,
+      height: 10,
+      color: "#C5A89A",
+      opacity: 0.5,
+      borderRadius: 4,
+    },
+  ],
+  imageZones: [
+    {
+      id: "main-image",
+      x: 35,
+      y: 5,
+      width: 30,
+      height: 90,
+      placeholder: "Upload Photo",
+    },
+  ],
+  textElements: [
+    {
+      id: "new-arrivals",
+      content: "NEW ARRIVALS",
+      x: 4,
+      y: 12,
+      fontSize: 12,
+      fontWeight: 500,
+      color: "#6B5B54",
+      rotation: 0,
+      textTransform: "uppercase",
+      letterSpacing: 3,
+    },
+    {
+      id: "headline-1",
+      content: "JUST",
+      x: 4,
+      y: 25,
+      fontSize: 48,
+      fontWeight: 900,
+      color: "#2D2420",
+      rotation: 0,
+      textTransform: "uppercase",
+    },
+    {
+      id: "headline-2",
+      content: "FOR",
+      x: 4,
+      y: 45,
+      fontSize: 48,
+      fontWeight: 900,
+      color: "#2D2420",
+      rotation: 0,
+      textTransform: "uppercase",
+    },
+    {
+      id: "headline-3",
+      content: "you",
+      x: 4,
+      y: 62,
+      fontSize: 42,
+      fontWeight: 400,
+      color: "#2D2420",
+      rotation: -5,
+      fontFamily: "'Georgia', serif",
+    },
+    {
+      id: "website-url",
+      content: "www.yourwebsite.here",
+      x: 5,
+      y: 78,
+      fontSize: 9,
+      fontWeight: 400,
+      color: "#FFFFFF",
+      rotation: 0,
+      letterSpacing: 1,
+    },
+    {
+      id: "follow-cta",
+      content: "Follow Us Now",
+      x: 68,
+      y: 10,
+      fontSize: 11,
+      fontWeight: 600,
+      color: "#FFFFFF",
+      rotation: 0,
+    },
+    {
+      id: "disc-label",
+      content: "DISC UP TO",
+      x: 70,
+      y: 30,
+      fontSize: 14,
+      fontWeight: 500,
+      color: "#6B5B54",
+      rotation: 0,
+      textTransform: "uppercase",
+      letterSpacing: 2,
+    },
+    {
+      id: "discount-num",
+      content: "50%",
+      x: 70,
+      y: 42,
+      fontSize: 72,
+      fontWeight: 900,
+      color: "#6B5B54",
+      rotation: 0,
+    },
+    {
+      id: "off-text",
+      content: "OFF",
+      x: 70,
+      y: 72,
+      fontSize: 42,
+      fontWeight: 900,
+      color: "#6B5B54",
+      rotation: 0,
+      textTransform: "uppercase",
+    },
+  ],
+  socialMedia: {
+    show: true,
+    x: 88,
+    y: 10,
+    icons: ["facebook", "instagram", "twitter", "youtube"],
+    color: "#6B5B54",
+    size: 16,
+  },
+};
+
+// ============================================================
+// TEMPLATE 5: Minimal Promo Poster
+// ============================================================
+const minimalPromoPoster: PosterTemplate = {
+  id: "minimal-promo",
+  name: "Minimal Promo",
+  category: "poster",
+  canvasWidth: 600,
+  canvasHeight: 850,
+  backgroundColor: "#1A1A2E",
+  backgroundGradient: "linear-gradient(135deg, #1A1A2E 0%, #16213E 50%, #0F3460 100%)",
+  shapes: [
+    {
+      type: "circle",
+      x: 60,
+      y: 10,
+      width: 35,
+      height: 35,
+      color: "#E94560",
+      opacity: 0.1,
+    },
+    {
+      type: "circle",
+      x: -5,
+      y: 70,
+      width: 25,
+      height: 25,
+      color: "#E94560",
+      opacity: 0.08,
+    },
+    {
+      type: "rect",
+      x: 8,
+      y: 78,
+      width: 84,
+      height: 0.3,
+      color: "#FFFFFF",
+      opacity: 0.15,
+    },
+    {
+      type: "dots",
+      x: 80,
+      y: 80,
+      width: 10,
+      height: 10,
+      color: "#E94560",
+      opacity: 0.2,
+    },
+  ],
+  imageZones: [
+    {
+      id: "main-image",
+      x: 15,
+      y: 12,
+      width: 65,
+      height: 55,
+      placeholder: "Upload Product Photo",
+    },
+  ],
+  textElements: [
+    {
+      id: "tag-line",
+      content: "EXCLUSIVE DEAL",
+      x: 8,
+      y: 5,
+      fontSize: 11,
+      fontWeight: 600,
+      color: "#E94560",
+      rotation: 0,
+      textTransform: "uppercase",
+      letterSpacing: 5,
+    },
+    {
+      id: "headline",
+      content: "NEW\nARRIVAL",
+      x: 8,
+      y: 70,
+      fontSize: 52,
+      fontWeight: 900,
+      color: "#FFFFFF",
+      rotation: 0,
+      textTransform: "uppercase",
+      lineHeight: 0.95,
+      letterSpacing: 3,
+    },
+    {
+      id: "discount",
+      content: "UP TO 40% OFF",
+      x: 8,
+      y: 87,
+      fontSize: 16,
+      fontWeight: 600,
+      color: "#E94560",
+      rotation: 0,
+      textTransform: "uppercase",
+      letterSpacing: 3,
+    },
+    {
+      id: "cta",
+      content: "SHOP NOW →",
+      x: 8,
+      y: 93,
+      fontSize: 12,
+      fontWeight: 500,
+      color: "#FFFFFF",
+      rotation: 0,
+      textTransform: "uppercase",
+      letterSpacing: 4,
+      opacity: 0.7,
+    },
+  ],
+  socialMedia: {
+    show: true,
+    x: 75,
+    y: 93,
+    icons: ["instagram", "facebook"],
+    color: "#FFFFFF",
+    size: 14,
+  },
+};
+
+// ============================================================
+// TEMPLATE 6: Bold Gradient Banner
+// ============================================================
+const boldGradientBanner: PosterTemplate = {
+  id: "bold-gradient",
+  name: "Bold Gradient",
+  category: "banner",
+  canvasWidth: 900,
+  canvasHeight: 350,
+  backgroundColor: "#0D0D0D",
+  backgroundGradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+  shapes: [
+    {
+      type: "circle",
+      x: 75,
+      y: -10,
+      width: 30,
+      height: 80,
+      color: "#FFFFFF",
+      opacity: 0.08,
+    },
+    {
+      type: "circle",
+      x: -5,
+      y: 50,
+      width: 20,
+      height: 55,
+      color: "#FFFFFF",
+      opacity: 0.06,
+    },
+    {
+      type: "rect",
+      x: 0,
+      y: 0,
+      width: 100,
+      height: 100,
+      color: "transparent",
+      opacity: 1,
+      border: "2px solid rgba(255,255,255,0.1)",
+    },
+  ],
+  imageZones: [
+    {
+      id: "main-image",
+      x: 55,
+      y: 5,
+      width: 40,
+      height: 90,
+      placeholder: "Upload Photo",
+    },
+  ],
+  textElements: [
+    {
+      id: "mega-label",
+      content: "MEGA",
+      x: 5,
+      y: 10,
+      fontSize: 14,
+      fontWeight: 700,
+      color: "#FFD700",
+      rotation: 0,
+      textTransform: "uppercase",
+      letterSpacing: 8,
+    },
+    {
+      id: "sale-text",
+      content: "SALE",
+      x: 5,
+      y: 22,
+      fontSize: 80,
+      fontWeight: 900,
+      color: "#FFFFFF",
+      rotation: 0,
+      textTransform: "uppercase",
+      letterSpacing: 6,
+    },
+    {
+      id: "discount-text",
+      content: "UP TO 70% OFF",
+      x: 5,
+      y: 60,
+      fontSize: 18,
+      fontWeight: 600,
+      color: "#FFD700",
+      rotation: 0,
+      textTransform: "uppercase",
+      letterSpacing: 3,
+    },
+    {
+      id: "cta-btn",
+      content: "SHOP NOW",
+      x: 5,
+      y: 78,
+      fontSize: 14,
+      fontWeight: 700,
+      color: "#FFFFFF",
+      rotation: 0,
+      textTransform: "uppercase",
+      letterSpacing: 4,
+    },
+  ],
+  socialMedia: {
+    show: false,
+    x: 0,
+    y: 0,
+    icons: [],
+    color: "",
+    size: 0,
+  },
+};
+
+export const templates: PosterTemplate[] = [
+  fashionShowPoster,
+  fashionSalePoster,
+  modernSalePoster,
+  socialBanner,
+  minimalPromoPoster,
+  boldGradientBanner,
+];
