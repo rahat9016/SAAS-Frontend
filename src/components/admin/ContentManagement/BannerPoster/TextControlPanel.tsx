@@ -173,6 +173,23 @@ export default function TextControlPanel({
         />
       </div>
 
+      {/* Opacity */}
+      <div>
+        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide flex items-center gap-1">
+          Opacity: {Math.round((element.opacity ?? 1) * 100)}%
+        </label>
+        <input
+          type="range"
+          min={0}
+          max={100}
+          value={Math.round((element.opacity ?? 1) * 100)}
+          onChange={(e) =>
+            onUpdate({ opacity: parseInt(e.target.value) / 100 })
+          }
+          className="w-full mt-1 h-1.5 appearance-none bg-gray-200 rounded-full outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:cursor-pointer"
+        />
+      </div>
+
       {/* Text Transform */}
       <div>
         <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">

@@ -15,6 +15,7 @@ import {
   ZoomOut,
   Maximize,
   Move,
+  Tag,
 } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import type {
@@ -109,6 +110,14 @@ export default function DesignerCanvas({
   const [imagePositions, setImagePositions] = useState<Record<string, { x: number; y: number }>>({});
   const [imageScales, setImageScales] = useState<Record<string, number>>({});
   const [imageFitModes, setImageFitModes] = useState<Record<string, "cover" | "contain" | "fill">>({});
+
+  // Brand overlay state
+  const [brandText, setBrandText] = useState("YOUR BRAND");
+  const [brandActive, setBrandActive] = useState(false);
+  const [brandPosition, setBrandPosition] = useState({ x: 50, y: 50 });
+  const [brandFontSize, setBrandFontSize] = useState(48);
+  const [brandColor, setBrandColor] = useState("#000000");
+  const [brandOpacity, setBrandOpacity] = useState(0.15);
 
   const handleImageUpload = useCallback(
     (zoneId: string, e: React.ChangeEvent<HTMLInputElement>) => {
@@ -211,6 +220,39 @@ export default function DesignerCanvas({
       window.addEventListener("mouseup", handleUp);
     },
     [imagePositions]
+  );
+
+  const handleBrandDragStart = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      e.preventDefault();
+      setSelectedTextId(null);
+      setSelectedZoneId(null);
+      const startX = e.clientX;
+      const startY = e.clientY;
+      const startPos = { ...brandPosition };
+
+      const handleMove = (moveE: MouseEvent) => {
+        const parent = canvasRef.current;
+        if (!parent) return;
+        const rect = parent.getBoundingClientRect();
+        const dx = ((moveE.clientX - startX) / rect.width) * 100;
+        const dy = ((moveE.clientY - startY) / rect.height) * 100;
+        setBrandPosition({
+          x: Math.max(0, Math.min(95, startPos.x + dx)),
+          y: Math.max(0, Math.min(95, startPos.y + dy)),
+        });
+      };
+
+      const handleUp = () => {
+        window.removeEventListener("mousemove", handleMove);
+        window.removeEventListener("mouseup", handleUp);
+      };
+
+      window.addEventListener("mousemove", handleMove);
+      window.addEventListener("mouseup", handleUp);
+    },
+    [brandPosition]
   );
 
   const handleResetTemplate = useCallback(() => {
@@ -470,6 +512,31 @@ export default function DesignerCanvas({
                 ))}
               </div>
             )}
+
+            {/* Brand Overlay */}
+            {brandActive && brandText && (
+              <div
+                className="absolute cursor-move select-none"
+                style={{
+                  left: `${brandPosition.x}%`,
+                  top: `${brandPosition.y}%`,
+                  transform: "translate(-50%, -50%)",
+                  opacity: brandOpacity,
+                  fontSize: `${brandFontSize * canvasScale}px`,
+                  fontWeight: 900,
+                  color: brandColor,
+                  letterSpacing: `${4 * canvasScale}px`,
+                  textTransform: "uppercase" as const,
+                  whiteSpace: "nowrap" as const,
+                  pointerEvents: "auto" as const,
+                  zIndex: 60,
+                  userSelect: "none" as const,
+                }}
+                onMouseDown={handleBrandDragStart}
+              >
+                {brandText}
+              </div>
+            )}
           </div>
         </div>
 
@@ -682,6 +749,102 @@ export default function DesignerCanvas({
                         </div>
                       </>
                     )}
+
+                    {/* Brand Overlay Controls */}
+                    <div className="h-px bg-gray-100 my-1" />
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-xs font-bold text-gray-700 flex items-center gap-1.5">
+                          <Tag className="h-3.5 w-3.5 text-primary" />
+                          Brand Overlay
+                        </h4>
+                        <button
+                          onClick={() => setBrandActive(!brandActive)}
+                          className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors cursor-pointer ${
+                            brandActive ? "bg-green-500" : "bg-gray-300"
+                          }`}
+                        >
+                          <span
+                            className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform shadow-sm ${
+                              brandActive ? "translate-x-4.5" : "translate-x-0.5"
+                            }`}
+                          />
+                        </button>
+                      </div>
+
+                      {brandActive && (
+                        <div className="space-y-3">
+                          {/* Brand Text */}
+                          <div>
+                            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                              Brand Name
+                            </label>
+                            <input
+                              type="text"
+                              value={brandText}
+                              onChange={(e) => setBrandText(e.target.value)}
+                              className="w-full mt-1 px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                              placeholder="Enter brand name"
+                            />
+                          </div>
+
+                          {/* Font Size */}
+                          <div>
+                            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                              Size: {brandFontSize}px
+                            </label>
+                            <input
+                              type="range"
+                              min={16}
+                              max={120}
+                              value={brandFontSize}
+                              onChange={(e) => setBrandFontSize(parseInt(e.target.value))}
+                              className="w-full mt-1 h-1.5 appearance-none bg-gray-200 rounded-full outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:cursor-pointer"
+                            />
+                          </div>
+
+                          {/* Color */}
+                          <div>
+                            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                              Color
+                            </label>
+                            <div className="flex items-center gap-2 mt-1">
+                              <input
+                                type="color"
+                                value={brandColor}
+                                onChange={(e) => setBrandColor(e.target.value)}
+                                className="w-8 h-8 rounded-lg border border-gray-200 cursor-pointer appearance-none p-0"
+                              />
+                              <input
+                                type="text"
+                                value={brandColor}
+                                onChange={(e) => setBrandColor(e.target.value)}
+                                className="flex-1 px-3 py-1.5 text-xs font-mono border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/30"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Opacity */}
+                          <div>
+                            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                              Opacity: {Math.round(brandOpacity * 100)}%
+                            </label>
+                            <input
+                              type="range"
+                              min={5}
+                              max={100}
+                              value={Math.round(brandOpacity * 100)}
+                              onChange={(e) => setBrandOpacity(parseInt(e.target.value) / 100)}
+                              className="w-full mt-1 h-1.5 appearance-none bg-gray-200 rounded-full outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:cursor-pointer"
+                            />
+                          </div>
+
+                          <p className="text-[10px] text-gray-400 text-center">
+                            Drag the brand text on the canvas to reposition
+                          </p>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
