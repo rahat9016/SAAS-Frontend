@@ -9,11 +9,13 @@ import ProductVariantsSection from "./ProductVariantsSection";
 interface ProductFormProps {
   onSubmit: (data: ProductFormValues) => void;
   isPending?: boolean;
+  mode?: "create" | "edit";
 }
 
 export default function ProductForm({
   onSubmit,
   isPending = false,
+  mode = "create",
 }: ProductFormProps) {
   const { handleSubmit, watch } = useFormContext<ProductFormValues>();
   const hasVariants = watch("hasVariants");
@@ -28,8 +30,12 @@ export default function ProductForm({
 
       {/* Submit */}
       <div className="flex items-center justify-end">
-        <SubmitButton isLoading={isPending} label="Create Product" />
+        <SubmitButton
+          isLoading={isPending}
+          label={mode === "edit" ? "Update Product" : "Create Product"}
+        />
       </div>
     </form>
   );
 }
+

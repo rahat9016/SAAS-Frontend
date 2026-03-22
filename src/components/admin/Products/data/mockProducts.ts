@@ -68,8 +68,13 @@ export const MOCK_PRODUCT_DETAILS: Record<string, IProductDetail> = {
     id: "prod-1",
     name: "iPhone 15 Pro Max",
     description:
-      "The iPhone 15 Pro Max features a titanium design, A17 Pro chip, and a 48MP camera system with a 5x Telephoto camera.",
-    images: ["/icons/HealthPackages.svg"],
+      "The iPhone 15 Pro Max features a titanium design, A17 Pro chip, and a 48MP camera system with a 5x Telephoto camera. With USB-C connectivity, action button, and the longest optical zoom ever on iPhone.",
+    images: [
+      "/icons/HealthPackages.svg",
+      "/icons/Corporate.svg",
+      "/icons/HeroManagement.svg",
+      "/icons/Categories.svg",
+    ],
     basePrice: 159999,
     discountedPrice: 149999,
     discountType: "fixed",
@@ -83,7 +88,7 @@ export const MOCK_PRODUCT_DETAILS: Record<string, IProductDetail> = {
     variants: [
       {
         id: "var-1",
-        images: ["/icons/HealthPackages.svg"],
+        images: ["/icons/HealthPackages.svg", "/icons/Corporate.svg"],
         sellingPrice: 159999,
         discountedPrice: 149999,
         discountType: "fixed",
@@ -121,8 +126,11 @@ export const MOCK_PRODUCT_DETAILS: Record<string, IProductDetail> = {
     id: "prod-2",
     name: "Nike Air Max 270",
     description:
-      "The Nike Air Max 270 delivers visible cushioning under every step with lifestyle versatility.",
-    images: ["/icons/HealthPackages.svg"],
+      "The Nike Air Max 270 delivers visible cushioning under every step with lifestyle versatility. Featuring a large Air unit for a soft, bouncy ride.",
+    images: [
+      "/icons/HealthPackages.svg",
+      "/icons/Corporate.svg",
+    ],
     basePrice: 12500,
     hasVariants: true,
     stock: 45,
@@ -134,7 +142,7 @@ export const MOCK_PRODUCT_DETAILS: Record<string, IProductDetail> = {
     variants: [
       {
         id: "var-4",
-        images: [],
+        images: ["/icons/HealthPackages.svg"],
         sellingPrice: 12500,
         stockQty: 20,
         attributes: [
@@ -144,7 +152,7 @@ export const MOCK_PRODUCT_DETAILS: Record<string, IProductDetail> = {
       },
       {
         id: "var-5",
-        images: [],
+        images: ["/icons/HealthPackages.svg"],
         sellingPrice: 12500,
         stockQty: 25,
         attributes: [
@@ -158,8 +166,12 @@ export const MOCK_PRODUCT_DETAILS: Record<string, IProductDetail> = {
     id: "prod-5",
     name: "Sony WH-1000XM5",
     description:
-      "Industry-leading noise-canceling headphones with exceptional sound quality and all-day comfort.",
-    images: ["/icons/HealthPackages.svg"],
+      "Industry-leading noise-canceling headphones with exceptional sound quality and all-day comfort. Features Auto NC Optimizer, Speak-to-Chat, and multipoint connection.",
+    images: [
+      "/icons/HealthPackages.svg",
+      "/icons/Corporate.svg",
+      "/icons/HeroManagement.svg",
+    ],
     basePrice: 35000,
     discountedPrice: 29999,
     discountType: "fixed",
