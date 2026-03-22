@@ -1,12 +1,18 @@
-export default function ProductDetailPage({
+import { dummyProducts } from "@/src/data/dummyProducts";
+import ProductDetails from "@/src/components/home/ProductDetails/ProductDetails";
+import { notFound } from "next/navigation";
+
+export default async function ProductDetailPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  return (
-    <div className="container py-8">
-      <h1 className="text-2xl font-semibold">Product Detail</h1>
-      <p className="text-muted-foreground mt-2">Product details will appear here</p>
-    </div>
-  );
+  const { slug } = await params;
+  const product = dummyProducts.find((p) => p.slug === slug);
+
+  if (!product) {
+    notFound();
+  }
+
+  return <ProductDetails product={product} />;
 }
