@@ -30,7 +30,6 @@ export default function HeaderTopBar({
 }: HeaderTopBarProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [showResults, setShowResults] = useState(false);
-  const [isSearching, setIsSearching] = useState(false);
   const debouncedQuery = useDebounce(searchQuery, 400);
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -40,6 +39,10 @@ export default function HeaderTopBar({
   const { userInformation } = useAppSelector((state) => state.auth);
 
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
+  // Derive isSearching from query mismatch — no setState in effect needed
+  const isSearching =
+    searchQuery.length >= 2 && searchQuery !== debouncedQuery;
 
   const searchResults = useMemo(() => {
     if (debouncedQuery.length < 2) return [];
@@ -53,15 +56,6 @@ export default function HeaderTopBar({
       )
       .slice(0, 10);
   }, [debouncedQuery]);
-
-  useEffect(() => {
-    if (searchQuery.length >= 2) {
-      setIsSearching(true);
-      const timer = setTimeout(() => setIsSearching(false), 300);
-      return () => clearTimeout(timer);
-    }
-    setIsSearching(false);
-  }, [searchQuery]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {

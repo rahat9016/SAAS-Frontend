@@ -1,18 +1,9 @@
-import Appointment from "@/public/icons/Appointment.svg";
 import dashboard from "@/public/icons/dashboard.svg";
-import Doctors from "@/public/icons/Doctors.svg";
 import HealthPackages from "@/public/icons/HealthPackages.svg";
-import Specialties from "@/public/icons/Specialities.svg";
 import Categories from "@/public/icons/Categories.svg";
-
-import Blogs from "@/public/icons/Blogs.svg";
-import Career from "@/public/icons/Career.svg";
-import ContactSupport from "@/public/icons/ContactSupport.svg";
-import Membership from "@/public/icons/Membership.svg";
 
 import Corporate from "@/public/icons/Corporate.svg";
 import HeroManagement from "@/public/icons/HeroManagement.svg";
-// import Media from "@/public/icons/Media.svg";
 
 import { StaticImageData } from "next/image";
 export interface MenuItem {
@@ -63,6 +54,15 @@ export function getMenuItems(): MenuItem[] {
       label: "Brands",
       icon: Corporate,
       href: "/admin/brands",
+    },
+    {
+      label: "Product Management",
+      icon: HealthPackages,
+      children: [
+        { label: "Product", href: "/admin/products" },
+        { label: "Attributes", href: "/admin/products/attributes" },
+        { label: "Attribute Values", href: "/admin/products/attribute-values" },
+      ],
     },
     {
       label: "Hero Management",
