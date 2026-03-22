@@ -59,6 +59,14 @@
   transform: scale(1.1);
 }
 
+.wishlistBtnActive {
+  color: #ef4444;
+}
+
+.wishlistBtnActive:hover {
+  color: #dc2626;
+}
+
 /* --- Badges (bottom-left of image) --- */
 .badges {
   position: absolute;

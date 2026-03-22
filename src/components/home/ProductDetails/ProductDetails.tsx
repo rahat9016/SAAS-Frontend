@@ -1,5 +1,8 @@
 "use client";
 
+import { addToCart } from "@/src/lib/redux/features/cart/cartSlice";
+import { toggleWishlist } from "@/src/lib/redux/features/wishlist/wishlistSlice";
+import { useAppDispatch, useAppSelector } from "@/src/lib/redux/hooks";
 import { dummyProducts } from "@/src/data/dummyProducts";
 import { IProduct } from "@/src/types/ecommerce/product";
 import {
@@ -15,7 +18,9 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "react-toastify";
 import styles from "./ProductDetails.module.css";
 
 interface ProductDetailsProps {
@@ -23,6 +28,11 @@ interface ProductDetailsProps {
 }
 
 export default function ProductDetails({ product }: ProductDetailsProps) {
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+  const wishlistIds = useAppSelector((state) => state.wishlist.productIds);
+  const isWishlisted = wishlistIds.includes(product.id);
+
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<"description" | "reviews">(
@@ -268,17 +278,81 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
 
           {/* CTA Buttons */}
           <div className="flex items-center gap-3 mt-2 flex-wrap">
-            <button className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold bg-amber-500 hover:bg-amber-600 text-white transition-colors shadow-md hover:shadow-lg">
+            <button
+              className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold bg-amber-500 hover:bg-amber-600 text-white transition-colors shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={product.stock <= 0}
+              onClick={() => {
+                const primaryImg = product.images.find((img) => img.isPrimary) ?? product.images[0];
+                dispatch(
+                  addToCart({
+                    productId: product.id,
+                    name: product.name,
+                    slug: product.slug,
+                    image: primaryImg?.url ?? "",
+                    price: product.price,
+                    compareAtPrice: product.compareAtPrice,
+                    quantity,
+                    stock: product.stock,
+                  })
+                );
+                router.push("/checkout");
+              }}
+            >
               Buy Now
             </button>
-            <button className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground transition-colors shadow-md hover:shadow-lg">
+            <button
+              className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground transition-colors shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={product.stock <= 0}
+              onClick={() => {
+                const primaryImg = product.images.find((img) => img.isPrimary) ?? product.images[0];
+                dispatch(
+                  addToCart({
+                    productId: product.id,
+                    name: product.name,
+                    slug: product.slug,
+                    image: primaryImg?.url ?? "",
+                    price: product.price,
+                    compareAtPrice: product.compareAtPrice,
+                    quantity,
+                    stock: product.stock,
+                  })
+                );
+                toast.success(`${product.name} added to cart!`);
+              }}
+            >
               <ShoppingCart size={16} />
               Add to Cart
             </button>
-            <button className="flex items-center justify-center w-10 h-10 rounded-lg border border-border text-muted-foreground hover:text-red-500 hover:border-red-300 transition-colors">
-              <Heart size={18} />
+            <button
+              className={`flex items-center justify-center w-10 h-10 rounded-lg border transition-colors ${
+                isWishlisted
+                  ? "border-red-300 text-red-500"
+                  : "border-border text-muted-foreground hover:text-red-500 hover:border-red-300"
+              }`}
+              onClick={() => {
+                dispatch(toggleWishlist(product.id));
+                toast.success(
+                  isWishlisted ? "Removed from wishlist" : "Added to wishlist"
+                );
+              }}
+              aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+            >
+              <Heart size={18} fill={isWishlisted ? "currentColor" : "none"} />
             </button>
-            <button className="flex items-center justify-center w-10 h-10 rounded-lg border border-border text-muted-foreground hover:text-primary hover:border-primary/40 transition-colors">
+            <button
+              className="flex items-center justify-center w-10 h-10 rounded-lg border border-border text-muted-foreground hover:text-primary hover:border-primary/40 transition-colors"
+              onClick={() => {
+                if (navigator.share) {
+                  navigator.share({
+                    title: product.name,
+                    url: window.location.href,
+                  });
+                } else {
+                  navigator.clipboard.writeText(window.location.href);
+                  toast.success("Link copied to clipboard!");
+                }
+              }}
+            >
               <Share2 size={18} />
             </button>
           </div>

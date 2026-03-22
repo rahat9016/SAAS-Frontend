@@ -1,5 +1,7 @@
 "use client";
 
+import { useAppDispatch, useAppSelector } from "@/src/lib/redux/hooks";
+import { toggleWishlist } from "@/src/lib/redux/features/wishlist/wishlistSlice";
 import { IProduct } from "@/src/types/ecommerce/product";
 import { Heart, Truck } from "lucide-react";
 import Image from "next/image";
@@ -11,6 +13,10 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
+  const dispatch = useAppDispatch();
+  const wishlistIds = useAppSelector((state) => state.wishlist.productIds);
+  const isWishlisted = wishlistIds.includes(product.id);
+
   const primaryImage =
     product.images.find((img) => img.isPrimary) ?? product.images[0];
   const hasDiscount =
@@ -38,14 +44,15 @@ export default function ProductCard({ product }: ProductCardProps) {
 
         {/* Wishlist heart – top right */}
         <button
-          className={styles.wishlistBtn}
+          className={`${styles.wishlistBtn} ${isWishlisted ? styles.wishlistBtnActive : ""}`}
           onClick={(e) => {
             e.preventDefault();
-            // TODO: wishlist action
+            e.stopPropagation();
+            dispatch(toggleWishlist(product.id));
           }}
-          aria-label="Add to wishlist"
+          aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
         >
-          <Heart size={16} />
+          <Heart size={16} fill={isWishlisted ? "currentColor" : "none"} />
         </button>
 
         {/* Badges – bottom left */}
