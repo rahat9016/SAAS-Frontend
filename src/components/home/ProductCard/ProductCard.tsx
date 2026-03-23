@@ -57,13 +57,16 @@ export default function ProductCard({ product }: ProductCardProps) {
 
         {/* Badges – bottom left */}
         <div className={styles.badges}>
+          {product.isNewArrival && (
+            <span className={styles.badgeNew}>New</span>
+          )}
           {hasDiscount && (
             <>
               <span className={styles.badgeDiscount}>{discountPercent}%</span>
               <span className={styles.badgeDeal}>Deal</span>
             </>
           )}
-          {product.isFeatured && (
+          {product.freeShipping && (
             <span className={styles.badgeFreeDelivery}>
               <Truck size={12} strokeWidth={2.5} />
               Free Delivery

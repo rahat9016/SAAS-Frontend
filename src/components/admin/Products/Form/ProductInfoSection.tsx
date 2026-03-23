@@ -153,12 +153,17 @@ export default function ProductInfoSection() {
           </div>
         )}
 
-        {/* Status */}
-        <div className="pt-2">
+        {/* Status & New Arrival toggles */}
+        <div className="pt-2 flex flex-col gap-3">
           <ControlledSwitchField
             name="status"
             label="Active"
             description="Enable or disable this product"
+          />
+          <ControlledSwitchField
+            name="isNewArrival"
+            label="New Arrival"
+            description="Mark this product as a new arrival to feature it on the homepage"
           />
         </div>
       </div>

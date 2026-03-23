@@ -1,5 +1,5 @@
 /* ================================
-   Cart Page – Scoped Styles
+   Cart Page – Block/Section Design
 ================================= */
 
 .page {
@@ -15,6 +15,7 @@
 @media (min-width: 1024px) {
   .grid {
     grid-template-columns: 1fr 380px;
+    align-items: start;
   }
 }
 
@@ -33,20 +34,95 @@
 }
 
 .itemCount {
-  font-size: 0.875rem;
+  font-size: 0.82rem;
   color: var(--muted-foreground);
+  margin-top: 0.15rem;
+  display: block;
 }
 
-/* --- Cart Item --- */
-.cartItem {
+.clearAllBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  color: var(--muted-foreground);
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.clearAllBtn:hover {
+  color: #ef4444;
+  border-color: #ef4444;
+}
+
+/* --- Section Header --- */
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--foreground);
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--primary);
+  margin-bottom: 1rem;
+}
+
+/* --- Items Section --- */
+.itemsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.itemsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+/* --- Item Card (Block) --- */
+.itemCard {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--card);
+  overflow: hidden;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.itemCard:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  border-color: var(--primary)/20%;
+}
+
+.itemNumber {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1.6rem;
+  height: 1.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-bottom-right-radius: 0.5rem;
+  z-index: 1;
+}
+
+.itemContent {
   display: flex;
   gap: 1rem;
-  padding: 1.25rem 0;
-  border-bottom: 1px solid var(--border);
-}
-
-.cartItem:last-child {
-  border-bottom: none;
+  padding: 1.25rem;
+  padding-left: 1.5rem;
 }
 
 .itemImage {
@@ -63,7 +139,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.4rem;
 }
 
 .itemName {
@@ -75,10 +151,31 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  transition: color 0.2s;
 }
 
 .itemName:hover {
   color: var(--primary);
+}
+
+/* --- Attribute Tags --- */
+.attributeTags {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.attributeTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.68rem;
+  font-weight: 500;
+  padding: 0.2rem 0.55rem;
+  border-radius: 1rem;
+  background: var(--primary)/8%;
+  color: var(--primary);
+  border: 1px solid var(--primary)/15%;
 }
 
 .itemVariant {
@@ -90,7 +187,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-top: 0.25rem;
+  margin-top: 0.15rem;
 }
 
 .itemPrice {
@@ -108,8 +205,17 @@
 .itemActions {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 1rem;
   margin-top: auto;
+  padding-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.itemSubtotal {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-left: auto;
 }
 
 /* --- Quantity Picker --- */
@@ -158,37 +264,103 @@
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   color: var(--muted-foreground);
   background: none;
   border: none;
   cursor: pointer;
   transition: color 0.2s;
+  padding: 0.2rem 0;
 }
 
 .removeBtn:hover {
   color: #ef4444;
 }
 
-/* --- Summary Card --- */
-.summaryCard {
+/* --- Shipping Banner --- */
+.shippingBanner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  background: #f0fdf4;
+  color: #16a34a;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: 1px solid #dcfce7;
+}
+
+/* --- Per-item Free Shipping Badge --- */
+.freeShippingBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #16a34a;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 1rem;
+  padding: 0.2rem 0.6rem;
+  margin-top: 0.1rem;
+  width: fit-content;
+}
+
+/* --- Summary Section --- */
+.summarySection {
   position: sticky;
   top: 8rem;
+}
+
+.summaryCard {
   border: 1px solid var(--border);
   border-radius: 0.75rem;
   padding: 1.5rem;
   background: var(--card);
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1rem;
 }
 
-.summaryTitle {
-  font-size: 1rem;
-  font-weight: 700;
+.summaryRows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+}
+
+.summaryLabel {
+  color: var(--muted-foreground);
+}
+
+.summaryValue {
+  font-weight: 500;
   color: var(--foreground);
 }
 
+.summaryDivider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 0.25rem 0;
+}
+
+.summaryTotal {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.summaryTotalValue {
+  color: var(--primary);
+}
+
+/* --- Coupon --- */
 .couponRow {
   display: flex;
   gap: 0.5rem;
@@ -249,42 +421,14 @@
   font-weight: 600;
 }
 
-.summaryRow {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.875rem;
-}
-
-.summaryLabel {
-  color: var(--muted-foreground);
-}
-
-.summaryValue {
-  font-weight: 500;
-  color: var(--foreground);
-}
-
-.summaryDivider {
-  border: none;
-  border-top: 1px solid var(--border);
-}
-
-.summaryTotal {
-  font-size: 1.05rem;
-  font-weight: 700;
-}
-
-.summaryTotalValue {
-  color: var(--primary);
-}
-
+/* --- CTA Buttons --- */
 .checkoutBtn {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   width: 100%;
-  padding: 0.75rem;
+  padding: 0.8rem;
   border: none;
   border-radius: 0.5rem;
   font-size: 0.9rem;
@@ -293,6 +437,7 @@
   color: var(--primary-foreground);
   cursor: pointer;
   transition: opacity 0.2s, transform 0.1s;
+  text-decoration: none;
 }
 
 .checkoutBtn:hover {
@@ -308,6 +453,7 @@
   font-size: 0.82rem;
   color: var(--primary);
   text-decoration: underline;
+  display: block;
 }
 
 /* --- Empty Cart --- */
@@ -361,4 +507,27 @@
 
 .emptyBtn:hover {
   opacity: 0.9;
+}
+
+/* --- Responsive --- */
+@media (max-width: 640px) {
+  .itemContent {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .itemImage {
+    width: 100%;
+    height: 160px;
+  }
+
+  .itemActions {
+    gap: 0.5rem;
+  }
+
+  .itemSubtotal {
+    margin-left: 0;
+    order: -1;
+    width: 100%;
+  }
 }

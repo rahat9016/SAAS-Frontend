@@ -14,6 +14,7 @@ export interface IProduct {
   sub_category_id?: string;
   brand_id?: string;
   status: boolean;
+  isNewArrival: boolean;
 }
 
 export interface IProductAttribute {
@@ -75,6 +76,7 @@ export interface ProductFormValues {
   discountType: "percentage" | "fixed";
   stock: number | "";
   status: boolean;
+  isNewArrival: boolean;
   variants: VariantFormBlock[];
 }
 
@@ -88,6 +90,7 @@ export interface IProductListItem {
   stock: number;
   status: boolean;
   hasVariants: boolean;
+  isNewArrival: boolean;
   actions?: string;
 }
 
@@ -105,6 +108,7 @@ export interface IProductDetail {
   subCategory?: string;
   brand?: string;
   status: boolean;
+  isNewArrival: boolean;
   variants?: IProductVariantDetail[];
   createdAt: string;
 }

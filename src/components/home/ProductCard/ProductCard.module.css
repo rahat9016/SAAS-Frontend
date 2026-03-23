@@ -108,6 +108,17 @@
   color: var(--background);
 }
 
+.badgeNew {
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.2rem;
+  background: linear-gradient(135deg, #7c3aed, #2563eb);
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
 .badgeFreeDelivery {
   display: flex;
   align-items: center;

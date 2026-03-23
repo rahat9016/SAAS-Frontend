@@ -43,6 +43,7 @@ export const productSchema = Yup.object({
   brandId: Yup.string().default(""),
   hasVariants: Yup.boolean().default(false),
   status: Yup.boolean().default(true),
+  isNewArrival: Yup.boolean().default(false),
 
   // visible when hasVariants === false
   basePrice: Yup.number()

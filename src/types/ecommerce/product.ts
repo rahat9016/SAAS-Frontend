@@ -21,6 +21,27 @@ export interface IProductVariant {
   image?: IProductImage;
 }
 
+export interface IReview {
+  id: string;
+  author: string;
+  rating: number;
+  title: string;
+  comment: string;
+  date: string;
+  verified?: boolean;
+  helpful?: number;
+}
+
+export interface IQuestion {
+  id: string;
+  author: string;
+  question: string;
+  answer?: string;
+  answeredBy?: string;
+  date: string;
+  answerDate?: string;
+}
+
 export interface IProduct {
   id: string;
   name: string;
@@ -41,8 +62,12 @@ export interface IProduct {
   totalReviews: number;
   isFeatured: boolean;
   isActive: boolean;
+  isNewArrival?: boolean;
   tags?: string[];
+  freeShipping?: boolean;
   specifications?: Record<string, string>;
+  reviews?: IReview[];
+  questions?: IQuestion[];
   createdAt: string;
   updatedAt: string;
 }

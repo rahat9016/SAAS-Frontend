@@ -24,6 +24,7 @@ export default function CreateProduct() {
       discountType: "fixed",
       stock: "" as unknown as number,
       status: true,
+      isNewArrival: false,
       variants: [],
     },
   });

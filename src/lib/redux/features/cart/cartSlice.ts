@@ -1,48 +1,57 @@
 "use client";
 
 import { ICartItem } from "@/src/types/ecommerce/cart";
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
+import { getCartData, saveCartData } from "@/src/lib/indexedDB";
 
 interface CartState {
   items: ICartItem[];
   couponCode: string | null;
   couponDiscount: number;
+  initialized: boolean;
 }
 
-const getInitialState = (): CartState => {
-  if (typeof window !== "undefined") {
-    const saved = localStorage.getItem("cart");
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {
-        // ignore corrupted data
-      }
-    }
-  }
-  return {
-    items: [],
-    couponCode: null,
-    couponDiscount: 0,
-  };
+const initialState: CartState = {
+  items: [],
+  couponCode: null,
+  couponDiscount: 0,
+  initialized: false,
 };
+
+// Load cart from IndexedDB
+export const initCart = createAsyncThunk("cart/init", async () => {
+  const data = await getCartData<CartState>("cartState");
+  return data ?? null;
+});
 
 const persistCart = (state: CartState) => {
   if (typeof window !== "undefined") {
-    localStorage.setItem("cart", JSON.stringify(state));
+    saveCartData("cartState", {
+      items: state.items,
+      couponCode: state.couponCode,
+      couponDiscount: state.couponDiscount,
+    });
   }
+};
+
+// Helper to build a unique key for matching cart items by attributes
+const itemKey = (item: { productId: string; selectedAttributes?: Record<string, string> }) => {
+  const attrs = item.selectedAttributes
+    ? Object.entries(item.selectedAttributes)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([k, v]) => `${k}:${v}`)
+        .join("|")
+    : "";
+  return `${item.productId}__${attrs}`;
 };
 
 const cartSlice = createSlice({
   name: "cart",
-  initialState: getInitialState(),
+  initialState,
   reducers: {
     addToCart(state, action: PayloadAction<ICartItem>) {
-      const existing = state.items.find(
-        (item) =>
-          item.productId === action.payload.productId &&
-          item.variantId === action.payload.variantId
-      );
+      const newKey = itemKey(action.payload);
+      const existing = state.items.find((item) => itemKey(item) === newKey);
 
       if (existing) {
         const newQty = existing.quantity + action.payload.quantity;
@@ -55,15 +64,10 @@ const cartSlice = createSlice({
 
     removeFromCart(
       state,
-      action: PayloadAction<{ productId: string; variantId?: string }>
+      action: PayloadAction<{ productId: string; selectedAttributes?: Record<string, string> }>
     ) {
-      state.items = state.items.filter(
-        (item) =>
-          !(
-            item.productId === action.payload.productId &&
-            item.variantId === action.payload.variantId
-          )
-      );
+      const removeKey = itemKey(action.payload);
+      state.items = state.items.filter((item) => itemKey(item) !== removeKey);
       persistCart(state);
     },
 
@@ -71,15 +75,12 @@ const cartSlice = createSlice({
       state,
       action: PayloadAction<{
         productId: string;
-        variantId?: string;
+        selectedAttributes?: Record<string, string>;
         quantity: number;
       }>
     ) {
-      const item = state.items.find(
-        (item) =>
-          item.productId === action.payload.productId &&
-          item.variantId === action.payload.variantId
-      );
+      const targetKey = itemKey(action.payload);
+      const item = state.items.find((item) => itemKey(item) === targetKey);
       if (item) {
         item.quantity = Math.max(1, Math.min(action.payload.quantity, item.stock));
       }
@@ -107,6 +108,19 @@ const cartSlice = createSlice({
       state.couponDiscount = 0;
       persistCart(state);
     },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(initCart.fulfilled, (state, action) => {
+      if (action.payload) {
+        state.items = action.payload.items ?? [];
+        state.couponCode = action.payload.couponCode ?? null;
+        state.couponDiscount = action.payload.couponDiscount ?? 0;
+      }
+      state.initialized = true;
+    });
+    builder.addCase(initCart.rejected, (state) => {
+      state.initialized = true;
+    });
   },
 });
 

@@ -9,6 +9,8 @@ export interface ICartItem {
   quantity: number;
   stock: number;
   variantName?: string;
+  selectedAttributes?: Record<string, string>;
+  freeShipping?: boolean;
 }
 
 export interface ICart {
