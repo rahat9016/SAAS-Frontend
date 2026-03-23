@@ -6,17 +6,16 @@ import { ArrowLeft, Package } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { use } from "react";
-import styles from "../Orders.module.css";
 
-const statusBadgeClass: Record<OrderStatus, string> = {
-  [OrderStatus.PENDING]: styles.badgePending,
-  [OrderStatus.CONFIRMED]: styles.badgeConfirmed,
-  [OrderStatus.PROCESSING]: styles.badgeProcessing,
-  [OrderStatus.SHIPPED]: styles.badgeShipped,
-  [OrderStatus.DELIVERED]: styles.badgeDelivered,
-  [OrderStatus.CANCELLED]: styles.badgeCancelled,
-  [OrderStatus.RETURNED]: styles.badgeReturned,
-  [OrderStatus.REFUNDED]: styles.badgeRefunded,
+const statusColors: Record<OrderStatus, string> = {
+  [OrderStatus.PENDING]: "bg-yellow-50 text-yellow-700 border-yellow-200",
+  [OrderStatus.CONFIRMED]: "bg-blue-50 text-blue-700 border-blue-200",
+  [OrderStatus.PROCESSING]: "bg-indigo-50 text-indigo-700 border-indigo-200",
+  [OrderStatus.SHIPPED]: "bg-cyan-50 text-cyan-700 border-cyan-200",
+  [OrderStatus.DELIVERED]: "bg-green-50 text-green-700 border-green-200",
+  [OrderStatus.CANCELLED]: "bg-red-50 text-red-700 border-red-200",
+  [OrderStatus.RETURNED]: "bg-orange-50 text-orange-700 border-orange-200",
+  [OrderStatus.REFUNDED]: "bg-purple-50 text-purple-700 border-purple-200",
 };
 
 const STATUS_FLOW: OrderStatus[] = [
@@ -37,16 +36,19 @@ export default function OrderDetailPage({
 
   if (!order) {
     return (
-      <div className="container">
-        <div className={styles.emptyState}>
-          <div className={styles.emptyIcon}>
+      <div className="container px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col items-center justify-center py-16 sm:py-20 text-center gap-4">
+          <div className="w-20 h-20 flex items-center justify-center rounded-full bg-muted text-muted-foreground">
             <Package size={32} />
           </div>
-          <h1 className={styles.emptyTitle}>Order not found</h1>
-          <p className={styles.emptyText}>
+          <h1 className="text-xl font-bold text-foreground">Order not found</h1>
+          <p className="text-sm text-muted-foreground max-w-xs">
             The order you&apos;re looking for doesn&apos;t exist.
           </p>
-          <Link href="/orders" className={styles.emptyBtn}>
+          <Link
+            href="/orders"
+            className="inline-flex items-center gap-2 mt-2 px-6 py-2.5 rounded-lg text-sm font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-opacity no-underline"
+          >
             Back to Orders
           </Link>
         </div>
@@ -57,52 +59,41 @@ export default function OrderDetailPage({
   const currentStatusIdx = STATUS_FLOW.indexOf(order.orderStatus);
 
   return (
-    <div className="container">
-      <div className={styles.page}>
-        <Link href="/orders" className={styles.backLink}>
+    <div className="container px-4 sm:px-6 lg:px-8">
+      <div className="py-4 sm:py-6 lg:py-8 pb-20 lg:pb-16">
+        <Link
+          href="/orders"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors no-underline mb-4"
+        >
           <ArrowLeft size={16} />
           Back to Orders
         </Link>
 
         {/* Title + Badge */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "0.75rem",
-            flexWrap: "wrap",
-            marginBottom: "1.5rem",
-          }}
-        >
-          <h1 className={styles.title} style={{ marginBottom: 0 }}>
+        <div className="flex items-center gap-3 flex-wrap mb-6">
+          <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">
             {order.orderNumber}
           </h1>
           <span
-            className={`${styles.badge} ${statusBadgeClass[order.orderStatus]}`}
+            className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border capitalize ${statusColors[order.orderStatus]}`}
           >
             {order.orderStatus}
           </span>
         </div>
 
-        <div className={styles.detailGrid}>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* === LEFT: Items + Shipping === */}
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "1.5rem",
-            }}
-          >
+          <div className="flex flex-col gap-6">
             {/* Items */}
-            <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>
-                <span className={styles.sectionBullet} />
+            <div className="border border-border rounded-xl bg-card overflow-hidden">
+              <h2 className="text-sm font-bold text-foreground px-4 sm:px-5 py-3 border-b border-border flex items-center gap-2">
+                <span className="w-1 h-4 bg-primary rounded-full" />
                 Order Items
               </h2>
-              <div className={styles.orderItems}>
+              <div className="flex flex-col divide-y divide-border">
                 {order.items.map((item, idx) => (
-                  <div key={idx} className={styles.orderItem}>
-                    <div className={styles.orderItemImage}>
+                  <div key={idx} className="flex items-center gap-3 px-4 sm:px-5 py-3">
+                    <div className="relative w-11 sm:w-12 min-w-11 sm:min-w-12 h-11 sm:h-12 rounded-md overflow-hidden bg-gray-100">
                       <Image
                         src={item.image}
                         alt={item.name}
@@ -111,19 +102,13 @@ export default function OrderDetailPage({
                         sizes="48px"
                       />
                     </div>
-                    <div className={styles.orderItemInfo}>
-                      <p className={styles.orderItemName}>{item.name}</p>
-                      <p className={styles.orderItemMeta}>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs sm:text-sm font-medium text-foreground line-clamp-1">{item.name}</p>
+                      <p className="text-[11px] sm:text-xs text-muted-foreground">
                         Qty: {item.quantity} · ৳{item.price.toLocaleString()}
                       </p>
                     </div>
-                    <span
-                      style={{
-                        fontSize: "0.85rem",
-                        fontWeight: 600,
-                        whiteSpace: "nowrap",
-                      }}
-                    >
+                    <span className="text-sm font-semibold whitespace-nowrap">
                       ৳{(item.price * item.quantity).toLocaleString()}
                     </span>
                   </div>
@@ -132,110 +117,86 @@ export default function OrderDetailPage({
             </div>
 
             {/* Shipping Address */}
-            <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>
-                <span className={styles.sectionBullet} />
+            <div className="border border-border rounded-xl bg-card overflow-hidden">
+              <h2 className="text-sm font-bold text-foreground px-4 sm:px-5 py-3 border-b border-border flex items-center gap-2">
+                <span className="w-1 h-4 bg-primary rounded-full" />
                 Shipping Address
               </h2>
-              <div className={styles.infoGrid}>
+              <div className="grid grid-cols-2 gap-3 px-4 sm:px-5 py-4">
                 <div>
-                  <p className={styles.infoLabel}>Full Name</p>
-                  <p className={styles.infoValue}>
-                    {order.shippingAddress.fullName}
-                  </p>
+                  <p className="text-[11px] text-muted-foreground mb-0.5">Full Name</p>
+                  <p className="text-sm font-medium text-foreground">{order.shippingAddress.fullName}</p>
                 </div>
                 <div>
-                  <p className={styles.infoLabel}>Phone</p>
-                  <p className={styles.infoValue}>
-                    {order.shippingAddress.phone}
-                  </p>
+                  <p className="text-[11px] text-muted-foreground mb-0.5">Phone</p>
+                  <p className="text-sm font-medium text-foreground">{order.shippingAddress.phone}</p>
                 </div>
-                <div style={{ gridColumn: "1 / -1" }}>
-                  <p className={styles.infoLabel}>Address</p>
-                  <p className={styles.infoValue}>
+                <div className="col-span-2">
+                  <p className="text-[11px] text-muted-foreground mb-0.5">Address</p>
+                  <p className="text-sm font-medium text-foreground">
                     {order.shippingAddress.addressLine1}
-                    {order.shippingAddress.addressLine2
-                      ? `, ${order.shippingAddress.addressLine2}`
-                      : ""}
+                    {order.shippingAddress.addressLine2 ? `, ${order.shippingAddress.addressLine2}` : ""}
                   </p>
                 </div>
                 <div>
-                  <p className={styles.infoLabel}>City</p>
-                  <p className={styles.infoValue}>
-                    {order.shippingAddress.city}
-                  </p>
+                  <p className="text-[11px] text-muted-foreground mb-0.5">City</p>
+                  <p className="text-sm font-medium text-foreground">{order.shippingAddress.city}</p>
                 </div>
                 <div>
-                  <p className={styles.infoLabel}>District</p>
-                  <p className={styles.infoValue}>
-                    {order.shippingAddress.district}
-                  </p>
+                  <p className="text-[11px] text-muted-foreground mb-0.5">District</p>
+                  <p className="text-sm font-medium text-foreground">{order.shippingAddress.district}</p>
                 </div>
                 <div>
-                  <p className={styles.infoLabel}>Division</p>
-                  <p className={styles.infoValue}>
-                    {order.shippingAddress.division}
-                  </p>
+                  <p className="text-[11px] text-muted-foreground mb-0.5">Division</p>
+                  <p className="text-sm font-medium text-foreground">{order.shippingAddress.division}</p>
                 </div>
                 <div>
-                  <p className={styles.infoLabel}>Postal Code</p>
-                  <p className={styles.infoValue}>
-                    {order.shippingAddress.postalCode || "—"}
-                  </p>
+                  <p className="text-[11px] text-muted-foreground mb-0.5">Postal Code</p>
+                  <p className="text-sm font-medium text-foreground">{order.shippingAddress.postalCode || "—"}</p>
                 </div>
               </div>
             </div>
           </div>
 
           {/* === RIGHT: Timeline + Payment + Summary === */}
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "1.5rem",
-            }}
-          >
+          <div className="flex flex-col gap-6">
             {/* Status Timeline */}
-            <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>
-                <span className={styles.sectionBullet} />
+            <div className="border border-border rounded-xl bg-card overflow-hidden">
+              <h2 className="text-sm font-bold text-foreground px-4 sm:px-5 py-3 border-b border-border flex items-center gap-2">
+                <span className="w-1 h-4 bg-primary rounded-full" />
                 Order Status
               </h2>
-              <div className={styles.timeline}>
+              <div className="flex flex-col gap-0 px-4 sm:px-5 py-4">
                 {STATUS_FLOW.map((status, idx) => {
                   const isDone = idx < currentStatusIdx;
                   const isActive = idx === currentStatusIdx;
-
                   return (
-                    <div key={status} className={styles.timelineStep}>
+                    <div key={status} className="flex items-start gap-3 relative pb-5 last:pb-0">
+                      {/* Connecting line */}
+                      {idx < STATUS_FLOW.length - 1 && (
+                        <div className={`absolute left-[9px] top-5 w-0.5 h-[calc(100%-12px)] ${isDone ? "bg-primary" : "bg-border"}`} />
+                      )}
+                      {/* Dot */}
                       <div
-                        className={`${styles.timelineDot} ${
+                        className={`w-[18px] h-[18px] rounded-full border-2 shrink-0 mt-0.5 ${
                           isDone
-                            ? styles.timelineDotDone
+                            ? "bg-primary border-primary"
                             : isActive
-                            ? styles.timelineDotActive
-                            : ""
+                            ? "bg-white border-primary shadow-md"
+                            : "bg-muted border-border"
                         }`}
                       />
                       <div>
-                        <p
-                          className={styles.timelineLabel}
-                          style={{
-                            opacity: isDone || isActive ? 1 : 0.45,
-                          }}
-                        >
+                        <p className={`text-sm font-medium capitalize ${isDone || isActive ? "text-foreground" : "text-foreground/45"}`}>
                           {status}
                         </p>
                         {isActive && (
-                          <p className={styles.timelineDate}>
-                            {new Date(order.updatedAt).toLocaleDateString(
-                              "en-US",
-                              {
-                                month: "short",
-                                day: "numeric",
-                                year: "numeric",
-                              }
-                            )}
+                          <p className="text-[11px] text-muted-foreground mt-0.5">
+                            {new Date(order.updatedAt).toLocaleDateString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            })}
                           </p>
                         )}
                       </div>
@@ -246,38 +207,35 @@ export default function OrderDetailPage({
             </div>
 
             {/* Payment & Tracking */}
-            <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>
-                <span className={styles.sectionBullet} />
+            <div className="border border-border rounded-xl bg-card overflow-hidden">
+              <h2 className="text-sm font-bold text-foreground px-4 sm:px-5 py-3 border-b border-border flex items-center gap-2">
+                <span className="w-1 h-4 bg-primary rounded-full" />
                 Payment & Delivery
               </h2>
-              <div className={styles.infoGrid}>
+              <div className="grid grid-cols-2 gap-3 px-4 sm:px-5 py-4">
                 <div>
-                  <p className={styles.infoLabel}>Payment Method</p>
-                  <p className={styles.infoValue}>{order.paymentMethod}</p>
+                  <p className="text-[11px] text-muted-foreground mb-0.5">Payment Method</p>
+                  <p className="text-sm font-medium text-foreground">{order.paymentMethod}</p>
                 </div>
                 <div>
-                  <p className={styles.infoLabel}>Payment Status</p>
-                  <p className={styles.infoValue}>{order.paymentStatus}</p>
+                  <p className="text-[11px] text-muted-foreground mb-0.5">Payment Status</p>
+                  <p className="text-sm font-medium text-foreground">{order.paymentStatus}</p>
                 </div>
                 {order.trackingNumber && (
                   <div>
-                    <p className={styles.infoLabel}>Tracking Number</p>
-                    <p className={styles.infoValue}>{order.trackingNumber}</p>
+                    <p className="text-[11px] text-muted-foreground mb-0.5">Tracking Number</p>
+                    <p className="text-sm font-medium text-foreground">{order.trackingNumber}</p>
                   </div>
                 )}
                 {order.estimatedDelivery && (
                   <div>
-                    <p className={styles.infoLabel}>Estimated Delivery</p>
-                    <p className={styles.infoValue}>
-                      {new Date(order.estimatedDelivery).toLocaleDateString(
-                        "en-US",
-                        {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        }
-                      )}
+                    <p className="text-[11px] text-muted-foreground mb-0.5">Estimated Delivery</p>
+                    <p className="text-sm font-medium text-foreground">
+                      {new Date(order.estimatedDelivery).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
                     </p>
                   </div>
                 )}
@@ -285,58 +243,36 @@ export default function OrderDetailPage({
             </div>
 
             {/* Order Summary */}
-            <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>
-                <span className={styles.sectionBullet} />
+            <div className="border border-border rounded-xl bg-card overflow-hidden">
+              <h2 className="text-sm font-bold text-foreground px-4 sm:px-5 py-3 border-b border-border flex items-center gap-2">
+                <span className="w-1 h-4 bg-primary rounded-full" />
                 Order Total
               </h2>
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "0.5rem",
-                }}
-              >
-                <div className={styles.summaryRow}>
-                  <span className={styles.summaryLabel}>Subtotal</span>
-                  <span className={styles.summaryValue}>
-                    ৳{order.subtotal.toLocaleString()}
-                  </span>
+              <div className="flex flex-col gap-2 px-4 sm:px-5 py-4">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Subtotal</span>
+                  <span className="font-medium">৳{order.subtotal.toLocaleString()}</span>
                 </div>
                 {order.discount > 0 && (
-                  <div className={styles.summaryRow}>
-                    <span className={styles.summaryLabel}>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">
                       Discount{order.couponCode ? ` (${order.couponCode})` : ""}
                     </span>
-                    <span
-                      className={styles.summaryValue}
-                      style={{ color: "#16a34a" }}
-                    >
+                    <span className="font-medium text-green-600">
                       -৳{order.discount.toLocaleString()}
                     </span>
                   </div>
                 )}
-                <div className={styles.summaryRow}>
-                  <span className={styles.summaryLabel}>Shipping</span>
-                  <span
-                    className={styles.summaryValue}
-                    style={{
-                      color: order.shippingCost === 0 ? "#16a34a" : undefined,
-                    }}
-                  >
-                    {order.shippingCost === 0
-                      ? "Free"
-                      : `৳${order.shippingCost.toLocaleString()}`}
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Shipping</span>
+                  <span className={`font-medium ${order.shippingCost === 0 ? "text-green-600" : ""}`}>
+                    {order.shippingCost === 0 ? "Free" : `৳${order.shippingCost.toLocaleString()}`}
                   </span>
                 </div>
-                <hr className={styles.summaryDivider} />
-                <div
-                  className={`${styles.summaryRow} ${styles.summaryTotal}`}
-                >
+                <hr className="border-border my-1" />
+                <div className="flex justify-between text-base font-bold">
                   <span>Total</span>
-                  <span className={styles.summaryTotalValue}>
-                    ৳{order.total.toLocaleString()}
-                  </span>
+                  <span className="text-primary">৳{order.total.toLocaleString()}</span>
                 </div>
               </div>
             </div>

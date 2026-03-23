@@ -11,7 +11,6 @@ import { ArrowRight, Heart, ShoppingCart, Trash2, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "react-toastify";
-import styles from "./Wishlist.module.css";
 
 export default function WishlistPage() {
   const dispatch = useAppDispatch();
@@ -25,16 +24,19 @@ export default function WishlistPage() {
   // Empty state
   if (wishlistProducts.length === 0) {
     return (
-      <div className="container">
-        <div className={styles.emptyState}>
-          <div className={styles.emptyIcon}>
+      <div className="container px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col items-center justify-center py-16 sm:py-20 text-center gap-4">
+          <div className="w-20 h-20 flex items-center justify-center rounded-full bg-muted text-muted-foreground">
             <Heart size={32} />
           </div>
-          <h1 className={styles.emptyTitle}>Your wishlist is empty</h1>
-          <p className={styles.emptyText}>
+          <h1 className="text-xl font-bold text-foreground">Your wishlist is empty</h1>
+          <p className="text-sm text-muted-foreground max-w-xs">
             Save products you like by clicking the heart icon on any product.
           </p>
-          <Link href="/" className={styles.emptyBtn}>
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 mt-2 px-6 py-2.5 rounded-lg text-sm font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-opacity no-underline"
+          >
             Browse Products
             <ArrowRight size={16} />
           </Link>
@@ -44,19 +46,19 @@ export default function WishlistPage() {
   }
 
   return (
-    <div className="container">
-      <div className={styles.page}>
+    <div className="container px-4 sm:px-6 lg:px-8">
+      <div className="py-4 sm:py-6 lg:py-8 pb-20 lg:pb-16">
         {/* Header */}
-        <div className={styles.header}>
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
           <div>
-            <h1 className={styles.title}>My Wishlist</h1>
-            <span className={styles.itemCount}>
+            <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">My Wishlist</h1>
+            <span className="text-xs sm:text-sm text-muted-foreground mt-0.5 block">
               {wishlistProducts.length}{" "}
               {wishlistProducts.length === 1 ? "item" : "items"}
             </span>
           </div>
           <button
-            className={styles.clearBtn}
+            className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground border border-border rounded-lg px-3 py-1.5 hover:text-red-500 hover:border-red-500 transition-colors cursor-pointer"
             onClick={() => {
               dispatch(clearWishlist());
               toast.success("Wishlist cleared");
@@ -68,7 +70,7 @@ export default function WishlistPage() {
         </div>
 
         {/* Grid */}
-        <div className={styles.grid}>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
           {wishlistProducts.map((product) => {
             if (!product) return null;
             const primaryImage =
@@ -77,18 +79,18 @@ export default function WishlistPage() {
               product.compareAtPrice && product.compareAtPrice > product.price;
 
             return (
-              <div key={product.id} className={styles.card}>
+              <div key={product.id} className="relative bg-card rounded-xl border border-border overflow-hidden group hover:shadow-md transition-shadow">
                 {/* Image */}
                 <Link
                   href={`/products/${product.slug}`}
-                  className={styles.imageWrap}
+                  className="relative block w-full aspect-[3/4] bg-gray-100 overflow-hidden"
                 >
                   {primaryImage && (
                     <Image
                       src={primaryImage.url}
                       alt={primaryImage.alt ?? product.name}
                       fill
-                      className="object-cover"
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
                       sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
                     />
                   )}
@@ -96,7 +98,7 @@ export default function WishlistPage() {
 
                 {/* Remove button */}
                 <button
-                  className={styles.removeBtn}
+                  className="absolute top-2 right-2 flex items-center justify-center w-7 h-7 rounded-full bg-white/80 backdrop-blur-sm text-gray-500 hover:text-red-500 hover:bg-white transition-all z-10 cursor-pointer"
                   onClick={() => {
                     dispatch(removeFromWishlist(product.id));
                     toast.success("Removed from wishlist");
@@ -107,25 +109,25 @@ export default function WishlistPage() {
                 </button>
 
                 {/* Content */}
-                <div className={styles.content}>
+                <div className="p-3 flex flex-col gap-1.5">
                   <Link
                     href={`/products/${product.slug}`}
-                    className={styles.name}
+                    className="text-sm font-semibold text-foreground line-clamp-2 hover:text-primary transition-colors no-underline"
                   >
                     {product.name}
                   </Link>
-                  <div className={styles.priceRow}>
-                    <span className={styles.price}>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold text-foreground">
                       ৳{product.price.toLocaleString()}
                     </span>
                     {hasDiscount && (
-                      <span className={styles.comparePrice}>
+                      <span className="text-xs text-muted-foreground line-through">
                         ৳{product.compareAtPrice!.toLocaleString()}
                       </span>
                     )}
                   </div>
                   <button
-                    className={styles.addToCartBtn}
+                    className="flex items-center justify-center gap-1.5 w-full py-2 mt-1 rounded-lg text-xs font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-opacity cursor-pointer"
                     onClick={() => {
                       dispatch(
                         addToCart({

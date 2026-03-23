@@ -14,7 +14,6 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import styles from "./Checkout.module.css";
 
 const paymentMethods = [
   {
@@ -135,114 +134,115 @@ export default function CheckoutPage() {
 
   if (items.length === 0) return null;
 
+  const inputClass =
+    "w-full px-3 py-2.5 sm:py-2 border border-border rounded-lg text-sm bg-background text-foreground focus:outline-none focus:border-primary placeholder:text-muted-foreground transition-colors";
+
   return (
     <div className="container px-4 sm:px-6 lg:px-8">
-      <div className={styles.page}>
-        <h1 className={styles.title}>Checkout</h1>
+      <div className="py-4 sm:py-6 lg:py-8 pb-20 lg:pb-16">
+        <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground mb-4 sm:mb-6">
+          Checkout
+        </h1>
 
-        <div className={styles.grid}>
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-6 lg:gap-8">
           {/* === LEFT: Forms === */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+          <div className="flex flex-col gap-6">
             {/* Shipping Address */}
-            <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>
-                <span className={styles.sectionBullet} />
+            <div className="border border-border rounded-xl p-4 sm:p-6 bg-card">
+              <h2 className="text-sm sm:text-base font-bold text-foreground mb-4 sm:mb-5 flex items-center gap-2">
+                <span className="w-1 h-4.5 rounded-sm bg-primary" />
                 Shipping Address
               </h2>
-              <div className={styles.formGrid}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <label className={styles.formLabel}>
-                    Full Name <span style={{ color: "#ef4444" }}>*</span>
+                  <label className="block text-xs font-semibold text-foreground mb-1">
+                    Full Name <span className="text-red-500">*</span>
                   </label>
                   <input
-                    className={styles.formInput}
+                    className={inputClass}
                     placeholder="Enter your full name"
                     value={form.fullName}
                     onChange={(e) => handleChange("fullName", e.target.value)}
                   />
                 </div>
                 <div>
-                  <label className={styles.formLabel}>
-                    Phone <span style={{ color: "#ef4444" }}>*</span>
+                  <label className="block text-xs font-semibold text-foreground mb-1">
+                    Phone <span className="text-red-500">*</span>
                   </label>
                   <input
-                    className={styles.formInput}
+                    className={inputClass}
                     placeholder="+880 1XX XXXX XXX"
                     value={form.phone}
                     onChange={(e) => handleChange("phone", e.target.value)}
                   />
                 </div>
-                <div className={styles.fieldFull}>
-                  <label className={styles.formLabel}>Email</label>
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-semibold text-foreground mb-1">Email</label>
                   <input
-                    className={styles.formInput}
+                    className={inputClass}
                     type="email"
                     placeholder="your@email.com (optional)"
                     value={form.email}
                     onChange={(e) => handleChange("email", e.target.value)}
                   />
                 </div>
-                <div className={styles.fieldFull}>
-                  <label className={styles.formLabel}>
-                    Address Line 1 <span style={{ color: "#ef4444" }}>*</span>
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-semibold text-foreground mb-1">
+                    Address Line 1 <span className="text-red-500">*</span>
                   </label>
                   <input
-                    className={styles.formInput}
+                    className={inputClass}
                     placeholder="House no, street, area"
                     value={form.addressLine1}
-                    onChange={(e) =>
-                      handleChange("addressLine1", e.target.value)
-                    }
+                    onChange={(e) => handleChange("addressLine1", e.target.value)}
                   />
                 </div>
-                <div className={styles.fieldFull}>
-                  <label className={styles.formLabel}>Address Line 2</label>
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-semibold text-foreground mb-1">Address Line 2</label>
                   <input
-                    className={styles.formInput}
+                    className={inputClass}
                     placeholder="Apartment, suite, unit, etc. (optional)"
                     value={form.addressLine2}
-                    onChange={(e) =>
-                      handleChange("addressLine2", e.target.value)
-                    }
+                    onChange={(e) => handleChange("addressLine2", e.target.value)}
                   />
                 </div>
                 <div>
-                  <label className={styles.formLabel}>
-                    City <span style={{ color: "#ef4444" }}>*</span>
+                  <label className="block text-xs font-semibold text-foreground mb-1">
+                    City <span className="text-red-500">*</span>
                   </label>
                   <input
-                    className={styles.formInput}
+                    className={inputClass}
                     placeholder="e.g. Dhaka"
                     value={form.city}
                     onChange={(e) => handleChange("city", e.target.value)}
                   />
                 </div>
                 <div>
-                  <label className={styles.formLabel}>
-                    District <span style={{ color: "#ef4444" }}>*</span>
+                  <label className="block text-xs font-semibold text-foreground mb-1">
+                    District <span className="text-red-500">*</span>
                   </label>
                   <input
-                    className={styles.formInput}
+                    className={inputClass}
                     placeholder="e.g. Dhaka"
                     value={form.district}
                     onChange={(e) => handleChange("district", e.target.value)}
                   />
                 </div>
                 <div>
-                  <label className={styles.formLabel}>
-                    Division <span style={{ color: "#ef4444" }}>*</span>
+                  <label className="block text-xs font-semibold text-foreground mb-1">
+                    Division <span className="text-red-500">*</span>
                   </label>
                   <input
-                    className={styles.formInput}
+                    className={inputClass}
                     placeholder="e.g. Dhaka"
                     value={form.division}
                     onChange={(e) => handleChange("division", e.target.value)}
                   />
                 </div>
                 <div>
-                  <label className={styles.formLabel}>Postal Code</label>
+                  <label className="block text-xs font-semibold text-foreground mb-1">Postal Code</label>
                   <input
-                    className={styles.formInput}
+                    className={inputClass}
                     placeholder="e.g. 1205"
                     value={form.postalCode}
                     onChange={(e) => handleChange("postalCode", e.target.value)}
@@ -252,30 +252,32 @@ export default function CheckoutPage() {
             </div>
 
             {/* Payment Method */}
-            <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>
-                <span className={styles.sectionBullet} />
+            <div className="border border-border rounded-xl p-4 sm:p-6 bg-card">
+              <h2 className="text-sm sm:text-base font-bold text-foreground mb-4 sm:mb-5 flex items-center gap-2">
+                <span className="w-1 h-4.5 rounded-sm bg-primary" />
                 Payment Method
               </h2>
-              <div className={styles.paymentGrid}>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3">
                 {paymentMethods.map((method) => (
                   <button
                     key={method.id}
                     type="button"
-                    className={`${styles.paymentCard} ${
+                    className={`flex flex-col items-center gap-1.5 sm:gap-2 py-3 sm:py-4 px-2 sm:px-3 border-2 rounded-lg cursor-pointer transition-all bg-background ${
                       selectedPayment === method.id
-                        ? styles.paymentCardActive
-                        : ""
+                        ? "border-primary bg-primary/5"
+                        : "border-border hover:border-primary"
                     }`}
                     onClick={() => setSelectedPayment(method.id)}
                   >
                     <div
-                      className={styles.paymentIcon}
+                      className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-lg"
                       style={{ color: method.color }}
                     >
                       {method.icon}
                     </div>
-                    <span className={styles.paymentLabel}>{method.label}</span>
+                    <span className="text-[11px] sm:text-xs font-semibold text-foreground text-center">
+                      {method.label}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -283,21 +285,21 @@ export default function CheckoutPage() {
           </div>
 
           {/* === RIGHT: Order Summary === */}
-          <div className={styles.sidebar}>
-            <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>
-                <span className={styles.sectionBullet} />
+          <div className="flex flex-col gap-6">
+            <div className="border border-border rounded-xl p-4 sm:p-6 bg-card">
+              <h2 className="text-sm sm:text-base font-bold text-foreground mb-4 sm:mb-5 flex items-center gap-2">
+                <span className="w-1 h-4.5 rounded-sm bg-primary" />
                 Order Summary
               </h2>
 
               {/* Items */}
-              <div className={styles.orderItems}>
+              <div className="flex flex-col gap-3">
                 {items.map((item) => (
                   <div
                     key={`${item.productId}-${item.variantId ?? ""}`}
-                    className={styles.orderItem}
+                    className="flex items-center gap-3"
                   >
-                    <div className={styles.orderItemImage}>
+                    <div className="relative w-12 sm:w-14 min-w-12 sm:min-w-14 h-12 sm:h-14 rounded-md overflow-hidden bg-gray-100">
                       <Image
                         src={item.image}
                         alt={item.name}
@@ -306,72 +308,63 @@ export default function CheckoutPage() {
                         sizes="56px"
                       />
                     </div>
-                    <div className={styles.orderItemInfo}>
-                      <p className={styles.orderItemName}>{item.name}</p>
-                      <p className={styles.orderItemMeta}>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs sm:text-sm font-medium text-foreground line-clamp-1">
+                        {item.name}
+                      </p>
+                      <p className="text-[11px] sm:text-xs text-muted-foreground">
                         Qty: {item.quantity}
                       </p>
                     </div>
-                    <span className={styles.orderItemPrice}>
+                    <span className="text-xs sm:text-sm font-semibold text-foreground whitespace-nowrap">
                       ৳{(item.price * item.quantity).toLocaleString()}
                     </span>
                   </div>
                 ))}
               </div>
 
-              <hr className={styles.summaryDivider} style={{ margin: "1rem 0" }} />
+              <hr className="border-t border-border my-4" />
 
               {/* Totals */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
-                <div className={styles.summaryRow}>
-                  <span className={styles.summaryLabel}>Subtotal</span>
-                  <span className={styles.summaryValue}>
+              <div className="flex flex-col gap-2.5">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Subtotal</span>
+                  <span className="font-medium text-foreground">
                     ৳{subtotal.toLocaleString()}
                   </span>
                 </div>
                 {couponDiscount > 0 && (
-                  <div className={styles.summaryRow}>
-                    <span className={styles.summaryLabel}>Discount</span>
-                    <span
-                      className={styles.summaryValue}
-                      style={{ color: "#16a34a" }}
-                    >
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Discount</span>
+                    <span className="font-medium text-green-600">
                       -৳{couponDiscount.toLocaleString()}
                     </span>
                   </div>
                 )}
-                <div className={styles.summaryRow}>
-                  <span className={styles.summaryLabel}>Shipping</span>
-                  <span
-                    className={styles.summaryValue}
-                    style={{ color: "#16a34a" }}
-                  >
-                    Free
-                  </span>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Shipping</span>
+                  <span className="font-medium text-green-600">Free</span>
                 </div>
 
-                <hr className={styles.summaryDivider} />
+                <hr className="border-t border-border" />
 
-                <div
-                  className={`${styles.summaryRow} ${styles.summaryTotal}`}
-                >
+                <div className="flex justify-between text-base sm:text-lg font-bold">
                   <span>Total</span>
-                  <span className={styles.summaryTotalValue}>
+                  <span className="text-primary">
                     ৳{total.toLocaleString()}
                   </span>
                 </div>
               </div>
 
               <button
-                className={styles.placeOrderBtn}
-                style={{ marginTop: "1rem" }}
+                className="flex items-center justify-center gap-2 w-full py-3 mt-4 rounded-lg text-sm font-bold bg-primary text-primary-foreground hover:opacity-90 active:scale-[0.98] transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={handlePlaceOrder}
                 disabled={isPlacing}
               >
                 {isPlacing ? "Processing..." : "Place Order"}
               </button>
 
-              <p className={styles.securityNote}>
+              <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground text-center justify-center mt-3">
                 <ShieldCheck size={14} />
                 Your information is safe and secure
               </p>
