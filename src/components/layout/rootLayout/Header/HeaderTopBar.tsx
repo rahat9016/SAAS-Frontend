@@ -16,6 +16,7 @@ import {
   User,
   X,
 } from "lucide-react";
+import { ProfileDropdown } from "./ProfileDropdown";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -236,31 +237,6 @@ export default function HeaderTopBar({
               {siteConfig.currency}
             </span>
           </div>
-          {userInformation?.firstName ? (
-            <Link
-              href="/account"
-              className="flex flex-col items-center gap-0.5 px-3 py-1.5 text-gray-600 hover:text-primary transition-colors group"
-            >
-              <User
-                size={20}
-                className="group-hover:scale-110 transition-transform"
-              />
-              <span className="text-xs whitespace-nowrap">
-                {userInformation.firstName}
-              </span>
-            </Link>
-          ) : (
-            <button
-              onClick={() => openLoginModal()}
-              className="flex flex-col items-center gap-0.5 px-3 py-1.5 text-gray-600 hover:text-primary transition-colors group cursor-pointer"
-            >
-              <User
-                size={20}
-                className="group-hover:scale-110 transition-transform"
-              />
-              <span className="text-xs whitespace-nowrap">Sign in</span>
-            </button>
-          )}
           <Link
             href="/wishlist"
             className="relative flex flex-col items-center gap-0.5 px-3 py-1.5 text-gray-600 hover:text-primary transition-colors group"
@@ -291,6 +267,22 @@ export default function HeaderTopBar({
               </span>
             )}
           </Link>
+
+          {/* Divider */}
+          <div className="hidden lg:block w-px h-8 bg-gray-200 mx-1" />
+
+          {/* Sign In / Profile */}
+          {userInformation?.firstName ? (
+            <ProfileDropdown />
+          ) : (
+            <button
+              onClick={() => openLoginModal()}
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors cursor-pointer"
+            >
+              <User size={16} />
+              <span className="whitespace-nowrap">Sign In</span>
+            </button>
+          )}
         </div>
       </div>
 

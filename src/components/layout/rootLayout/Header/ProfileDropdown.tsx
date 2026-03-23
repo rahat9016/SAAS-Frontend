@@ -2,8 +2,16 @@
 
 import { logoutUser } from "@/src/lib/redux/features/auth/authSlice";
 import { useAppDispatch, useAppSelector } from "@/src/lib/redux/hooks";
-import { UserRole } from "@/src/utils/UserRoleEnum";
-import { ChevronDown, User } from "lucide-react";
+import {
+  CreditCard,
+  LogOut,
+  MapPin,
+  Package,
+  RotateCcw,
+  User,
+  XCircle,
+} from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   DropdownMenu,
@@ -14,11 +22,18 @@ import {
   DropdownMenuTrigger,
 } from "../../../ui/dropdown-menu";
 
+const menuItems = [
+  { label: "My Profile", href: "/account", icon: User },
+  { label: "My Orders", href: "/account/orders", icon: Package },
+  { label: "Returns", href: "/account/returns", icon: RotateCcw },
+  { label: "Cancellations", href: "/account/cancellations", icon: XCircle },
+  { label: "Addresses", href: "/account/addresses", icon: MapPin },
+  { label: "Payment Methods", href: "/account/payment-methods", icon: CreditCard },
+];
+
 export function ProfileDropdown() {
   const dispatch = useAppDispatch();
-  const {
-    userInformation: { firstName, role },
-  } = useAppSelector((state) => state.auth);
+  const { userInformation } = useAppSelector((state) => state.auth);
   const router = useRouter();
 
   const handleLogout = () => {
@@ -29,58 +44,90 @@ export function ProfileDropdown() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
-          className="flex items-center gap-1 text-sm text-gray-700 focus:outline-none"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-gray-50 transition-colors focus:outline-none cursor-pointer"
           aria-label="Open profile menu"
         >
-          <User size={20} />
-          <span className="font-medium">{firstName}</span>
-          <ChevronDown size={18} />
+          {userInformation.profilePicture ? (
+            <Image
+              src={userInformation.profilePicture}
+              alt={userInformation.firstName}
+              width={32}
+              height={32}
+              className="w-8 h-8 rounded-full object-cover ring-2 ring-primary/20"
+            />
+          ) : (
+            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+              <User size={16} className="text-primary" />
+            </div>
+          )}
+          <div className="hidden xl:flex flex-col items-start">
+            <span className="text-xs font-semibold text-gray-800 leading-tight">
+              {userInformation.firstName}
+            </span>
+            <span className="text-[10px] text-gray-400 leading-tight">My Account</span>
+          </div>
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        sideOffset={6}
-        className="z-9999 min-w-40 shadow-lg rounded-md bg-white"
+        sideOffset={8}
+        className="z-9999 w-64 shadow-xl rounded-xl bg-white border border-gray-100 p-0 overflow-hidden"
       >
-        <DropdownMenuLabel className="text-gray-700 font-semibold">
-          My Account
+        {/* User info header */}
+        <DropdownMenuLabel className="px-4 py-3 bg-gray-50/80">
+          <div className="flex items-center gap-3">
+            {userInformation.profilePicture ? (
+              <Image
+                src={userInformation.profilePicture}
+                alt={userInformation.firstName}
+                width={40}
+                height={40}
+                className="w-10 h-10 rounded-full object-cover ring-2 ring-primary/20"
+              />
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <User size={18} className="text-primary" />
+              </div>
+            )}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-gray-900 truncate">
+                {userInformation.firstName} {userInformation.lastName}
+              </p>
+              <p className="text-xs text-gray-500 truncate">
+                {userInformation.email}
+              </p>
+            </div>
+          </div>
         </DropdownMenuLabel>
 
-        {role === UserRole.SUPER_ADMIN && (
+        <DropdownMenuSeparator className="m-0" />
+
+        {/* Menu Items */}
+        <div className="py-1">
+          {menuItems.map((item) => (
+            <DropdownMenuItem
+              key={item.href}
+              onClick={() => router.push(item.href)}
+              className="flex items-center gap-3 px-4 py-2.5 cursor-pointer text-gray-600 hover:text-primary hover:bg-primary/5 transition-colors"
+            >
+              <item.icon size={16} className="shrink-0" />
+              <span className="text-sm">{item.label}</span>
+            </DropdownMenuItem>
+          ))}
+        </div>
+
+        <DropdownMenuSeparator className="m-0" />
+
+        {/* Logout */}
+        <div className="py-1">
           <DropdownMenuItem
-            onClick={() => router.push("/admin")}
-            className="cursor-pointer"
+            onClick={handleLogout}
+            className="flex items-center gap-3 px-4 py-2.5 cursor-pointer text-red-500 hover:text-red-600 hover:bg-red-50 transition-colors"
           >
-            Admin
+            <LogOut size={16} className="shrink-0" />
+            <span className="text-sm font-medium">Logout</span>
           </DropdownMenuItem>
-        )}
-
-        {role === UserRole.ADMIN && (
-          <DropdownMenuItem
-            onClick={() => router.push("/organization-list")}
-            className="cursor-pointer"
-          >
-            Admin
-          </DropdownMenuItem>
-        )}
-
-        {role === UserRole.USER && (
-          <DropdownMenuItem
-            onClick={() => router.push("/user-dashboard")}
-            className="cursor-pointer"
-          >
-            Dashboard
-          </DropdownMenuItem>
-        )}
-
-        <DropdownMenuSeparator />
-
-        <DropdownMenuItem
-          onClick={handleLogout}
-          className="text-red-600 cursor-pointer"
-        >
-          Logout
-        </DropdownMenuItem>
+        </div>
       </DropdownMenuContent>
     </DropdownMenu>
   );

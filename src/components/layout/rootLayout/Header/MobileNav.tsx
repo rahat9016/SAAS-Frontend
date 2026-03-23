@@ -1,7 +1,8 @@
 "use client";
 
 import { Category, dummyCategories } from "@/src/data/dummyCategories";
-import { useAppSelector } from "@/src/lib/redux/hooks";
+import { logoutUser } from "@/src/lib/redux/features/auth/authSlice";
+import { useAppDispatch, useAppSelector } from "@/src/lib/redux/hooks";
 import {
   Baby,
   BookOpen,
@@ -13,6 +14,7 @@ import {
   Heart,
   Home,
   LayoutGrid,
+  LogOut,
   Monitor,
   Shirt,
   ShoppingBasket,
@@ -22,6 +24,7 @@ import {
   User,
   X,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -108,7 +111,10 @@ interface MobileNavProps {
 export default function MobileNav({ open, setOpen }: MobileNavProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const cartItems = useAppSelector((state) => state.cart.items);
+  const { userInformation } = useAppSelector((state) => state.auth);
+  const isLoggedIn = !!userInformation?.firstName;
 
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -162,14 +168,28 @@ export default function MobileNav({ open, setOpen }: MobileNavProps) {
           <Link
             href="/account"
             className={`flex flex-col items-center justify-center gap-0.5 min-w-[60px] py-1 ${
-              pathname === "/account" ? "text-primary" : "text-gray-500"
+              pathname?.startsWith("/account") ? "text-primary" : "text-gray-500"
             }`}
           >
-            <User
-              size={22}
-              strokeWidth={pathname === "/account" ? 2.5 : 1.5}
-            />
-            <span className="text-[10px] font-medium">Account</span>
+            {isLoggedIn && userInformation.profilePicture ? (
+              <Image
+                src={userInformation.profilePicture}
+                alt={userInformation.firstName}
+                width={24}
+                height={24}
+                className={`w-6 h-6 rounded-full object-cover ${
+                  pathname?.startsWith("/account") ? "ring-2 ring-primary" : "ring-1 ring-gray-200"
+                }`}
+              />
+            ) : (
+              <User
+                size={22}
+                strokeWidth={pathname?.startsWith("/account") ? 2.5 : 1.5}
+              />
+            )}
+            <span className="text-[10px] font-medium">
+              {isLoggedIn ? userInformation.firstName : "Account"}
+            </span>
           </Link>
         </div>
       </div>
@@ -239,15 +259,49 @@ export default function MobileNav({ open, setOpen }: MobileNavProps) {
         </nav>
 
         <div className="p-4 border-t">
-          <button
-            onClick={() => {
-              setOpen(false);
-              router.push("/auth/login");
-            }}
-            className="w-full bg-primary text-white text-center rounded-md py-2.5 font-medium text-sm"
-          >
-            Sign In / Register
-          </button>
+          {isLoggedIn ? (
+            <div className="flex items-center gap-3">
+              {userInformation.profilePicture ? (
+                <Image
+                  src={userInformation.profilePicture}
+                  alt={userInformation.firstName}
+                  width={36}
+                  height={36}
+                  className="w-9 h-9 rounded-full object-cover ring-2 ring-primary/20"
+                />
+              ) : (
+                <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
+                  <User size={16} className="text-primary" />
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-gray-800 truncate">
+                  {userInformation.firstName} {userInformation.lastName}
+                </p>
+                <p className="text-xs text-gray-500 truncate">{userInformation.email}</p>
+              </div>
+              <button
+                onClick={() => {
+                  dispatch(logoutUser());
+                  setOpen(false);
+                }}
+                className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                aria-label="Logout"
+              >
+                <LogOut size={18} />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => {
+                setOpen(false);
+                router.push("/auth/login");
+              }}
+              className="w-full bg-primary text-white text-center rounded-md py-2.5 font-medium text-sm"
+            >
+              Sign In / Register
+            </button>
+          )}
         </div>
       </div>
     </>
