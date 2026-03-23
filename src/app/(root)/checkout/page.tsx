@@ -136,7 +136,7 @@ export default function CheckoutPage() {
   if (items.length === 0) return null;
 
   return (
-    <div className="container">
+    <div className="container px-4 sm:px-6 lg:px-8">
       <div className={styles.page}>
         <h1 className={styles.title}>Checkout</h1>
 

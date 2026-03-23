@@ -54,7 +54,7 @@ export default function CartPage() {
   // Empty cart
   if (items.length === 0) {
     return (
-      <div className="container">
+      <div className="container px-4 sm:px-6 lg:px-8">
         <div className={styles.emptyState}>
           <div className={styles.emptyIcon}>
             <ShoppingCart size={32} />
@@ -73,7 +73,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="container">
+    <div className="container px-4 sm:px-6 lg:px-8">
       <div className={styles.page}>
         {/* Header */}
         <div className={styles.header}>
