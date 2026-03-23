@@ -25,12 +25,12 @@ const flashSales = [
 
 export default function FlashSaleCards() {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4 mt-3 lg:mt-4">
+    <div className="flex gap-3 overflow-x-auto lg:grid lg:grid-cols-2 lg:gap-4 mt-3 lg:mt-4 snap-x snap-mandatory" style={{ scrollbarWidth: "none" }}>
       {flashSales.map((sale) => (
         <Link
           key={sale.id}
           href={sale.href}
-          className="relative group overflow-hidden rounded-lg h-32 sm:h-36 lg:h-40"
+          className="relative group overflow-hidden rounded-lg h-32 sm:h-36 lg:h-40 shrink-0 w-[80vw] sm:w-[70vw] lg:w-auto snap-start"
         >
           {/* Background image */}
           <Image
@@ -38,7 +38,7 @@ export default function FlashSaleCards() {
             alt={sale.title}
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-110"
-            sizes="(max-width: 640px) 100vw, 50vw"
+            sizes="(max-width: 640px) 80vw, (max-width: 1024px) 70vw, 50vw"
           />
 
           {/* Gradient overlay */}

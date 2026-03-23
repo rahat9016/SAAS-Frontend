@@ -106,7 +106,6 @@ interface MobileNavProps {
 }
 
 export default function MobileNav({ open, setOpen }: MobileNavProps) {
-  const [showCategories, setShowCategories] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const cartItems = useAppSelector((state) => state.cart.items);
@@ -183,19 +182,43 @@ export default function MobileNav({ open, setOpen }: MobileNavProps) {
         />
       )}
 
+      {/* Close button — floating outside the drawer */}
+      {open && (
+        <button
+          onClick={() => setOpen(false)}
+          className="fixed z-80 top-3 bg-white/90 backdrop-blur-sm rounded-full w-8 h-8 flex items-center justify-center shadow-lg border border-gray-200 transition-all"
+          style={{ left: "calc(min(320px, 85vw) + 8px)" }}
+          aria-label="Close menu"
+        >
+          <X size={18} className="text-gray-600" />
+        </button>
+      )}
+
       <div
-        className={`fixed top-0 left-0 z-70 h-screen w-80 bg-white transform transition-transform duration-300 flex flex-col ${
+        className={`fixed top-0 left-0 z-70 h-screen w-80 max-w-[85vw] bg-white transform transition-transform duration-300 flex flex-col ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex items-center justify-between p-4 border-b shrink-0">
-          <span className="font-semibold text-lg text-gray-800">Menu</span>
-          <button onClick={() => setOpen(false)}>
-            <X size={24} className="text-gray-500" />
-          </button>
-        </div>
+        <nav className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-0.5">
+          {/* Categories — always visible */}
+          <div className="flex items-center gap-2 py-2 px-3 font-semibold text-gray-700">
+            <LayoutGrid size={16} className="text-gray-500" />
+            All Categories
+          </div>
 
-        <nav className="flex-1 overflow-y-auto px-4 py-3 flex flex-col gap-0.5">
+          <div className="pl-2 flex flex-col gap-0.5">
+            {dummyCategories.map((cat) => (
+              <MobileCategoryItem
+                key={cat.id}
+                category={cat}
+                onClose={() => setOpen(false)}
+              />
+            ))}
+          </div>
+
+          {/* Divider */}
+          <div className="my-2 border-t border-gray-100" />
+
           {/* Nav links */}
           {navLinks
             .filter((l) => l.label !== "All Categories")
@@ -213,38 +236,6 @@ export default function MobileNav({ open, setOpen }: MobileNavProps) {
                 {label}
               </Link>
             ))}
-
-          {/* Divider */}
-          <div className="my-2 border-t border-gray-100" />
-
-          {/* Categories Section */}
-          <button
-            onClick={() => setShowCategories((p) => !p)}
-            className="flex items-center justify-between w-full py-2.5 px-3 font-semibold text-gray-700 hover:bg-gray-50 rounded-md"
-          >
-            <span className="flex items-center gap-2">
-              <LayoutGrid size={16} className="text-gray-500" />
-              All Categories
-            </span>
-            <ChevronDown
-              size={16}
-              className={`transition-transform text-gray-400 ${
-                showCategories ? "rotate-180" : ""
-              }`}
-            />
-          </button>
-
-          {showCategories && (
-            <div className="pl-2 flex flex-col gap-0.5">
-              {dummyCategories.map((cat) => (
-                <MobileCategoryItem
-                  key={cat.id}
-                  category={cat}
-                  onClose={() => setOpen(false)}
-                />
-              ))}
-            </div>
-          )}
         </nav>
 
         <div className="p-4 border-t">

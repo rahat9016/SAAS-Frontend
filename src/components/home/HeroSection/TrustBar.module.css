@@ -65,39 +65,55 @@
 
 /* ---- Responsive ---- */
 
-/* Mobile: 2-column grid */
+/* Mobile: horizontal scroll, rounded boxes, icon on top */
 @media (max-width: 639px) {
+  .trustBar {
+    border: none;
+    background: transparent;
+    border-radius: 0;
+    overflow: visible;
+  }
+
   .trackWrap {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    overflow-x: visible;
+    display: flex;
+    overflow-x: auto;
+    gap: 0.6rem;
+    padding: 0 0.25rem;
+    scroll-snap-type: x mandatory;
   }
 
   .badge {
-    padding: 0.7rem 0.75rem;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    min-width: 5.5rem;
+    padding: 0.75rem 0.5rem;
     border-right: none;
-    border-bottom: 1px solid #f3f4f6;
-    gap: 0.5rem;
-  }
-
-  .badge:nth-child(odd) {
-    border-right: 1px solid #f3f4f6;
-  }
-
-  .badge:nth-last-child(-n+2) {
     border-bottom: none;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    text-align: center;
+    scroll-snap-align: start;
+    flex-shrink: 0;
+  }
+
+  .badge:hover {
+    background: #f9fafb;
   }
 
   .iconWrap {
-    width: 1.75rem;
-    height: 1.75rem;
-    min-width: 1.75rem;
-    min-height: 1.75rem;
+    width: 2.25rem;
+    height: 2.25rem;
+    min-width: 2.25rem;
+    min-height: 2.25rem;
   }
 
   .label {
-    font-size: 0.7rem;
-    white-space: normal;
+    font-size: 0.65rem;
+    white-space: nowrap;
+    line-height: 1.2;
   }
 }
 

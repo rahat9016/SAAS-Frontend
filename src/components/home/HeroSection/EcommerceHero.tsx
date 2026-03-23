@@ -14,14 +14,29 @@ export default function EcommerceHero() {
           {/* Category Sidebar — Desktop only */}
           <CategorySidebar />
 
-          {/* Right side: Banner + Flash Sale */}
+          {/* Right side: Banner + Flash Sale (Desktop) */}
           <div className="flex-1 min-w-0">
             <HeroBanner />
-            <FlashSaleCards />
+            {/* Flash sale — desktop only inside container */}
+            <div className="hidden lg:block">
+              <FlashSaleCards />
+            </div>
           </div>
         </div>
 
-        {/* Trust bar — Full width */}
+        {/* Trust bar — Desktop only inside container */}
+        <div className="hidden lg:block">
+          <TrustBar />
+        </div>
+      </div>
+
+      {/* Flash sale — mobile: full-width scroll */}
+      <div className="lg:hidden px-4 mt-3">
+        <FlashSaleCards />
+      </div>
+
+      {/* Trust bar — mobile: full-width scroll */}
+      <div className="lg:hidden px-4 mt-3">
         <TrustBar />
       </div>
     </section>
