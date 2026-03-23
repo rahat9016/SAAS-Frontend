@@ -1,10 +1,10 @@
 export const siteConfig = {
   name:
     process.env.NEXT_PUBLIC_SITE_NAME ||
-    "Tecgen Soft",
+    "X-Plaza",
   description:
     process.env.NEXT_PUBLIC_SITE_DESCRIPTION ||
-    "Tecgen Soft",
+    "X-Plaza",
   address:
     process.env.NEXT_PUBLIC_ADDRESS ||
     "West Khabaspur, Faridpur Sadar, Faridpur District, Dhaka Division, Bangladesh",

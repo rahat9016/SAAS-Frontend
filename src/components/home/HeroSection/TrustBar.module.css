@@ -52,8 +52,8 @@
   min-width: 2rem;
   min-height: 2rem;
   border-radius: 50%;
-  background: rgba(13, 148, 136, 0.1);
-  color: var(--primary, #0d9488);
+  background: rgba(83, 175, 69, 0.1);
+  color: var(--primary, #53af45);
 }
 
 .label {

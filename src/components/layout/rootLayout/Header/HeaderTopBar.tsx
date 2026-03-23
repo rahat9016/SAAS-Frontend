@@ -1,6 +1,7 @@
 "use client";
 
 import { siteConfig } from "@/src/config/siteConfig";
+import logo from "@/public/logo.png";
 import { useAuthModal } from "@/src/context/AuthModalContext";
 import { dummyProducts } from "@/src/data/dummyProducts";
 import { useDebounce } from "@/src/hooks/useDebounce";
@@ -96,9 +97,10 @@ export default function HeaderTopBar({
         {/* Logo */}
         <Link
           href="/"
-          className="shrink-0 text-2xl font-bold text-gray-900 tracking-tight"
+          className="shrink-0 flex items-center gap-2"
         >
-          {siteConfig.name}
+          <Image src={logo} alt={siteConfig.name} width={40} height={40} className="w-10 h-10 object-contain" />
+          <span className="text-2xl font-bold text-gray-900 tracking-tight">{siteConfig.name}</span>
         </Link>
 
         {/* Search Bar */}
@@ -310,9 +312,10 @@ export default function HeaderTopBar({
             </button>
             <Link
               href="/"
-              className="text-xl font-bold text-gray-900 tracking-tight"
+              className="flex items-center gap-1.5"
             >
-              {siteConfig.name}
+              <Image src={logo} alt={siteConfig.name} width={32} height={32} className="w-8 h-8 object-contain" />
+              <span className="text-xl font-bold text-gray-900 tracking-tight">{siteConfig.name}</span>
             </Link>
           </div>
           <div className="flex items-center gap-1 text-xs text-gray-500">

@@ -63,8 +63,8 @@
   --background: #ffffff;
   --foreground: oklch(0.18 0 0);
 
-  --primary: #009dab;
-  --primary-light: #009aa0;
+  --primary: #53af45;
+  --primary-light: #47a33a;
   --primary-foreground: oklch(0.985 0 0);
 
   --secondary: #05185a;
@@ -102,8 +102,8 @@
   --light-dark: #eeeeee;
   --light-silver: #e0e0e0;
 
-  --primary: #00b6c7;
-  --primary-light: #009aa0;
+  --primary: #5fbd50;
+  --primary-light: #47a33a;
   --primary-foreground: oklch(0.18 0 0);
 
   --secondary: #1b3478;
