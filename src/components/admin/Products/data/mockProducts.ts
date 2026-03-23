@@ -10,6 +10,7 @@ export const MOCK_PRODUCTS: IProductListItem[] = [
     stock: 25,
     status: true,
     hasVariants: true,
+    isNewArrival: true,
   },
   {
     id: "prod-2",
@@ -20,6 +21,7 @@ export const MOCK_PRODUCTS: IProductListItem[] = [
     stock: 45,
     status: true,
     hasVariants: true,
+    isNewArrival: false,
   },
   {
     id: "prod-3",
@@ -30,6 +32,7 @@ export const MOCK_PRODUCTS: IProductListItem[] = [
     stock: 12,
     status: true,
     hasVariants: true,
+    isNewArrival: true,
   },
   {
     id: "prod-4",
@@ -40,6 +43,7 @@ export const MOCK_PRODUCTS: IProductListItem[] = [
     stock: 0,
     status: false,
     hasVariants: false,
+    isNewArrival: false,
   },
   {
     id: "prod-5",
@@ -50,6 +54,7 @@ export const MOCK_PRODUCTS: IProductListItem[] = [
     stock: 8,
     status: true,
     hasVariants: false,
+    isNewArrival: false,
   },
   {
     id: "prod-6",
@@ -60,6 +65,7 @@ export const MOCK_PRODUCTS: IProductListItem[] = [
     stock: 3,
     status: true,
     hasVariants: false,
+    isNewArrival: false,
   },
 ];
 
@@ -84,6 +90,7 @@ export const MOCK_PRODUCT_DETAILS: Record<string, IProductDetail> = {
     subCategory: "Smartphones",
     brand: "Apple",
     status: true,
+    isNewArrival: true,
     createdAt: "2026-03-15T10:00:00Z",
     variants: [
       {
@@ -138,6 +145,7 @@ export const MOCK_PRODUCT_DETAILS: Record<string, IProductDetail> = {
     subCategory: "Men's Wear",
     brand: "Nike",
     status: true,
+    isNewArrival: false,
     createdAt: "2026-03-10T08:30:00Z",
     variants: [
       {
@@ -181,6 +189,7 @@ export const MOCK_PRODUCT_DETAILS: Record<string, IProductDetail> = {
     subCategory: "Accessories",
     brand: "Sony",
     status: true,
+    isNewArrival: false,
     createdAt: "2026-03-05T14:00:00Z",
   },
 };
