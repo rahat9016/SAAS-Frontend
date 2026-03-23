@@ -5,12 +5,31 @@ import { IProduct } from "@/src/types/ecommerce/product";
 import { IShopFilters, SortOption } from "@/src/types/ecommerce/shop";
 import { SORT_OPTIONS } from "@/src/constants/ecommerce/shop";
 import {
+  Check,
   Filter,
   Package,
   SlidersHorizontal,
   Star,
   X,
 } from "lucide-react";
+
+// Color name → hex mapping for swatches
+const COLOR_HEX: Record<string, string> = {
+  "Black": "#111111",
+  "White": "#f9f9f9",
+  "Indigo": "#3f51b5",
+  "Light Wash": "#a8c4e0",
+  "Rose Pink": "#e8919a",
+  "Sky Blue": "#87ceeb",
+  "Charcoal": "#444444",
+  "Cream": "#f5f0e1",
+  "Forest Green": "#2d6a2e",
+  "Grey Marl": "#b0b0b0",
+  "Khaki": "#c3b091",
+  "Navy": "#1b2b5e",
+  "Olive": "#6b7a3f",
+  "Dusty Pink": "#d4a5a5",
+};
 import { useMemo, useState } from "react";
 import ProductCard from "../ProductCard/ProductCard";
 import styles from "./ShopPage.module.css";
@@ -35,6 +54,21 @@ export default function ShopPage() {
     return Array.from(brands.entries()).map(([name, count]) => ({ name, count }));
   }, [allProducts]);
 
+  const allColors = useMemo(() => {
+    const colorSet = new Set<string>();
+    allProducts.forEach((p) => {
+      p.attributes?.forEach((attr) => {
+        if (attr.name === "Color") colorSet.add(attr.value);
+      });
+      p.variants?.forEach((v) => {
+        v.attributes?.forEach((attr) => {
+          if (attr.name === "Color") colorSet.add(attr.value);
+        });
+      });
+    });
+    return Array.from(colorSet).sort();
+  }, [allProducts]);
+
   const priceRange = useMemo(() => {
     const prices = allProducts.map((p) => p.price);
     return { min: Math.min(...prices), max: Math.max(...prices) };
@@ -45,6 +79,7 @@ export default function ShopPage() {
   const [filters, setFilters] = useState<IShopFilters>({
     categories: [],
     brands: [],
+    colors: [],
     minPrice: priceRange.min,
     maxPrice: priceRange.max,
     minRating: 0,
@@ -68,6 +103,20 @@ export default function ShopPage() {
     }
     if (filters.minRating > 0) {
       result = result.filter((p) => p.rating >= filters.minRating);
+    }
+    if (filters.colors.length > 0) {
+      result = result.filter((p) => {
+        const productColors = new Set<string>();
+        p.attributes?.forEach((attr) => {
+          if (attr.name === "Color") productColors.add(attr.value);
+        });
+        p.variants?.forEach((v) => {
+          v.attributes?.forEach((attr) => {
+            if (attr.name === "Color") productColors.add(attr.value);
+          });
+        });
+        return filters.colors.some((c) => productColors.has(c));
+      });
     }
     if (filters.freeShipping) {
       result = result.filter((p) => p.freeShipping);
@@ -114,6 +163,12 @@ export default function ShopPage() {
         clear: () => setFilters((f) => ({ ...f, brands: f.brands.filter((x) => x !== b) })),
       })
     );
+    filters.colors.forEach((c) =>
+      tags.push({
+        label: c,
+        clear: () => setFilters((f) => ({ ...f, colors: f.colors.filter((x) => x !== c) })),
+      })
+    );
     if (filters.minRating > 0) {
       tags.push({
         label: `${filters.minRating}★ & up`,
@@ -145,6 +200,7 @@ export default function ShopPage() {
     setFilters({
       categories: [],
       brands: [],
+      colors: [],
       minPrice: priceRange.min,
       maxPrice: priceRange.max,
       minRating: 0,
@@ -162,6 +218,12 @@ export default function ShopPage() {
     setFilters((f) => ({
       ...f,
       brands: f.brands.includes(name) ? f.brands.filter((x) => x !== name) : [...f.brands, name],
+    }));
+
+  const toggleColor = (color: string) =>
+    setFilters((f) => ({
+      ...f,
+      colors: f.colors.includes(color) ? f.colors.filter((x) => x !== color) : [...f.colors, color],
     }));
 
   // --- Render filter content (reuse in sidebar & mobile drawer) ---
@@ -249,6 +311,36 @@ export default function ShopPage() {
               <span className={styles.checkCount}>({brand.count})</span>
             </label>
           ))}
+        </div>
+      </div>
+
+      {/* Colors */}
+      <div className={styles.filterGroup}>
+        <h4 className={styles.filterGroupTitle}>Color</h4>
+        <div className={styles.colorSwatchGrid}>
+          {allColors.map((color) => {
+            const isActive = filters.colors.includes(color);
+            const hex = COLOR_HEX[color] || "#cccccc";
+            const isLight = ["White", "Cream", "Light Wash"].includes(color);
+            return (
+              <button
+                key={color}
+                title={color}
+                className={`${styles.colorSwatch} ${isActive ? styles.colorSwatchActive : ""}`}
+                onClick={() => toggleColor(color)}
+              >
+                <span className={styles.colorSwatchInner} style={{ background: hex }} />
+                {isActive && (
+                  <Check
+                    size={12}
+                    strokeWidth={3}
+                    className={styles.colorSwatchCheck}
+                    style={{ color: isLight ? "#333" : "#fff" }}
+                  />
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
 

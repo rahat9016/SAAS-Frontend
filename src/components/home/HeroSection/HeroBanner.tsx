@@ -7,18 +7,18 @@ import { useCallback, useEffect, useState } from "react";
 const banners = [
   {
     id: 1,
-    image: "https://picsum.photos/seed/banner1/900/400",
-    alt: "Deal of the Day",
+    image: "/banners/hero-1.png",
+    alt: "Autumn Elegance Collection",
   },
   {
     id: 2,
-    image: "https://picsum.photos/seed/banner2/900/400",
-    alt: "New Arrivals",
+    image: "/banners/hero-2.png",
+    alt: "Summer Sale - Up to 50% Off",
   },
   {
     id: 3,
-    image: "https://picsum.photos/seed/banner3/900/400",
-    alt: "Super Sale",
+    image: "/banners/hero-3.png",
+    alt: "New Arrivals - Winter Collection",
   },
 ];
 
