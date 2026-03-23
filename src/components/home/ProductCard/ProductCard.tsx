@@ -73,12 +73,12 @@ export default function ProductCard({ product }: ProductCardProps) {
       </div>
 
       {/* Content — fixed height */}
-      <div className="flex flex-col justify-between shrink-0 h-[120px] py-2.5 px-2">
+      <div className="flex flex-col justify-between shrink-0 h-[100px] pt-2 pb-2 px-2">
         <div className="flex flex-col gap-0.5">
           {product.brand && (
             <span className="text-xs font-bold text-foreground truncate">{product.brand.name}</span>
           )}
-          <h3 className="text-xs font-normal text-muted-foreground line-clamp-2 leading-snug">
+          <h3 className="text-xs font-normal text-muted-foreground truncate leading-snug">
             {product.name}
           </h3>
         </div>
