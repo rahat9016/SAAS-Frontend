@@ -6,8 +6,9 @@ import { toast } from "react-toastify";
 import DeleteConfirmDialog from "@/src/components/shared/DeleteConfirmDialog";
 import ProductsTable from "../ProductsTable";
 import { GetProductColumns } from "../TableColumns/ProductColumns";
-import { MOCK_PRODUCTS } from "../data/mockProducts";
+
 import { IProductListItem } from "../types";
+import { MOCK_PRODUCTS } from "../data/mockProducts";
 
 export default function ProductList() {
   const router = useRouter();
