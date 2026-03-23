@@ -47,8 +47,8 @@ const promoBanners = [
 
 export default function PromoBanners() {
   return (
-    <section className="pt-8 pb-2">
-      <div className="container px-4 sm:px-6 lg:px-8">
+    <section className="py-8">
+      <div className="container">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 lg:grid-rows-2 gap-3 sm:gap-4 lg:h-[480px]">
           {promoBanners.map((banner) => (
             <Link
@@ -63,8 +63,8 @@ export default function PromoBanners() {
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-gradient-to-br from-black/45 to-black/10 z-[1]" />
-              <div className="relative z-[2] flex flex-col justify-end h-full p-4 sm:p-6 text-white">
+              <div className="absolute inset-0 bg-linear-to-br from-black/45 to-black/10 z-1" />
+              <div className="relative z-2 flex flex-col justify-end h-full p-4 sm:p-6 text-white">
                 <span className="text-[11px] font-semibold uppercase tracking-widest opacity-85 mb-1">
                   {banner.tag}
                 </span>

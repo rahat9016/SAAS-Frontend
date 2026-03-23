@@ -64,7 +64,7 @@ export default function CtaBanner() {
   }, [next]);
 
   return (
-    <section className="w-full relative overflow-hidden group">
+    <section className="w-full relative overflow-hidden group py-8">
       <div className="relative w-full aspect-16/6 sm:aspect-16/5 lg:aspect-[16/4.5]">
         {ctaBanners.map((banner, index) => (
           <div

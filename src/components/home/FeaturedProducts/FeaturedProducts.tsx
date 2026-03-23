@@ -59,7 +59,7 @@ export default function FeaturedProducts() {
   return (
     <section className="py-8 lg:py-12">
       {/* Header inside container */}
-      <div className="container px-4 sm:px-6 lg:px-8" ref={headerRef}>
+      <div className="container" ref={headerRef}>
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-xl sm:text-2xl font-bold text-foreground">

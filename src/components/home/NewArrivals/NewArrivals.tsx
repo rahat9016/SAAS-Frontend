@@ -58,8 +58,8 @@ export default function NewArrivals() {
   if (products.length === 0) return null;
 
   return (
-    <section className="py-8 lg:py-12">
-      <div className="container px-4 sm:px-6 lg:px-8" ref={headerRef}>
+    <section className="py-8 lg:py-12 bg-primary/10">
+      <div className="container" ref={headerRef}>
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-xl sm:text-2xl font-bold text-foreground flex items-center gap-2">
@@ -96,7 +96,7 @@ export default function NewArrivals() {
           {products.map((product) => (
             <div
               key={product.id}
-              className="flex-shrink-0"
+              className="shrink-0"
               style={{ width: "clamp(170px, 18vw, 230px)" }}
             >
               <ProductCard product={product} />
