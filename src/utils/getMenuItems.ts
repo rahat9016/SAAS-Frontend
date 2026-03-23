@@ -65,6 +65,13 @@ export function getMenuItems(): MenuItem[] {
       ],
     },
     {
+      label: "Order Management",
+      icon: HealthPackages,
+      children: [
+        { label: "All Orders", href: "/admin/orders" },
+      ],
+    },
+    {
       label: "Hero Management",
       icon: HeroManagement,
       href: "/admin/hero-management",

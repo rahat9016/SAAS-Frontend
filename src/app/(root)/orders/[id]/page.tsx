@@ -158,51 +158,163 @@ export default function OrderDetailPage({
             </div>
           </div>
 
-          {/* === RIGHT: Timeline + Payment + Summary === */}
+          {/* === RIGHT: Reason + Timeline + Payment + Summary === */}
           <div className="flex flex-col gap-6">
-            {/* Status Timeline */}
+            {/* ── Cancellation Reason ── */}
+            {order.orderStatus === OrderStatus.CANCELLED && order.cancelReason && (
+              <div className="border border-red-200 rounded-xl bg-red-50 overflow-hidden">
+                <div className="flex items-center gap-2 px-4 sm:px-5 py-3 border-b border-red-200">
+                  <span className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center text-red-600 text-xs font-bold">✕</span>
+                  <h2 className="text-sm font-bold text-red-800">Order Cancelled</h2>
+                </div>
+                <div className="px-4 sm:px-5 py-4 space-y-2">
+                  <p className="text-sm text-red-700 leading-relaxed">{order.cancelReason}</p>
+                  <p className="text-[11px] text-red-400">
+                    Cancelled on{" "}
+                    {new Date(order.updatedAt).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </p>
+                  {order.paymentStatus === "REFUNDED" && (
+                    <div className="flex items-center gap-2 bg-white/80 rounded-lg px-3 py-2 border border-red-200 mt-1">
+                      <span className="text-sm">💰</span>
+                      <p className="text-xs text-red-700 font-medium">
+                        Refund of ৳{order.total.toLocaleString()} has been processed via {order.paymentMethod}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* ── Return Reason ── */}
+            {order.orderStatus === OrderStatus.RETURNED && order.returnReason && (
+              <div className="border border-orange-200 rounded-xl bg-orange-50 overflow-hidden">
+                <div className="flex items-center gap-2 px-4 sm:px-5 py-3 border-b border-orange-200">
+                  <span className="w-6 h-6 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 text-xs">↩</span>
+                  <h2 className="text-sm font-bold text-orange-800">Order Returned</h2>
+                </div>
+                <div className="px-4 sm:px-5 py-4 space-y-2">
+                  <p className="text-sm text-orange-700 leading-relaxed">{order.returnReason}</p>
+                  <p className="text-[11px] text-orange-400">
+                    Returned on{" "}
+                    {new Date(order.updatedAt).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </p>
+                  {order.paymentStatus === "REFUNDED" && (
+                    <div className="flex items-center gap-2 bg-white/80 rounded-lg px-3 py-2 border border-orange-200 mt-1">
+                      <span className="text-sm">💰</span>
+                      <p className="text-xs text-orange-700 font-medium">
+                        Refund of ৳{order.total.toLocaleString()} has been processed via {order.paymentMethod}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* ── Status Timeline ── */}
             <div className="border border-border rounded-xl bg-card overflow-hidden">
               <h2 className="text-sm font-bold text-foreground px-4 sm:px-5 py-3 border-b border-border flex items-center gap-2">
                 <span className="w-1 h-4 bg-primary rounded-full" />
                 Order Status
               </h2>
               <div className="flex flex-col gap-0 px-4 sm:px-5 py-4">
-                {STATUS_FLOW.map((status, idx) => {
-                  const isDone = idx < currentStatusIdx;
-                  const isActive = idx === currentStatusIdx;
-                  return (
-                    <div key={status} className="flex items-start gap-3 relative pb-5 last:pb-0">
-                      {/* Connecting line */}
-                      {idx < STATUS_FLOW.length - 1 && (
-                        <div className={`absolute left-[9px] top-5 w-0.5 h-[calc(100%-12px)] ${isDone ? "bg-primary" : "bg-border"}`} />
-                      )}
-                      {/* Dot */}
-                      <div
-                        className={`w-[18px] h-[18px] rounded-full border-2 shrink-0 mt-0.5 ${
-                          isDone
-                            ? "bg-primary border-primary"
-                            : isActive
-                            ? "bg-white border-primary shadow-md"
-                            : "bg-muted border-border"
-                        }`}
-                      />
-                      <div>
-                        <p className={`text-sm font-medium capitalize ${isDone || isActive ? "text-foreground" : "text-foreground/45"}`}>
-                          {status}
-                        </p>
-                        {isActive && (
+                {order.orderStatus === OrderStatus.CANCELLED ||
+                order.orderStatus === OrderStatus.RETURNED ? (
+                  /* Full history for cancelled/returned */
+                  (order.statusHistory ?? []).map((entry, idx) => {
+                    const entries = order.statusHistory ?? [];
+                    const isCancelled = entry.status === OrderStatus.CANCELLED;
+                    const isReturned = entry.status === OrderStatus.RETURNED;
+                    return (
+                      <div key={idx} className="flex items-start gap-3 relative pb-5 last:pb-0">
+                        {idx < entries.length - 1 && (
+                          <div
+                            className={`absolute left-[9px] top-5 w-0.5 h-[calc(100%-12px)] ${
+                              isCancelled || isReturned ? "bg-red-300" : "bg-primary"
+                            }`}
+                          />
+                        )}
+                        <div
+                          className={`w-[18px] h-[18px] rounded-full border-2 shrink-0 mt-0.5 ${
+                            isCancelled
+                              ? "bg-red-500 border-red-500"
+                              : isReturned
+                              ? "bg-orange-500 border-orange-500"
+                              : "bg-primary border-primary"
+                          }`}
+                        />
+                        <div>
+                          <p
+                            className={`text-sm font-medium capitalize ${
+                              isCancelled ? "text-red-600" : isReturned ? "text-orange-600" : "text-foreground"
+                            }`}
+                          >
+                            {entry.status}
+                          </p>
                           <p className="text-[11px] text-muted-foreground mt-0.5">
-                            {new Date(order.updatedAt).toLocaleDateString("en-US", {
+                            {new Date(entry.date).toLocaleDateString("en-US", {
                               month: "short",
                               day: "numeric",
                               year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
                             })}
                           </p>
-                        )}
+                          {entry.note && (
+                            <p className="text-[11px] text-muted-foreground italic mt-0.5">{entry.note}</p>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })
+                ) : (
+                  /* Normal flow */
+                  STATUS_FLOW.map((status, idx) => {
+                    const isDone = idx < currentStatusIdx;
+                    const isActive = idx === currentStatusIdx;
+                    return (
+                      <div key={status} className="flex items-start gap-3 relative pb-5 last:pb-0">
+                        {idx < STATUS_FLOW.length - 1 && (
+                          <div className={`absolute left-[9px] top-5 w-0.5 h-[calc(100%-12px)] ${isDone ? "bg-primary" : "bg-border"}`} />
+                        )}
+                        <div
+                          className={`w-[18px] h-[18px] rounded-full border-2 shrink-0 mt-0.5 ${
+                            isDone
+                              ? "bg-primary border-primary"
+                              : isActive
+                              ? "bg-white border-primary shadow-md"
+                              : "bg-muted border-border"
+                          }`}
+                        />
+                        <div>
+                          <p className={`text-sm font-medium capitalize ${isDone || isActive ? "text-foreground" : "text-foreground/45"}`}>
+                            {status}
+                          </p>
+                          {isActive && (
+                            <p className="text-[11px] text-muted-foreground mt-0.5">
+                              {new Date(order.updatedAt).toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                              })}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
               </div>
             </div>
 
@@ -219,7 +331,19 @@ export default function OrderDetailPage({
                 </div>
                 <div>
                   <p className="text-[11px] text-muted-foreground mb-0.5">Payment Status</p>
-                  <p className="text-sm font-medium text-foreground">{order.paymentStatus}</p>
+                  <p
+                    className={`text-sm font-medium ${
+                      order.paymentStatus === "REFUNDED"
+                        ? "text-purple-600"
+                        : order.paymentStatus === "PAID"
+                        ? "text-green-600"
+                        : order.paymentStatus === "FAILED"
+                        ? "text-red-600"
+                        : "text-foreground"
+                    }`}
+                  >
+                    {order.paymentStatus}
+                  </p>
                 </div>
                 {order.trackingNumber && (
                   <div>

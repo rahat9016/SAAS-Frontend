@@ -44,8 +44,29 @@ export interface IOrderItem {
   name: string;
   image: string;
   price: number;
+  originalPrice?: number;
   quantity: number;
   variantName?: string;
+  attributes?: Record<string, string>;
+  campaignName?: string;
+  campaignDiscount?: number;
+}
+
+export interface IStatusHistoryEntry {
+  status: OrderStatus;
+  date: string;
+  note?: string;
+}
+
+export interface IPaymentHistoryEntry {
+  id: string;
+  type: "payment" | "refund" | "attempt";
+  method: PaymentMethod;
+  amount: number;
+  status: "success" | "failed" | "pending";
+  transactionId?: string;
+  date: string;
+  note?: string;
 }
 
 export interface IOrder {
@@ -68,6 +89,11 @@ export interface IOrder {
   estimatedDelivery?: string;
   createdAt: string;
   updatedAt: string;
+  // Enhanced fields
+  statusHistory?: IStatusHistoryEntry[];
+  paymentHistory?: IPaymentHistoryEntry[];
+  cancelReason?: string;
+  returnReason?: string;
 }
 
 export interface IPayment {
