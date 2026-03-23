@@ -8,51 +8,43 @@ import {
     Tag,
     Truck,
 } from "lucide-react";
+import styles from "./TrustBar.module.css";
 
 const badges = [
   {
-    icon: <CreditCard size={20} className="text-primary" />,
+    icon: <CreditCard size={18} />,
     label: "Easy Payment",
   },
   {
-    icon: <Truck size={20} className="text-primary" />,
+    icon: <Truck size={18} />,
     label: "Nationwide Delivery",
   },
   {
-    icon: <RotateCcw size={20} className="text-primary" />,
-    label: "Free & Easy Returns",
+    icon: <RotateCcw size={18} />,
+    label: "Easy Returns",
   },
   {
-    icon: <Tag size={20} className="text-primary" />,
-    label: "Best Price Guaranteed",
+    icon: <Tag size={18} />,
+    label: "Best Price",
   },
   {
-    icon: <BadgeCheck size={20} className="text-primary" />,
-    label: "100% Authentic Products",
+    icon: <BadgeCheck size={18} />,
+    label: "100% Authentic",
   },
   {
-    icon: <Lock size={20} className="text-primary" />,
+    icon: <Lock size={18} />,
     label: "Secure Payment",
   },
 ];
 
 export default function TrustBar() {
   return (
-    <div className="bg-white border border-gray-200 rounded-lg mt-4 lg:mt-5">
-      <div className="flex items-center overflow-x-auto scrollbar-none">
-        {badges.map((badge, index) => (
-          <div
-            key={badge.label}
-            className={`flex items-center gap-2 px-4 lg:px-5 py-3 shrink-0 ${
-              index < badges.length - 1
-                ? "border-r border-gray-200"
-                : ""
-            }`}
-          >
-            {badge.icon}
-            <span className="text-xs lg:text-sm font-medium text-gray-700 whitespace-nowrap">
-              {badge.label}
-            </span>
+    <div className={styles.trustBar}>
+      <div className={styles.trackWrap}>
+        {badges.map((badge) => (
+          <div key={badge.label} className={styles.badge}>
+            <span className={styles.iconWrap}>{badge.icon}</span>
+            <span className={styles.label}>{badge.label}</span>
           </div>
         ))}
       </div>

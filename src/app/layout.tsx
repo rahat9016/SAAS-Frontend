@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
 
+import LoginModal from "../components/auth/LoginModal/LoginModal";
 import ToastProvider from "../components/shared/Toast/ToastProvider";
 import { siteConfig } from "../config/siteConfig";
+import { AuthModalProvider } from "../context/AuthModalContext";
 import QueryProvider from "../lib/react-query/QueryProvider";
 import StoreProvider from "../lib/redux/provider/StoreProvider";
 import { UserFetcher } from "./UserFetcher";
@@ -30,13 +32,17 @@ export default function RootLayout({
       <body className="antialiased" suppressHydrationWarning>
         <StoreProvider>
           <QueryProvider>
-            <ToastProvider>
-              <UserFetcher />
-              <main>{children}</main>
-            </ToastProvider>
+            <AuthModalProvider>
+              <ToastProvider>
+                <UserFetcher />
+                <main>{children}</main>
+                <LoginModal />
+              </ToastProvider>
+            </AuthModalProvider>
           </QueryProvider>
         </StoreProvider>
       </body>
     </html>
   );
 }
+

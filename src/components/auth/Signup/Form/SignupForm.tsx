@@ -1,8 +1,9 @@
-// components/auth/LoginForm.tsx
+// components/auth/SignupForm.tsx
 "use client";
 
 import ErrorMessage from "@/src/components/shared/Errors/ErrorMessage";
 import ControlledInputField from "@/src/components/shared/FromController/ControlledInputField";
+import GoogleSignInButton from "@/src/components/shared/GoogleSignInButton/GoogleSignInButton";
 import InputLabel from "@/src/components/shared/InputLabel";
 import { Button } from "@/src/components/ui/button";
 import { Eye, EyeOff } from "lucide-react";
@@ -23,7 +24,20 @@ export default function SignupForm({
 
   return (
     <form onSubmit={methods.handleSubmit(onSubmit)} className="w-full max-w-md">
-      <h2 className="text-[32px] font-semibold mb-10 text-primary">Sign Up</h2>
+      <h2 className="text-[32px] font-semibold mb-6 text-primary">Sign Up</h2>
+
+      {/* Google Sign Up */}
+      <GoogleSignInButton label="Sign up with Google" />
+
+      {/* Divider */}
+      <div className="flex items-center gap-3 my-6">
+        <span className="flex-1 h-px bg-gray-200" />
+        <span className="text-xs text-gray-400 font-medium uppercase tracking-wider">
+          or sign up with email
+        </span>
+        <span className="flex-1 h-px bg-gray-200" />
+      </div>
+
       <div className="mb-6 grid grid-cols-1 lg:grid-cols-2 gap-3">
         <div>
           <InputLabel label="First Name" required />
@@ -111,3 +125,4 @@ export default function SignupForm({
     </form>
   );
 }
+

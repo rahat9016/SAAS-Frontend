@@ -1,0 +1,126 @@
+/* ================================
+   Trust Bar – Scoped Styles
+================================= */
+
+.trustBar {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  margin-top: 1.25rem;
+  overflow: hidden;
+}
+
+/* Row container — hide scrollbar */
+.trackWrap {
+  display: flex;
+  align-items: stretch;
+  overflow-x: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.trackWrap::-webkit-scrollbar {
+  display: none;
+}
+
+/* Each badge item */
+.badge {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.85rem 1.1rem;
+  white-space: nowrap;
+  border-right: 1px solid #e5e7eb;
+  transition: background 0.2s;
+}
+
+.badge:last-child {
+  border-right: none;
+}
+
+.badge:hover {
+  background: #f9fafb;
+}
+
+/* Icon circle */
+.iconWrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  min-width: 2rem;
+  min-height: 2rem;
+  border-radius: 50%;
+  background: rgba(13, 148, 136, 0.1);
+  color: var(--primary, #0d9488);
+}
+
+.label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #374151;
+  letter-spacing: 0.01em;
+}
+
+/* ---- Responsive ---- */
+
+/* Mobile: 2-column grid */
+@media (max-width: 639px) {
+  .trackWrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    overflow-x: visible;
+  }
+
+  .badge {
+    padding: 0.7rem 0.75rem;
+    border-right: none;
+    border-bottom: 1px solid #f3f4f6;
+    gap: 0.5rem;
+  }
+
+  .badge:nth-child(odd) {
+    border-right: 1px solid #f3f4f6;
+  }
+
+  .badge:nth-last-child(-n+2) {
+    border-bottom: none;
+  }
+
+  .iconWrap {
+    width: 1.75rem;
+    height: 1.75rem;
+    min-width: 1.75rem;
+    min-height: 1.75rem;
+  }
+
+  .label {
+    font-size: 0.7rem;
+    white-space: normal;
+  }
+}
+
+/* Desktop: even distribution */
+@media (min-width: 1024px) {
+  .badge {
+    flex: 1 1 0%;
+    justify-content: center;
+    padding: 0.85rem 0.35rem;
+    gap: 0.45rem;
+    min-width: 0;
+  }
+
+  .iconWrap {
+    width: 1.65rem;
+    height: 1.65rem;
+    min-width: 1.65rem;
+    min-height: 1.65rem;
+  }
+
+  .label {
+    font-size: 0.72rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}

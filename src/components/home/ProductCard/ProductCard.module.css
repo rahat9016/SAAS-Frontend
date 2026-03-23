@@ -159,6 +159,14 @@
   line-height: 1.4;
 }
 
+/* --- Deal badges (below description) --- */
+.dealBadges {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.15rem;
+}
+
 /* --- Price section --- */
 .priceSection {
   display: flex;

@@ -1,6 +1,7 @@
 "use client";
 
 import { siteConfig } from "@/src/config/siteConfig";
+import { useAuthModal } from "@/src/context/AuthModalContext";
 import { dummyProducts } from "@/src/data/dummyProducts";
 import { useDebounce } from "@/src/hooks/useDebounce";
 import { useAppSelector } from "@/src/lib/redux/hooks";
@@ -34,6 +35,7 @@ export default function HeaderTopBar({
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+  const { openLoginModal } = useAuthModal();
   const cartItems = useAppSelector((state) => state.cart.items);
   const wishlistIds = useAppSelector((state) => state.wishlist.productIds);
   const { userInformation } = useAppSelector((state) => state.auth);
@@ -232,20 +234,31 @@ export default function HeaderTopBar({
               {siteConfig.currency}
             </span>
           </div>
-          <Link
-            href={userInformation?.firstName ? "/account" : "/auth/login"}
-            className="flex flex-col items-center gap-0.5 px-3 py-1.5 text-gray-600 hover:text-primary transition-colors group"
-          >
-            <User
-              size={20}
-              className="group-hover:scale-110 transition-transform"
-            />
-            <span className="text-xs whitespace-nowrap">
-              {userInformation?.firstName
-                ? userInformation.firstName
-                : "Sign in"}
-            </span>
-          </Link>
+          {userInformation?.firstName ? (
+            <Link
+              href="/account"
+              className="flex flex-col items-center gap-0.5 px-3 py-1.5 text-gray-600 hover:text-primary transition-colors group"
+            >
+              <User
+                size={20}
+                className="group-hover:scale-110 transition-transform"
+              />
+              <span className="text-xs whitespace-nowrap">
+                {userInformation.firstName}
+              </span>
+            </Link>
+          ) : (
+            <button
+              onClick={() => openLoginModal()}
+              className="flex flex-col items-center gap-0.5 px-3 py-1.5 text-gray-600 hover:text-primary transition-colors group cursor-pointer"
+            >
+              <User
+                size={20}
+                className="group-hover:scale-110 transition-transform"
+              />
+              <span className="text-xs whitespace-nowrap">Sign in</span>
+            </button>
+          )}
           <Link
             href="/wishlist"
             className="relative flex flex-col items-center gap-0.5 px-3 py-1.5 text-gray-600 hover:text-primary transition-colors group"

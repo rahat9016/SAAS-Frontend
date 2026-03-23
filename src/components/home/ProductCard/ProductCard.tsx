@@ -55,16 +55,10 @@ export default function ProductCard({ product }: ProductCardProps) {
           <Heart size={16} fill={isWishlisted ? "currentColor" : "none"} />
         </button>
 
-        {/* Badges – bottom left */}
+        {/* Badges on image – New + Free Delivery only */}
         <div className={styles.badges}>
           {product.isNewArrival && (
             <span className={styles.badgeNew}>New</span>
-          )}
-          {hasDiscount && (
-            <>
-              <span className={styles.badgeDiscount}>{discountPercent}%</span>
-              <span className={styles.badgeDeal}>Deal</span>
-            </>
           )}
           {product.freeShipping && (
             <span className={styles.badgeFreeDelivery}>
@@ -81,6 +75,14 @@ export default function ProductCard({ product }: ProductCardProps) {
           <span className={styles.brand}>{product.brand.name}</span>
         )}
         <h3 className={styles.name}>{product.name}</h3>
+
+        {/* Deal badges – below description */}
+        {hasDiscount && (
+          <div className={styles.dealBadges}>
+            <span className={styles.badgeDiscount}>{discountPercent}%</span>
+            <span className={styles.badgeDeal}>Deal</span>
+          </div>
+        )}
 
         {/* Price */}
         <div className={styles.priceSection}>
