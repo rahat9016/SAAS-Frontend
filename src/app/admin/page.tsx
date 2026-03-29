@@ -4,7 +4,7 @@ import RevenueChart from "@/src/components/admin/Dashboard/RevenueChart";
 import StatsCards from "@/src/components/admin/Dashboard/StatsCards";
 import WeeklyRevenueChart from "@/src/components/admin/Finance/WeeklyRevenueChart";
 import DailySalesChart from "@/src/components/admin/Finance/DailySalesChart";
-import TransactionTable from "@/src/components/admin/Finance/TransactionTable";
+import TransactionLedger from "@/src/components/admin/Finance/TransactionLedger";
 import PaymentMethodBreakdown from "@/src/components/admin/Finance/PaymentMethodBreakdown";
 
 export default function AdminDashboardPage() {
@@ -24,7 +24,7 @@ export default function AdminDashboardPage() {
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         <div className="lg:col-span-2">
-          <TransactionTable />
+          <TransactionLedger />
         </div>
         <PaymentMethodBreakdown />
       </div>

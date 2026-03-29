@@ -73,6 +73,11 @@ export function getMenuItems(): MenuItem[] {
     },
 
     {
+      label: "Finance",
+      icon: HealthPackages,
+      href: "/admin/finance",
+    },
+    {
       label: "Hero Management",
       icon: HeroManagement,
       href: "/admin/hero-management",
