@@ -1,7 +1,7 @@
 "use client";
 import Cookies from "js-cookie";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useGet } from "../hooks/useGet";
 import { setUserInformation } from "../lib/redux/features/auth/authSlice";
 import { useAppDispatch } from "../lib/redux/hooks";
@@ -9,7 +9,25 @@ import { decodedToken } from "../services/jwt";
 
 export const UserFetcher = () => {
   const dispatch = useAppDispatch();
-  const accessToken = Cookies.get("accessToken");
+  const [accessToken, setAccessToken] = useState(
+    () => Cookies.get("accessToken") || ""
+  );
+
+  useEffect(() => {
+    const syncAccessToken = () => {
+      setAccessToken(Cookies.get("accessToken") || "");
+    };
+
+    window.addEventListener("auth-token-updated", syncAccessToken);
+    window.addEventListener("focus", syncAccessToken);
+    document.addEventListener("visibilitychange", syncAccessToken);
+
+    return () => {
+      window.removeEventListener("auth-token-updated", syncAccessToken);
+      window.removeEventListener("focus", syncAccessToken);
+      document.removeEventListener("visibilitychange", syncAccessToken);
+    };
+  }, []);
 
   // Decode userId from the JWT accessToken (secure — token is signed by backend)
   const decodedUserId = useMemo(() => {
@@ -26,7 +44,7 @@ export const UserFetcher = () => {
     }
   }, [accessToken]);
 
-  const { data, isSuccess, isLoading } = useGet(
+  const { data, isSuccess } = useGet(
     `/user/${decodedUserId}`,
     ["user", decodedUserId || ""],
     undefined,
@@ -41,7 +59,7 @@ export const UserFetcher = () => {
     if (isSuccess && data?.data) {
       dispatch(setUserInformation(data.data));
     }
-  }, [isSuccess, data, dispatch, isLoading]);
+  }, [isSuccess, data, dispatch]);
 
   return null;
 };

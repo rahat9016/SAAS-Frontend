@@ -8,6 +8,7 @@ import { siteConfig } from "../config/siteConfig";
 import { AuthModalProvider } from "../context/AuthModalContext";
 import QueryProvider from "../lib/react-query/QueryProvider";
 import StoreProvider from "../lib/redux/provider/StoreProvider";
+import GoogleAuthClientProvider from "../lib/google-auth/GoogleAuthClientProvider";
 import { UserFetcher } from "./UserFetcher";
 
 const poppins = Poppins({
@@ -32,13 +33,15 @@ export default function RootLayout({
       <body className="antialiased" suppressHydrationWarning>
         <StoreProvider>
           <QueryProvider>
-            <AuthModalProvider>
-              <ToastProvider>
-                <UserFetcher />
-                <main>{children}</main>
-                <LoginModal />
-              </ToastProvider>
-            </AuthModalProvider>
+            <GoogleAuthClientProvider>
+              <AuthModalProvider>
+                <ToastProvider>
+                  <UserFetcher />
+                  <main>{children}</main>
+                  <LoginModal />
+                </ToastProvider>
+              </AuthModalProvider>
+            </GoogleAuthClientProvider>
           </QueryProvider>
         </StoreProvider>
       </body>

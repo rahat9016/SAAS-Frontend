@@ -20,6 +20,7 @@ export const useAuth = (onSuccess?: (role: string) => void) => {
       // Set accessToken & refreshToken as cookies
       Cookies.set("accessToken", data.accessToken, { expires: 1 });
       Cookies.set("refreshToken", data.refreshToken, { expires: 2 });
+      window.dispatchEvent(new Event("auth-token-updated"));
 
       // Decode role from JWT
       let role = "user";
@@ -36,6 +37,7 @@ export const useAuth = (onSuccess?: (role: string) => void) => {
       }
     },
     onError: (error: IGenericErrorResponse) => {
+      console.log(error);
       toast.error(error.message);
       throw error;
     },

@@ -43,8 +43,8 @@ export enum StatusType {
   ACTIVE = "ACTIVE",
   INACTIVE = "INACTIVE",
   IN_PROGRESS = "IN_PROGRESS",
-  RESOLVED = "RESOLVED",
-  ON_LEAVE = "ON_LEAVE",
+  VERIFIED = "VERIFIED",
+  UNVERIFIED = "UNVERIFIED",
 }
 export enum BookingType {
   ONSITE = "onsite",

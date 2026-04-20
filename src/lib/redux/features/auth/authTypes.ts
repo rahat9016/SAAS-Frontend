@@ -6,9 +6,8 @@ export interface IUserInformation {
   phone: string | null;
   profilePicture: string | null;
   isVerified: boolean;
-  status: string,
-  role: string
-
+  status: string;
+  role: string;
 }
 
 export interface IDataItem {

@@ -1,9 +1,10 @@
+import Categories from "@/public/icons/Categories.svg";
 import dashboard from "@/public/icons/dashboard.svg";
 import HealthPackages from "@/public/icons/HealthPackages.svg";
-import Categories from "@/public/icons/Categories.svg";
 
 import Corporate from "@/public/icons/Corporate.svg";
 import HeroManagement from "@/public/icons/HeroManagement.svg";
+import UserManagement from "@/public/icons/UserManagement.svg";
 
 import { StaticImageData } from "next/image";
 export interface MenuItem {
@@ -56,6 +57,11 @@ export function getMenuItems(): MenuItem[] {
       href: "/admin/brands",
     },
     {
+      label: "Users",
+      icon: UserManagement,
+      href: "/admin/users",
+    },
+    {
       label: "Product Management",
       icon: HealthPackages,
       children: [
@@ -67,9 +73,7 @@ export function getMenuItems(): MenuItem[] {
     {
       label: "Order Management",
       icon: HealthPackages,
-      children: [
-        { label: "All Orders", href: "/admin/orders" },
-      ],
+      children: [{ label: "All Orders", href: "/admin/orders" }],
     },
 
     {
@@ -91,7 +95,6 @@ export function getMenuItems(): MenuItem[] {
       ],
     },
     // { label: "Corporate", icon: Corporate, href: "/admin/corporate" },
-    
 
     // {
     //   label: "Events",

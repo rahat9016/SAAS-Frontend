@@ -1,20 +1,22 @@
+import { logout } from "@/src/services/auth.service";
 import { createSlice } from "@reduxjs/toolkit";
 import { IInitialState } from "./authTypes";
-import { logout } from "@/src/services/auth.service";
+
+const emptyUserInformation = {
+  id: "",
+  email: "",
+  firstName: "",
+  lastName: "",
+  phone: null,
+  profilePicture: null,
+  status: "",
+  isVerified: false,
+  role: "",
+};
 
 const initialState: IInitialState = {
   loading: false,
-  userInformation: {
-    id: "usr-001",
-    email: "minhajur@example.com",
-    firstName: "Minhajur",
-    lastName: "Rahman",
-    phone: "+880 1711-358400",
-    profilePicture: "https://i.pravatar.cc/150?u=minhajur",
-    status: "active",
-    isVerified: true,
-    role: "USER",
-  },
+  userInformation: emptyUserInformation,
   data: [],
 };
 
