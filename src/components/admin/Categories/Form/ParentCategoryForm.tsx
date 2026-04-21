@@ -1,5 +1,6 @@
 import ControlledInputField from "@/src/components/shared/FromController/ControlledInputField";
 import ControlledTextareaField from "@/src/components/shared/FromController/ControlledTextareaField";
+import ControlledToggleField from "@/src/components/shared/FromController/ControlledToggleField";
 import { FileUploadController } from "@/src/components/shared/FromController/FileUploadController";
 import InputLabel from "@/src/components/shared/InputLabel";
 import SubmitButton from "@/src/components/shared/SubmitButton";
@@ -44,12 +45,21 @@ export default function ParentCategoryForm({
 
       {/* Icon Upload */}
       <div>
-        <InputLabel label="Icon (SVG or PNG)" />
+        <InputLabel label="Icon (SVG or PNG)" required />
         <FileUploadController
           name="icon"
           label="Upload icon"
           accept={["image/svg+xml", "image/png"]}
         />
+      </div>
+
+      {/* Status */}
+      <div>
+        <InputLabel label="Status" />
+        <div className="flex items-center gap-3">
+          <ControlledToggleField name="isActive" defaultChecked />
+          <span className="text-sm text-secondary-gary">Active / Inactive</span>
+        </div>
       </div>
 
       {/* Actions */}

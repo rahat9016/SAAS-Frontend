@@ -6,15 +6,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/src/components/ui/dialog";
-import { usePost } from "@/src/hooks/usePost";
 import { usePatch } from "@/src/hooks/usePatch";
+import { usePost } from "@/src/hooks/usePost";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import {
-  parentCategorySchema,
   ParentCategoryFormValues,
+  parentCategorySchema,
 } from "../Schema/parentCategorySchema";
 import { IParentCategory } from "../types";
 import ParentCategoryForm from "./ParentCategoryForm";
@@ -33,12 +33,12 @@ export default function CreateUpdateParentCategory({
   const isUpdate = !!initialValues;
 
   const methods = useForm<ParentCategoryFormValues>({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    resolver: yupResolver(parentCategorySchema) as any,
+    resolver: yupResolver(parentCategorySchema),
     defaultValues: {
       name: "",
       description: "",
       icon: undefined,
+      isActive: true,
     },
   });
 
@@ -48,14 +48,26 @@ export default function CreateUpdateParentCategory({
         name: initialValues?.name || "",
         description: initialValues?.description || "",
         icon: initialValues?.icon || undefined,
+        isActive: initialValues?.status === "ACTIVE",
       });
+      if (!initialValues) {
+        methods.setValue("isActive", true, {
+          shouldDirty: false,
+          shouldTouch: false,
+        });
+      }
     } else {
-      methods.reset({ name: "", description: "", icon: undefined });
+      methods.reset({
+        name: "",
+        description: "",
+        icon: undefined,
+        isActive: true,
+      });
     }
   }, [isOpen, initialValues, methods]);
 
   const { mutate: createMutate, isPending: isCreating } = usePost(
-    "/api/categories/parent-categories",
+    "parent-category",
     () => {
       toast.success("Parent category created successfully!");
       onClose();
@@ -63,13 +75,10 @@ export default function CreateUpdateParentCategory({
     [["parent-categories"]]
   );
 
-  const { mutate: updateMutate, isPending: isUpdating } = usePatch(
-    () => {
-      toast.success("Parent category updated successfully!");
-      onClose();
-    },
-    [["parent-categories"]]
-  );
+  const { mutate: updateMutate, isPending: isUpdating } = usePatch(() => {
+    toast.success("Parent category updated successfully!");
+    onClose();
+  }, [["parent-categories"]]);
 
   const isPending = isCreating || isUpdating;
 
@@ -82,10 +91,11 @@ export default function CreateUpdateParentCategory({
     if (values.icon instanceof File) {
       formData.append("icon", values.icon);
     }
+    formData.append("status", values.isActive ? "ACTIVE" : "INACTIVE");
 
     if (isUpdate && initialValues) {
       updateMutate({
-        url: `/api/categories/parent-categories/${initialValues.id}`,
+        url: `/parent-category/${initialValues.id}`,
         data: formData,
       });
     } else {
@@ -95,7 +105,7 @@ export default function CreateUpdateParentCategory({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-white sm:max-w-[500px]">
+      <DialogContent className="bg-white sm:max-w-[50%]">
         <DialogHeader>
           <DialogTitle className="text-secondary text-xl font-semibold">
             {isUpdate ? "Update" : "Create"} Parent Category

@@ -1,17 +1,17 @@
 "use client";
 
+import DeleteConfirmDialog from "@/src/components/shared/DeleteConfirmDialog";
+import { useDelete } from "@/src/hooks/useDelete";
 import { useGet } from "@/src/hooks/useGet";
 import { usePagination } from "@/src/hooks/usePagination";
 import { useSearchDebounce } from "@/src/hooks/useSearchDebounce";
 import { useAppSelector } from "@/src/lib/redux/hooks";
-import { useDelete } from "@/src/hooks/useDelete";
-import DeleteConfirmDialog from "@/src/components/shared/DeleteConfirmDialog";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import CategoriesTable from "../CategoriesTable";
+import CreateUpdateParentCategory from "../Form/CreateUpdateParentCategory";
 import { GetParentCategoryColumns } from "../TableColumns/ParentCategoryColumns";
 import { IParentCategory } from "../types";
-import CreateUpdateParentCategory from "../Form/CreateUpdateParentCategory";
 
 export default function ParentCategoryList() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -33,7 +33,7 @@ export default function ParentCategoryList() {
   const { sortBy } = useAppSelector((state) => state.filter);
 
   const { data, isLoading } = useGet<IParentCategory[]>(
-    "/api/categories/parent-categories",
+    "/parent-category",
     [
       "parent-categories",
       currentPage.toString(),
@@ -51,12 +51,9 @@ export default function ParentCategoryList() {
     }
   );
 
-  const { mutate: deleteMutate } = useDelete(
-    () => {
-      toast.success("Parent category deleted successfully!");
-    },
-    [["parent-categories"]]
-  );
+  const { mutate: deleteMutate } = useDelete(() => {
+    toast.success("Parent category deleted successfully!");
+  }, [["parent-categories"]]);
 
   useEffect(() => {
     if (data) {
@@ -76,7 +73,7 @@ export default function ParentCategoryList() {
 
   const handleConfirmDelete = () => {
     if (deleteId) {
-      deleteMutate({ url: `/api/categories/parent-categories/${deleteId}` });
+      deleteMutate({ url: `/parent-category/${deleteId}` });
       setDeleteId(null);
     }
   };
@@ -102,7 +99,7 @@ export default function ParentCategoryList() {
         search={search}
         handleSearchChange={handleSearchChange}
         showCreateButton
-        createTitle="Create Parent Category"
+        createTitle="Create"
         setIsModalOpen={() => {
           setSelectedItem(undefined);
           setIsModalOpen(true);

@@ -7,6 +7,7 @@ export const parentCategorySchema = Yup.object({
   name: Yup.string().required("Name is required"),
   description: Yup.string().default(""),
   icon: Yup.mixed<File | string>()
+    .required("Icon is required")
     .default(undefined)
     .test("fileType", "Only SVG and PNG files are allowed.", (value) => {
       if (!value || typeof value === "string") return true;
@@ -19,6 +20,7 @@ export const parentCategorySchema = Yup.object({
       if (!value || typeof value === "string") return true;
       return value instanceof File ? value.size <= ICON_MAX_SIZE : true;
     }),
+  isActive: Yup.boolean().default(true),
 });
 
 export type ParentCategoryFormValues = Yup.InferType<

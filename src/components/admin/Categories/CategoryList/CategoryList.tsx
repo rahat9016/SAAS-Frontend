@@ -1,17 +1,17 @@
 "use client";
 
+import DeleteConfirmDialog from "@/src/components/shared/DeleteConfirmDialog";
+import { useDelete } from "@/src/hooks/useDelete";
 import { useGet } from "@/src/hooks/useGet";
 import { usePagination } from "@/src/hooks/usePagination";
 import { useSearchDebounce } from "@/src/hooks/useSearchDebounce";
 import { useAppSelector } from "@/src/lib/redux/hooks";
-import { useDelete } from "@/src/hooks/useDelete";
-import DeleteConfirmDialog from "@/src/components/shared/DeleteConfirmDialog";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import CategoriesTable from "../CategoriesTable";
+import CreateUpdateCategory from "../Form/CreateUpdateCategory";
 import { GetCategoryColumns } from "../TableColumns/CategoryColumns";
 import { ICategory } from "../types";
-import CreateUpdateCategory from "../Form/CreateUpdateCategory";
 
 export default function CategoryList() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -49,12 +49,9 @@ export default function CategoryList() {
     }
   );
 
-  const { mutate: deleteMutate } = useDelete(
-    () => {
-      toast.success("Category deleted successfully!");
-    },
-    [["categories"]]
-  );
+  const { mutate: deleteMutate } = useDelete(() => {
+    toast.success("Category deleted successfully!");
+  }, [["categories"]]);
 
   useEffect(() => {
     if (data) {
@@ -100,7 +97,7 @@ export default function CategoryList() {
         search={search}
         handleSearchChange={handleSearchChange}
         showCreateButton
-        createTitle="Create Category"
+        createTitle="Create"
         setIsModalOpen={() => {
           setSelectedItem(undefined);
           setIsModalOpen(true);

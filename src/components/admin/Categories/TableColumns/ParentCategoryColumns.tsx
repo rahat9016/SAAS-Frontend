@@ -1,5 +1,7 @@
+import StatusBadge from "@/src/components/shared/Status/Status";
 import { Button } from "@/src/components/ui/button";
 import { ColumnDef } from "@/src/components/ui/data-table";
+import { StatusType } from "@/src/types/common/common";
 import { Pencil, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { IParentCategory } from "../types";
@@ -33,20 +35,26 @@ export const GetParentCategoryColumns = (
       cell: (value) => {
         const desc = value as string | undefined;
         return (
-          <span className="text-sm text-secondary-gary">
-            {desc || "—"}
-          </span>
+          <span className="text-sm text-secondary-gary">{desc || "—"}</span>
         );
       },
     },
-    
+    {
+      header: "Status",
+      accessorKey: "status",
+      cell: (value) => {
+        return (
+          <StatusBadge status={value as StatusType} className="px-2 py-1" />
+        );
+      },
+    },
     {
       header: "Action",
       accessorKey: "actions",
       cell: (_value, row) => {
         const item = row as IParentCategory;
         return (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center  gap-2 w-full">
             <Button
               className="w-9! min-h-9 border border-[#E6E6E6] flex items-center justify-center rounded-lg bg-light hover:bg-light"
               size="sm"

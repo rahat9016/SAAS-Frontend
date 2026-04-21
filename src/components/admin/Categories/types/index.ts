@@ -3,6 +3,7 @@ export interface IParentCategory {
   name: string;
   description?: string;
   icon?: string;
+  status?: "ACTIVE" | "INACTIVE" | string;
   createdAt: string;
   actions?: string;
 }
