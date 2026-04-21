@@ -118,7 +118,7 @@ export default function CreateUpdateSubCategory({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-white sm:max-w-[500px]">
+      <DialogContent className="bg-white sm:max-w-125">
         <DialogHeader>
           <DialogTitle className="text-secondary text-xl font-semibold">
             {isUpdate ? "Update" : "Create"} Sub Category
