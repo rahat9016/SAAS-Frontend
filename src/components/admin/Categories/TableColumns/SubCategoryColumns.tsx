@@ -1,6 +1,9 @@
+import StatusBadge from "@/src/components/shared/Status/Status";
 import { Button } from "@/src/components/ui/button";
 import { ColumnDef } from "@/src/components/ui/data-table";
-import { Pencil, Trash2 } from "lucide-react";
+import { StatusType } from "@/src/types/common/common";
+import { Pencil, Trash2, UserRound } from "lucide-react";
+import Image from "next/image";
 import { ISubCategory } from "../types";
 
 export const GetSubCategoryColumns = (
@@ -8,6 +11,22 @@ export const GetSubCategoryColumns = (
   onDelete?: (id: string) => void
 ): ColumnDef<ISubCategory>[] => {
   return [
+    {
+      header: "Icon",
+      accessorKey: "icon",
+      cell: (value) => {
+        const icon = value as string | undefined | null;
+        return icon ? (
+          <div className="w-9 h-9 border border-[#E6E6E6] flex items-center justify-center rounded-lg bg-light">
+            <Image src={icon} alt="icon" width={24} height={24} />
+          </div>
+        ) : (
+          <div className="w-9 h-9 border border-[#E6E6E6] flex items-center justify-center rounded-lg bg-light">
+            <UserRound className="h-4 w-4 text-gray-400" />
+          </div>
+        );
+      },
+    },
     {
       header: "Name",
       accessorKey: "name",
@@ -18,15 +37,30 @@ export const GetSubCategoryColumns = (
       cell: (value) => {
         const desc = value as string | undefined;
         return (
-          <span className="text-sm text-secondary-gary">
-            {desc || "—"}
-          </span>
+          <span className="text-sm text-secondary-gary">{desc || "—"}</span>
         );
       },
     },
     {
       header: "Category",
       accessorKey: "categoryName",
+      cell: (_value, row) => {
+        const item = row as ISubCategory;
+        return <span>{item.categoryName || item.category?.name || "—"}</span>;
+      },
+    },
+    {
+      header: "Status",
+      accessorKey: "status",
+      cell: (value) => {
+        const normalizedStatus =
+          String(value || StatusType.INACTIVE).toUpperCase() ===
+          StatusType.ACTIVE
+            ? StatusType.ACTIVE
+            : StatusType.INACTIVE;
+
+        return <StatusBadge status={normalizedStatus} className="px-2 py-1" />;
+      },
     },
     {
       header: "Action",

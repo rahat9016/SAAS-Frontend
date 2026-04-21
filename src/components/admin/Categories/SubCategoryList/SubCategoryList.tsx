@@ -1,23 +1,21 @@
 "use client";
 
+import DeleteConfirmDialog from "@/src/components/shared/DeleteConfirmDialog";
+import { useDelete } from "@/src/hooks/useDelete";
 import { useGet } from "@/src/hooks/useGet";
 import { usePagination } from "@/src/hooks/usePagination";
 import { useSearchDebounce } from "@/src/hooks/useSearchDebounce";
 import { useAppSelector } from "@/src/lib/redux/hooks";
-import { useDelete } from "@/src/hooks/useDelete";
-import DeleteConfirmDialog from "@/src/components/shared/DeleteConfirmDialog";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import CategoriesTable from "../CategoriesTable";
+import CreateUpdateSubCategory from "../Form/CreateUpdateSubCategory";
 import { GetSubCategoryColumns } from "../TableColumns/SubCategoryColumns";
 import { ISubCategory } from "../types";
-import CreateUpdateSubCategory from "../Form/CreateUpdateSubCategory";
 
 export default function SubCategoryList() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<
-    ISubCategory | undefined
-  >();
+  const [selectedItem, setSelectedItem] = useState<ISubCategory | undefined>();
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const {
@@ -33,7 +31,7 @@ export default function SubCategoryList() {
   const { sortBy } = useAppSelector((state) => state.filter);
 
   const { data, isLoading } = useGet<ISubCategory[]>(
-    "/api/categories/sub-categories",
+    "/sub-category",
     [
       "sub-categories",
       currentPage.toString(),
@@ -51,12 +49,9 @@ export default function SubCategoryList() {
     }
   );
 
-  const { mutate: deleteMutate } = useDelete(
-    () => {
-      toast.success("Sub category deleted successfully!");
-    },
-    [["sub-categories"]]
-  );
+  const { mutate: deleteMutate } = useDelete(() => {
+    toast.success("Sub category deleted successfully!");
+  }, [["sub-categories"]]);
 
   useEffect(() => {
     if (data) {
@@ -76,7 +71,7 @@ export default function SubCategoryList() {
 
   const handleConfirmDelete = () => {
     if (deleteId) {
-      deleteMutate({ url: `/api/categories/sub-categories/${deleteId}` });
+      deleteMutate({ url: `/sub-category/${deleteId}` });
       setDeleteId(null);
     }
   };
@@ -102,7 +97,7 @@ export default function SubCategoryList() {
         search={search}
         handleSearchChange={handleSearchChange}
         showCreateButton
-        createTitle="Create Sub Category"
+        createTitle="Create"
         setIsModalOpen={() => {
           setSelectedItem(undefined);
           setIsModalOpen(true);

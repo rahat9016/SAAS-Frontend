@@ -30,8 +30,15 @@ export interface ISubCategory {
   id: string;
   name: string;
   description?: string;
-  categoryId: string;
-  categoryName: string;
+  icon?: string | null;
+  status?: "ACTIVE" | "INACTIVE" | string;
+  categoryId?: string;
+  categoryName?: string;
+  category?: {
+    id: string;
+    name: string;
+    icon?: string | null;
+  };
   createdAt: string;
   actions?: string;
 }

@@ -1,21 +1,21 @@
 "use client";
 
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
 } from "@/src/components/ui/dialog";
 import { useGet } from "@/src/hooks/useGet";
-import { usePost } from "@/src/hooks/usePost";
 import { usePatch } from "@/src/hooks/usePatch";
+import { usePost } from "@/src/hooks/usePost";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect } from "react";
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, Resolver, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import {
-  subCategorySchema,
-  SubCategoryFormValues,
+    SubCategoryFormValues,
+    subCategorySchema,
 } from "../Schema/subCategorySchema";
 import { ICategory, ISubCategory } from "../types";
 import SubCategoryForm from "./SubCategoryForm";
@@ -34,7 +34,7 @@ export default function CreateUpdateSubCategory({
   const isUpdate = !!initialValues;
 
   const { data: categoriesData } = useGet<ICategory[]>(
-    "/api/categories/categories",
+    "/category",
     ["categories"],
     {},
     { enabled: isOpen }
@@ -47,11 +47,13 @@ export default function CreateUpdateSubCategory({
   }));
 
   const methods = useForm<SubCategoryFormValues>({
-    resolver: yupResolver(subCategorySchema),
+    resolver: yupResolver(subCategorySchema) as Resolver<SubCategoryFormValues>,
     defaultValues: {
       name: "",
       description: "",
+      icon: undefined,
       categoryId: "",
+      isActive: true,
     },
   });
 
@@ -60,15 +62,24 @@ export default function CreateUpdateSubCategory({
       methods.reset({
         name: initialValues?.name || "",
         description: initialValues?.description || "",
-        categoryId: initialValues?.categoryId || "",
+        icon: initialValues?.icon || undefined,
+        categoryId:
+          initialValues?.categoryId || initialValues?.category?.id || "",
+        isActive: initialValues?.status === "ACTIVE" || !initialValues,
       });
     } else {
-      methods.reset({ name: "", description: "", categoryId: "" });
+      methods.reset({
+        name: "",
+        description: "",
+        icon: undefined,
+        categoryId: "",
+        isActive: true,
+      });
     }
   }, [isOpen, initialValues, methods]);
 
   const { mutate: createMutate, isPending: isCreating } = usePost(
-    "/api/categories/sub-categories",
+    "/sub-category",
     () => {
       toast.success("Sub category created successfully!");
       onClose();
@@ -76,26 +87,32 @@ export default function CreateUpdateSubCategory({
     [["sub-categories"]]
   );
 
-  const { mutate: updateMutate, isPending: isUpdating } = usePatch(
-    () => {
-      toast.success("Sub category updated successfully!");
-      onClose();
-    },
-    [["sub-categories"]]
-  );
+  const { mutate: updateMutate, isPending: isUpdating } = usePatch(() => {
+    toast.success("Sub category updated successfully!");
+    onClose();
+  }, [["sub-categories"]]);
 
   const isPending = isCreating || isUpdating;
 
   const onSubmit = (values: SubCategoryFormValues) => {
+    const formData = new FormData();
+    formData.append("name", values.name);
+    formData.append("categoryId", values.categoryId);
+    if (values.description) {
+      formData.append("description", values.description);
+    }
+    if (values.icon instanceof File) {
+      formData.append("icon", values.icon);
+    }
+    formData.append("status", values.isActive ? "ACTIVE" : "INACTIVE");
+
     if (isUpdate && initialValues) {
       updateMutate({
-        url: `/api/categories/sub-categories/${initialValues.id}`,
-        data: values as unknown as Record<string, unknown>,
+        url: `/sub-category/${initialValues.id}`,
+        data: formData,
       });
     } else {
-      createMutate({
-        data: values as unknown as Record<string, unknown>,
-      });
+      createMutate({ data: formData });
     }
   };
 
