@@ -31,7 +31,7 @@ export default function CategoryList() {
   const { sortBy } = useAppSelector((state) => state.filter);
 
   const { data, isLoading } = useGet<ICategory[]>(
-    "/api/categories/categories",
+    "/category",
     [
       "categories",
       currentPage.toString(),
@@ -71,7 +71,7 @@ export default function CategoryList() {
 
   const handleConfirmDelete = () => {
     if (deleteId) {
-      deleteMutate({ url: `/api/categories/categories/${deleteId}` });
+      deleteMutate({ url: `/category/${deleteId}` });
       setDeleteId(null);
     }
   };

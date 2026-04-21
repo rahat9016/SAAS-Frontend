@@ -1,5 +1,8 @@
 import ControlledInputField from "@/src/components/shared/FromController/ControlledInputField";
 import ControlledSelectField from "@/src/components/shared/FromController/ControlledSelectField";
+import ControlledTextareaField from "@/src/components/shared/FromController/ControlledTextareaField";
+import ControlledToggleField from "@/src/components/shared/FromController/ControlledToggleField";
+import { FileUploadController } from "@/src/components/shared/FromController/FileUploadController";
 import InputLabel from "@/src/components/shared/InputLabel";
 import SubmitButton from "@/src/components/shared/SubmitButton";
 import { Button } from "@/src/components/ui/button";
@@ -33,6 +36,16 @@ export default function CategoryForm({
         />
       </div>
 
+      {/* Description */}
+      <div>
+        <InputLabel label="Description" />
+        <ControlledTextareaField
+          className="bg-light"
+          name="description"
+          placeholder="Enter category description"
+        />
+      </div>
+
       {/* Parent Category */}
       <div>
         <InputLabel label="Parent Category" required />
@@ -42,6 +55,25 @@ export default function CategoryForm({
           options={parentCategoryOptions}
           className="bg-light shadow-none"
         />
+      </div>
+
+      {/* Icon Upload */}
+      <div>
+        <InputLabel label="Icon (SVG or PNG)" />
+        <FileUploadController
+          name="icon"
+          label="Upload icon"
+          accept={["image/svg+xml", "image/png"]}
+        />
+      </div>
+
+      {/* Status */}
+      <div>
+        <InputLabel label="Status" />
+        <div className="flex items-center gap-3">
+          <ControlledToggleField name="isActive" defaultChecked />
+          <span className="text-sm text-secondary-gary">Active / Inactive</span>
+        </div>
       </div>
 
       {/* Actions */}

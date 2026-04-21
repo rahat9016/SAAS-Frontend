@@ -11,8 +11,17 @@ export interface IParentCategory {
 export interface ICategory {
   id: string;
   name: string;
-  parentCategoryId: string;
-  parentCategoryName: string;
+  description?: string;
+  icon?: string;
+  status?: "ACTIVE" | "INACTIVE" | string;
+  parentCategoryId?: string;
+  parentCategoryName?: string;
+  parentCategory?: {
+    id: string;
+    name: string;
+    icon?: string;
+  };
+  updatedAt?: string;
   createdAt: string;
   actions?: string;
 }

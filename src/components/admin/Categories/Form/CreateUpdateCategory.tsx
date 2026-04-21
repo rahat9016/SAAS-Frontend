@@ -7,13 +7,13 @@ import {
   DialogTitle,
 } from "@/src/components/ui/dialog";
 import { useGet } from "@/src/hooks/useGet";
-import { usePost } from "@/src/hooks/usePost";
 import { usePatch } from "@/src/hooks/usePatch";
+import { usePost } from "@/src/hooks/usePost";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect } from "react";
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, Resolver, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { categorySchema, CategoryFormValues } from "../Schema/categorySchema";
+import { CategoryFormValues, categorySchema } from "../Schema/categorySchema";
 import { ICategory, IParentCategory } from "../types";
 import CategoryForm from "./CategoryForm";
 
@@ -31,7 +31,7 @@ export default function CreateUpdateCategory({
   const isUpdate = !!initialValues;
 
   const { data: parentCategoriesData } = useGet<IParentCategory[]>(
-    "/api/categories/parent-categories",
+    "/parent-category",
     ["parent-categories"],
     {},
     { enabled: isOpen }
@@ -44,10 +44,13 @@ export default function CreateUpdateCategory({
   }));
 
   const methods = useForm<CategoryFormValues>({
-    resolver: yupResolver(categorySchema),
+    resolver: yupResolver(categorySchema) as Resolver<CategoryFormValues>,
     defaultValues: {
       name: "",
       parentCategoryId: "",
+      description: "",
+      icon: undefined,
+      isActive: true,
     },
   });
 
@@ -55,15 +58,27 @@ export default function CreateUpdateCategory({
     if (isOpen) {
       methods.reset({
         name: initialValues?.name || "",
-        parentCategoryId: initialValues?.parentCategoryId || "",
+        parentCategoryId:
+          initialValues?.parentCategoryId ||
+          initialValues?.parentCategory?.id ||
+          "",
+        description: initialValues?.description || "",
+        icon: initialValues?.icon || undefined,
+        isActive: initialValues?.status === "ACTIVE" || !initialValues,
       });
     } else {
-      methods.reset({ name: "", parentCategoryId: "" });
+      methods.reset({
+        name: "",
+        parentCategoryId: "",
+        description: "",
+        icon: undefined,
+        isActive: true,
+      });
     }
   }, [isOpen, initialValues, methods]);
 
   const { mutate: createMutate, isPending: isCreating } = usePost(
-    "/api/categories/categories",
+    "/category",
     () => {
       toast.success("Category created successfully!");
       onClose();
@@ -71,32 +86,38 @@ export default function CreateUpdateCategory({
     [["categories"]]
   );
 
-  const { mutate: updateMutate, isPending: isUpdating } = usePatch(
-    () => {
-      toast.success("Category updated successfully!");
-      onClose();
-    },
-    [["categories"]]
-  );
+  const { mutate: updateMutate, isPending: isUpdating } = usePatch(() => {
+    toast.success("Category updated successfully!");
+    onClose();
+  }, [["categories"]]);
 
   const isPending = isCreating || isUpdating;
 
   const onSubmit = (values: CategoryFormValues) => {
+    const formData = new FormData();
+    formData.append("name", values.name);
+    formData.append("parentCategoryId", values.parentCategoryId);
+    if (values.description) {
+      formData.append("description", values.description);
+    }
+    if (values.icon instanceof File) {
+      formData.append("icon", values.icon);
+    }
+    formData.append("status", values.isActive ? "ACTIVE" : "INACTIVE");
+
     if (isUpdate && initialValues) {
       updateMutate({
-        url: `/api/categories/categories/${initialValues.id}`,
-        data: values as unknown as Record<string, unknown>,
+        url: `/category/${initialValues.id}`,
+        data: formData,
       });
     } else {
-      createMutate({
-        data: values as unknown as Record<string, unknown>,
-      });
+      createMutate({ data: formData });
     }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-white sm:max-w-[500px]">
+      <DialogContent className="bg-white sm:max-w-125">
         <DialogHeader>
           <DialogTitle className="text-secondary text-xl font-semibold">
             {isUpdate ? "Update" : "Create"} Category
