@@ -1,17 +1,17 @@
 "use client";
 
+import DeleteConfirmDialog from "@/src/components/shared/DeleteConfirmDialog";
+import { useDelete } from "@/src/hooks/useDelete";
 import { useGet } from "@/src/hooks/useGet";
 import { usePagination } from "@/src/hooks/usePagination";
 import { useSearchDebounce } from "@/src/hooks/useSearchDebounce";
 import { useAppSelector } from "@/src/lib/redux/hooks";
-import { useDelete } from "@/src/hooks/useDelete";
-import DeleteConfirmDialog from "@/src/components/shared/DeleteConfirmDialog";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import BrandsTable from "../BrandsTable";
+import CreateUpdateBrand from "../Form/CreateUpdateBrand";
 import { GetBrandColumns } from "../TableColumns/BrandColumns";
 import { IBrand } from "../types";
-import CreateUpdateBrand from "../Form/CreateUpdateBrand";
 
 export default function BrandList() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -31,7 +31,7 @@ export default function BrandList() {
   const { sortBy } = useAppSelector((state) => state.filter);
 
   const { data, isLoading } = useGet<IBrand[]>(
-    "/api/brands",
+    "/brand",
     [
       "brands",
       currentPage.toString(),
@@ -49,12 +49,9 @@ export default function BrandList() {
     }
   );
 
-  const { mutate: deleteMutate } = useDelete(
-    () => {
-      toast.success("Brand deleted successfully!");
-    },
-    [["brands"]]
-  );
+  const { mutate: deleteMutate } = useDelete(() => {
+    toast.success("Brand deleted successfully!");
+  }, [["brands"]]);
 
   useEffect(() => {
     if (data) {
@@ -74,7 +71,7 @@ export default function BrandList() {
 
   const handleConfirmDelete = () => {
     if (deleteId) {
-      deleteMutate({ url: `/api/brands/${deleteId}` });
+      deleteMutate({ url: `/brand/${deleteId}` });
       setDeleteId(null);
     }
   };
@@ -100,7 +97,7 @@ export default function BrandList() {
         search={search}
         handleSearchChange={handleSearchChange}
         showCreateButton
-        createTitle="Create Brand"
+        createTitle="Create"
         setIsModalOpen={() => {
           setSelectedItem(undefined);
           setIsModalOpen(true);

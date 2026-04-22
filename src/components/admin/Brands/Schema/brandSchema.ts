@@ -1,24 +1,22 @@
 import * as Yup from "yup";
 
-const SUPPORTED_LOGO_FORMATS = ["image/png"];
-const LOGO_MAX_SIZE = 2 * 1024 * 1024; // 2MB
-
 export const brandSchema = Yup.object({
-  title: Yup.string().required("Title is required"),
+  name: Yup.string().required("Name is required"),
   description: Yup.string().default(""),
   isActive: Yup.boolean().default(true),
-  logo: Yup.mixed<File | string>()
+  icon: Yup.mixed<File | string>()
+    .nullable()
+    .transform((value) => (value === null ? undefined : value))
     .default(undefined)
-    .test("fileType", "Only PNG files are allowed.", (value) => {
+    .test("fileType", "Only SVG and PNG files are allowed.", (value) => {
       if (!value || typeof value === "string") return true;
-      if (value instanceof File) {
-        return SUPPORTED_LOGO_FORMATS.includes(value.type);
-      }
-      return false;
+      return value instanceof File
+        ? ["image/svg+xml", "image/png"].includes(value.type)
+        : false;
     })
-    .test("fileSize", "Logo size must be less than 2MB.", (value) => {
+    .test("fileSize", "Icon size must be less than 2MB.", (value) => {
       if (!value || typeof value === "string") return true;
-      return value instanceof File ? value.size <= LOGO_MAX_SIZE : true;
+      return value instanceof File ? value.size <= 2 * 1024 * 1024 : true;
     }),
 });
 

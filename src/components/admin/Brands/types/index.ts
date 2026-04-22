@@ -1,9 +1,10 @@
 export interface IBrand {
   id: string;
-  title: string;
+  name: string;
   description?: string;
-  isActive: boolean;
-  logo?: string;
+  icon?: string;
+  status?: "ACTIVE" | "INACTIVE" | string;
+  updatedAt?: string;
   createdAt: string;
   actions?: string;
 }

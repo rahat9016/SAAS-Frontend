@@ -1,10 +1,12 @@
+import ErrorMessage from "@/src/components/shared/Errors/ErrorMessage";
 import ControlledInputField from "@/src/components/shared/FromController/ControlledInputField";
-import ControlledTextareaField from "@/src/components/shared/FromController/ControlledTextareaField";
 import ControlledSwitchField from "@/src/components/shared/FromController/ControlledSwitchField";
+import ControlledTextareaField from "@/src/components/shared/FromController/ControlledTextareaField";
 import { FileUploadController } from "@/src/components/shared/FromController/FileUploadController";
 import InputLabel from "@/src/components/shared/InputLabel";
 import SubmitButton from "@/src/components/shared/SubmitButton";
 import { Button } from "@/src/components/ui/button";
+import { ErrorType } from "@/src/types/common/common";
 import { useFormContext } from "react-hook-form";
 import { BrandFormValues } from "../Schema/brandSchema";
 
@@ -13,23 +15,25 @@ export default function BrandForm({
   onSubmit,
   onCancel,
   isPending = false,
+  error,
 }: {
   isEditMode?: boolean;
   onSubmit: (data: BrandFormValues) => void;
   onCancel: () => void;
   isPending?: boolean;
+  error?: ErrorType;
 }) {
   const { handleSubmit } = useFormContext<BrandFormValues>();
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-5 mt-2">
-      {/* Title */}
+      {/* Name */}
       <div>
-        <InputLabel label="Title" required />
+        <InputLabel label="Name" required />
         <ControlledInputField
           className="bg-light"
-          name="title"
-          placeholder="Enter brand title"
+          name="name"
+          placeholder="Enter brand name"
         />
       </div>
 
@@ -52,16 +56,16 @@ export default function BrandForm({
         />
       </div>
 
-      {/* Logo Upload */}
+      {/* Icon Upload */}
       <div>
-        <InputLabel label="Logo (PNG only)" />
+        <InputLabel label="Icon (PNG only)" />
         <FileUploadController
-          name="logo"
-          label="Upload logo"
+          name="icon"
+          label="Upload icon"
           accept={["image/png"]}
         />
       </div>
-
+      <ErrorMessage error={error} />
       {/* Actions */}
       <div className="flex items-center justify-end gap-4">
         <Button

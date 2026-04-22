@@ -6,13 +6,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/src/components/ui/dialog";
-import { usePost } from "@/src/hooks/usePost";
 import { usePatch } from "@/src/hooks/usePatch";
+import { usePost } from "@/src/hooks/usePost";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { brandSchema, BrandFormValues } from "../Schema/brandSchema";
+import { BrandFormValues, brandSchema } from "../Schema/brandSchema";
 import { IBrand } from "../types";
 import BrandForm from "./BrandForm";
 
@@ -33,33 +33,38 @@ export default function CreateUpdateBrand({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: yupResolver(brandSchema) as any,
     defaultValues: {
-      title: "",
+      name: "",
       description: "",
       isActive: true,
-      logo: undefined,
+      icon: undefined,
     },
   });
 
   useEffect(() => {
     if (isOpen) {
       methods.reset({
-        title: initialValues?.title || "",
+        name: initialValues?.name || "",
         description: initialValues?.description || "",
-        isActive: initialValues?.isActive ?? true,
-        logo: initialValues?.logo || undefined,
+        isActive: initialValues?.status === "ACTIVE" || !initialValues,
+        icon: initialValues?.icon || undefined,
       });
     } else {
       methods.reset({
-        title: "",
+        name: "",
         description: "",
         isActive: true,
-        logo: undefined,
+        icon: undefined,
       });
     }
   }, [isOpen, initialValues, methods]);
 
-  const { mutate: createMutate, isPending: isCreating } = usePost(
-    "/api/brands",
+  const {
+    mutate: createMutate,
+    isPending: isCreating,
+    error,
+    reset: resetCreateError,
+  } = usePost(
+    "/brand",
     () => {
       toast.success("Brand created successfully!");
       onClose();
@@ -67,30 +72,51 @@ export default function CreateUpdateBrand({
     [["brands"]]
   );
 
-  const { mutate: updateMutate, isPending: isUpdating } = usePatch(
-    () => {
-      toast.success("Brand updated successfully!");
-      onClose();
-    },
-    [["brands"]]
-  );
+  const {
+    mutate: updateMutate,
+    isPending: isUpdating,
+    error: updateError,
+    reset: resetUpdateError,
+  } = usePatch(() => {
+    toast.success("Brand updated successfully!");
+    onClose();
+  }, [["brands"]]);
+
+  const handleClose = () => {
+    resetCreateError();
+    resetUpdateError();
+    onClose();
+  };
+
+  useEffect(() => {
+    if (!isOpen) {
+      resetCreateError();
+      resetUpdateError();
+    }
+  }, [isOpen, resetCreateError, resetUpdateError]);
 
   const isPending = isCreating || isUpdating;
 
   const onSubmit = (values: BrandFormValues) => {
     const formData = new FormData();
-    formData.append("title", values.title);
+    const iconValue = (
+      values as BrandFormValues & { icon?: File | string | null }
+    ).icon;
+
+    formData.append("name", values.name);
     if (values.description) {
       formData.append("description", values.description);
     }
-    formData.append("isActive", String(values.isActive));
-    if (values.logo instanceof File) {
-      formData.append("logo", values.logo);
+    formData.append("status", values.isActive ? "ACTIVE" : "INACTIVE");
+    if (iconValue instanceof File) {
+      formData.append("icon", iconValue);
+    } else if (typeof iconValue === "string" && iconValue.trim()) {
+      formData.append("icon", iconValue);
     }
 
     if (isUpdate && initialValues) {
       updateMutate({
-        url: `/api/brands/${initialValues.id}`,
+        url: `/brand/${initialValues.id}`,
         data: formData,
       });
     } else {
@@ -99,8 +125,13 @@ export default function CreateUpdateBrand({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-white sm:max-w-[500px]">
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) handleClose();
+      }}
+    >
+      <DialogContent className="bg-white sm:max-w-125">
         <DialogHeader>
           <DialogTitle className="text-secondary text-xl font-semibold">
             {isUpdate ? "Update" : "Create"} Brand
@@ -111,8 +142,9 @@ export default function CreateUpdateBrand({
           <BrandForm
             isEditMode={isUpdate}
             onSubmit={onSubmit}
-            onCancel={onClose}
+            onCancel={handleClose}
             isPending={isPending}
+            error={error || updateError}
           />
         </FormProvider>
       </DialogContent>

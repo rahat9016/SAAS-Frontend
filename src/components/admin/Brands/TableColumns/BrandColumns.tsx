@@ -1,6 +1,8 @@
+import StatusBadge from "@/src/components/shared/Status/Status";
 import { Button } from "@/src/components/ui/button";
 import { ColumnDef } from "@/src/components/ui/data-table";
-import { Pencil, Trash2 } from "lucide-react";
+import { StatusType } from "@/src/types/common/common";
+import { Pencil, Trash2, UserRound } from "lucide-react";
 import Image from "next/image";
 import { IBrand } from "../types";
 
@@ -10,22 +12,24 @@ export const GetBrandColumns = (
 ): ColumnDef<IBrand>[] => {
   return [
     {
-      header: "Logo",
-      accessorKey: "logo",
+      header: "Icon",
+      accessorKey: "icon",
       cell: (value) => {
-        const logo = value as string | undefined;
-        return logo ? (
+        const icon = value as string | undefined;
+        return icon ? (
           <div className="w-9 h-9 border border-[#E6E6E6] flex items-center justify-center rounded-lg bg-light">
-            <Image src={logo} alt="logo" width={24} height={24} />
+            <Image src={icon} alt="icon" width={24} height={24} />
           </div>
         ) : (
-          <span className="text-sm text-gray-400">—</span>
+          <div className="w-9 h-9 border border-[#E6E6E6] flex items-center justify-center rounded-lg bg-light">
+            <UserRound className="h-4 w-4 text-gray-400" />
+          </div>
         );
       },
     },
     {
-      header: "Title",
-      accessorKey: "title",
+      header: "Name",
+      accessorKey: "name",
     },
     {
       header: "Description",
@@ -33,28 +37,21 @@ export const GetBrandColumns = (
       cell: (value) => {
         const desc = value as string | undefined;
         return (
-          <span className="text-sm text-secondary-gary">
-            {desc || "—"}
-          </span>
+          <span className="text-sm text-secondary-gary">{desc || "—"}</span>
         );
       },
     },
     {
       header: "Status",
-      accessorKey: "isActive",
+      accessorKey: "status",
       cell: (value) => {
-        const isActive = value as boolean;
-        return (
-          <span
-            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-              isActive
-                ? "bg-green-100 text-green-800"
-                : "bg-red-100 text-red-800"
-            }`}
-          >
-            {isActive ? "Active" : "Inactive"}
-          </span>
-        );
+        const normalizedStatus =
+          String(value || StatusType.INACTIVE).toUpperCase() ===
+          StatusType.ACTIVE
+            ? StatusType.ACTIVE
+            : StatusType.INACTIVE;
+
+        return <StatusBadge status={normalizedStatus} className="px-2 py-1" />;
       },
     },
     {
