@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useCallback, useContext, useState, ReactNode } from "react";
+import {
+  createContext,
+  ReactNode,
+  useCallback,
+  useContext,
+  useState,
+} from "react";
 
 interface AuthModalContextType {
   isLoginModalOpen: boolean;
@@ -17,10 +23,14 @@ const AuthModalContext = createContext<AuthModalContextType>({
 
 export function AuthModalProvider({ children }: { children: ReactNode }) {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [onLoginSuccess, setOnLoginSuccess] = useState<(() => void) | undefined>();
+  const [onLoginSuccess, setOnLoginSuccess] = useState<
+    (() => void) | undefined
+  >();
 
   const openLoginModal = useCallback((onSuccess?: () => void) => {
-    setOnLoginSuccess(() => onSuccess);
+    setOnLoginSuccess(() =>
+      typeof onSuccess === "function" ? onSuccess : undefined
+    );
     setIsLoginModalOpen(true);
   }, []);
 
@@ -31,7 +41,12 @@ export function AuthModalProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthModalContext.Provider
-      value={{ isLoginModalOpen, openLoginModal, closeLoginModal, onLoginSuccess }}
+      value={{
+        isLoginModalOpen,
+        openLoginModal,
+        closeLoginModal,
+        onLoginSuccess,
+      }}
     >
       {children}
     </AuthModalContext.Provider>

@@ -1,20 +1,29 @@
 "use client";
 
 import { useGoogleAuth } from "@/src/hooks/useGoogleAuth";
+import { isAdminRole } from "@/src/utils/UserRoleEnum";
 import { GoogleLogin } from "@react-oauth/google";
+import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
 interface GoogleSignInButtonProps {
   label?: string; // Kept for compatibility, though GoogleLogin has its own text
-  onSuccess?: () => void;
+  onSuccess?: (role: string) => void;
 }
 
 export default function GoogleSignInButton({
   onSuccess,
 }: GoogleSignInButtonProps) {
+  const router = useRouter();
+
   const { mutateAsync: authenticateWithBackend, isPending } = useGoogleAuth(
     (role: string) => {
-      if (onSuccess) onSuccess();
+      if (onSuccess) {
+        onSuccess(role);
+        return;
+      }
+
+      router.push(isAdminRole(role) ? "/admin" : "/");
     }
   );
 

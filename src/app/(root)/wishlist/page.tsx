@@ -1,12 +1,13 @@
 "use client";
 
+import { dummyProducts } from "@/src/data/dummyProducts";
 import { addToCart } from "@/src/lib/redux/features/cart/cartSlice";
+import { selectCanAddToCart } from "@/src/lib/redux/features/permission/permissionSelectors";
 import {
-  removeFromWishlist,
-  clearWishlist,
+    clearWishlist,
+    removeFromWishlist,
 } from "@/src/lib/redux/features/wishlist/wishlistSlice";
 import { useAppDispatch, useAppSelector } from "@/src/lib/redux/hooks";
-import { dummyProducts } from "@/src/data/dummyProducts";
 import { ArrowRight, Heart, ShoppingCart, Trash2, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -15,6 +16,7 @@ import { toast } from "react-toastify";
 export default function WishlistPage() {
   const dispatch = useAppDispatch();
   const wishlistIds = useAppSelector((state) => state.wishlist.productIds);
+  const canAddToCart = useAppSelector(selectCanAddToCart);
 
   // Look up products from dummy data
   const wishlistProducts = wishlistIds
@@ -29,7 +31,9 @@ export default function WishlistPage() {
           <div className="w-20 h-20 flex items-center justify-center rounded-full bg-muted text-muted-foreground">
             <Heart size={32} />
           </div>
-          <h1 className="text-xl font-bold text-foreground">Your wishlist is empty</h1>
+          <h1 className="text-xl font-bold text-foreground">
+            Your wishlist is empty
+          </h1>
           <p className="text-sm text-muted-foreground max-w-xs">
             Save products you like by clicking the heart icon on any product.
           </p>
@@ -51,7 +55,9 @@ export default function WishlistPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-4 sm:mb-6">
           <div>
-            <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">My Wishlist</h1>
+            <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">
+              My Wishlist
+            </h1>
             <span className="text-xs sm:text-sm text-muted-foreground mt-0.5 block">
               {wishlistProducts.length}{" "}
               {wishlistProducts.length === 1 ? "item" : "items"}
@@ -79,11 +85,14 @@ export default function WishlistPage() {
               product.compareAtPrice && product.compareAtPrice > product.price;
 
             return (
-              <div key={product.id} className="relative bg-card rounded-xl border border-border overflow-hidden group hover:shadow-md transition-shadow">
+              <div
+                key={product.id}
+                className="relative bg-card rounded-xl border border-border overflow-hidden group hover:shadow-md transition-shadow"
+              >
                 {/* Image */}
                 <Link
                   href={`/products/${product.slug}`}
-                  className="relative block w-full aspect-[3/4] bg-gray-100 overflow-hidden"
+                  className="relative block w-full aspect-3/4 bg-gray-100 overflow-hidden"
                 >
                   {primaryImage && (
                     <Image
@@ -127,8 +136,16 @@ export default function WishlistPage() {
                     )}
                   </div>
                   <button
-                    className="flex items-center justify-center gap-1.5 w-full py-2 mt-1 rounded-lg text-xs font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-opacity cursor-pointer"
+                    className="flex items-center justify-center gap-1.5 w-full py-2 mt-1 rounded-lg text-xs font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={!canAddToCart}
                     onClick={() => {
+                      if (!canAddToCart) {
+                        toast.error(
+                          "This action is only available for USER accounts."
+                        );
+                        return;
+                      }
+
                       dispatch(
                         addToCart({
                           productId: product.id,

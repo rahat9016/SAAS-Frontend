@@ -41,11 +41,25 @@ export default function LoginPage() {
     });
   };
 
+  const handleGoogleSuccess = (role: string) => {
+    if (isAdminRole(role)) {
+      router.push("/admin");
+      return;
+    }
+
+    router.push("/");
+  };
+
   return (
     <div className="min-h-screen grid grid-cols-1 md:grid-cols-2">
       <div className="flex items-center justify-center px-6">
         <FormProvider {...methods}>
-          <LoginForm onSubmit={onSubmit} error={error} isPending={isPending} />
+          <LoginForm
+            onSubmit={onSubmit}
+            onGoogleSuccess={handleGoogleSuccess}
+            error={error}
+            isPending={isPending}
+          />
         </FormProvider>
       </div>
       <LoginBanner />

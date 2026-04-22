@@ -1,16 +1,13 @@
 "use client";
 
 import { logoutUser } from "@/src/lib/redux/features/auth/authSlice";
-import { useAppDispatch, useAppSelector } from "@/src/lib/redux/hooks";
 import {
-  CreditCard,
-  LogOut,
-  MapPin,
-  Package,
-  RotateCcw,
-  User,
-  XCircle,
-} from "lucide-react";
+  selectCanAccessAdmin,
+  selectCanViewOwnOrders,
+} from "@/src/lib/redux/features/permission/permissionSelectors";
+import { clearRolePermissions } from "@/src/lib/redux/features/permission/permissionSlice";
+import { useAppDispatch, useAppSelector } from "@/src/lib/redux/hooks";
+import { LogOut, User } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
@@ -21,24 +18,31 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../../../ui/dropdown-menu";
-
-const menuItems = [
-  { label: "My Profile", href: "/account", icon: User },
-  { label: "My Orders", href: "/account/orders", icon: Package },
-  { label: "Returns", href: "/account/returns", icon: RotateCcw },
-  { label: "Cancellations", href: "/account/cancellations", icon: XCircle },
-  { label: "Addresses", href: "/account/addresses", icon: MapPin },
-  { label: "Payment Methods", href: "/account/payment-methods", icon: CreditCard },
-];
+import ProfileDropdownSkeleton from "./Skeleton/ProfileDropdownSkeleton";
+import { adminMenuItems, userMenuItems } from "../../../../utils/profileMenuItems";
 
 export function ProfileDropdown() {
   const dispatch = useAppDispatch();
-  const { userInformation } = useAppSelector((state) => state.auth);
+  const { userInformation, loading } = useAppSelector((state) => state.auth);
+  const canAccessAdmin = useAppSelector(selectCanAccessAdmin);
+  const canViewOwnOrders = useAppSelector(selectCanViewOwnOrders);
   const router = useRouter();
+
+  const menuItems = canAccessAdmin
+    ? adminMenuItems
+    : userMenuItems.filter((item) => {
+        if (!canViewOwnOrders && item.href.includes("/orders")) return false;
+        return true;
+      });
 
   const handleLogout = () => {
     dispatch(logoutUser());
+    dispatch(clearRolePermissions());
   };
+
+  if (loading) {
+    return <ProfileDropdownSkeleton />;
+  }
 
   return (
     <DropdownMenu>
@@ -64,7 +68,9 @@ export function ProfileDropdown() {
             <span className="text-xs font-semibold text-gray-800 leading-tight">
               {userInformation.firstName}
             </span>
-            <span className="text-[10px] text-gray-400 leading-tight">My Account</span>
+            <span className="text-[10px] text-gray-400 leading-tight">
+              My Account
+            </span>
           </div>
         </button>
       </DropdownMenuTrigger>

@@ -1,4 +1,3 @@
-// components/auth/LoginForm.tsx
 "use client";
 
 import ErrorMessage from "@/src/components/shared/Errors/ErrorMessage";
@@ -15,6 +14,7 @@ import { LoginFormProps } from "../types";
 
 export default function LoginForm({
   onSubmit,
+  onGoogleSuccess,
   error,
   isPending = false,
 }: LoginFormProps) {
@@ -26,7 +26,10 @@ export default function LoginForm({
       <h2 className="text-[32px] font-semibold mb-6 text-primary">Log in</h2>
 
       {/* Google Sign In */}
-      <GoogleSignInButton label="Sign in with Google" />
+      <GoogleSignInButton
+        label="Sign in with Google"
+        onSuccess={onGoogleSuccess}
+      />
 
       {/* Divider */}
       <div className="flex items-center gap-3 my-6">
@@ -84,7 +87,7 @@ export default function LoginForm({
       </Button>
 
       <p className="mt-4 text-left text-sm text-[#BDBDBD]">
-        Don't have an account?{" "}
+        Don&apos;t have an account?{" "}
         <Link
           href="/auth/signup"
           className="text-primary-light font-medium underline"
@@ -95,4 +98,3 @@ export default function LoginForm({
     </form>
   );
 }
-

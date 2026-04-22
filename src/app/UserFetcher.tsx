@@ -3,7 +3,12 @@ import Cookies from "js-cookie";
 
 import { useEffect, useMemo, useState } from "react";
 import { useGet } from "../hooks/useGet";
-import { setUserInformation } from "../lib/redux/features/auth/authSlice";
+import {
+  setLoading,
+  setUserInformation,
+} from "../lib/redux/features/auth/authSlice";
+import { IUserInformation } from "../lib/redux/features/auth/authTypes";
+import { setPermissionsFromRole } from "../lib/redux/features/permission/permissionSlice";
 import { useAppDispatch } from "../lib/redux/hooks";
 import { decodedToken } from "../services/jwt";
 
@@ -44,7 +49,7 @@ export const UserFetcher = () => {
     }
   }, [accessToken]);
 
-  const { data, isSuccess } = useGet(
+  const { data, isSuccess, isError, isFetching } = useGet<IUserInformation>(
     `/user/${decodedUserId}`,
     ["user", decodedUserId || ""],
     undefined,
@@ -54,12 +59,31 @@ export const UserFetcher = () => {
     }
   );
 
+  useEffect(() => {
+    dispatch(setLoading(Boolean(decodedUserId) && isFetching));
+  }, [decodedUserId, isFetching, dispatch]);
+
   // If user data is available, set it in the store
   useEffect(() => {
     if (isSuccess && data?.data) {
       dispatch(setUserInformation(data.data));
+      dispatch(setPermissionsFromRole(data.data.role));
+      dispatch(setLoading(false));
     }
   }, [isSuccess, data, dispatch]);
+
+  useEffect(() => {
+    if (!decodedUserId) {
+      dispatch(setUserInformation({}));
+      dispatch(setPermissionsFromRole(null));
+      dispatch(setLoading(false));
+      return;
+    }
+
+    if (isError) {
+      dispatch(setLoading(false));
+    }
+  }, [decodedUserId, isError, dispatch]);
 
   return null;
 };

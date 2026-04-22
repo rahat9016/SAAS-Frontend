@@ -16,7 +16,6 @@ export const useAuth = (onSuccess?: (role: string) => void) => {
   return useMutation({
     mutationFn: authService.login,
     onSuccess: async (data) => {
-      console.log(data);
       // Set accessToken & refreshToken as cookies
       Cookies.set("accessToken", data.accessToken, { expires: 1 });
       Cookies.set("refreshToken", data.refreshToken, { expires: 2 });
