@@ -1,3 +1,4 @@
+import ErrorMessage from "@/src/components/shared/Errors/ErrorMessage";
 import ControlledInputField from "@/src/components/shared/FromController/ControlledInputField";
 import ControlledTextareaField from "@/src/components/shared/FromController/ControlledTextareaField";
 import ControlledToggleField from "@/src/components/shared/FromController/ControlledToggleField";
@@ -5,6 +6,7 @@ import { FileUploadController } from "@/src/components/shared/FromController/Fil
 import InputLabel from "@/src/components/shared/InputLabel";
 import SubmitButton from "@/src/components/shared/SubmitButton";
 import { Button } from "@/src/components/ui/button";
+import { ErrorType } from "@/src/types/common/common";
 import { useFormContext } from "react-hook-form";
 import { ParentCategoryFormValues } from "../Schema/parentCategorySchema";
 
@@ -13,11 +15,13 @@ export default function ParentCategoryForm({
   onSubmit,
   onCancel,
   isPending = false,
+  error,
 }: {
   isEditMode?: boolean;
   onSubmit: (data: ParentCategoryFormValues) => void;
   onCancel: () => void;
   isPending?: boolean;
+  error?: ErrorType;
 }) {
   const { handleSubmit } = useFormContext<ParentCategoryFormValues>();
 
@@ -61,6 +65,8 @@ export default function ParentCategoryForm({
           <span className="text-sm text-secondary-gary">Active / Inactive</span>
         </div>
       </div>
+
+      <ErrorMessage error={error} />
 
       {/* Actions */}
       <div className="flex items-center justify-end gap-4">

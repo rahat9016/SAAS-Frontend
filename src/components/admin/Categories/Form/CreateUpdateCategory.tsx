@@ -1,10 +1,10 @@
 "use client";
 
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
 } from "@/src/components/ui/dialog";
 import { useGet } from "@/src/hooks/useGet";
 import { usePatch } from "@/src/hooks/usePatch";
@@ -77,7 +77,12 @@ export default function CreateUpdateCategory({
     }
   }, [isOpen, initialValues, methods]);
 
-  const { mutate: createMutate, isPending: isCreating } = usePost(
+  const {
+    mutate: createMutate,
+    isPending: isCreating,
+    error,
+    reset: resetCreateError,
+  } = usePost(
     "/category",
     () => {
       toast.success("Category created successfully!");
@@ -86,10 +91,28 @@ export default function CreateUpdateCategory({
     [["categories"]]
   );
 
-  const { mutate: updateMutate, isPending: isUpdating } = usePatch(() => {
+  const {
+    mutate: updateMutate,
+    isPending: isUpdating,
+    error: updateError,
+    reset: resetUpdateError,
+  } = usePatch(() => {
     toast.success("Category updated successfully!");
     onClose();
   }, [["categories"]]);
+
+  const handleClose = () => {
+    resetCreateError();
+    resetUpdateError();
+    onClose();
+  };
+
+  useEffect(() => {
+    if (!isOpen) {
+      resetCreateError();
+      resetUpdateError();
+    }
+  }, [isOpen, resetCreateError, resetUpdateError]);
 
   const isPending = isCreating || isUpdating;
 
@@ -116,7 +139,12 @@ export default function CreateUpdateCategory({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) handleClose();
+      }}
+    >
       <DialogContent className="bg-white sm:max-w-125">
         <DialogHeader>
           <DialogTitle className="text-secondary text-xl font-semibold">
@@ -128,9 +156,10 @@ export default function CreateUpdateCategory({
           <CategoryForm
             isEditMode={isUpdate}
             onSubmit={onSubmit}
-            onCancel={onClose}
+            onCancel={handleClose}
             isPending={isPending}
             parentCategoryOptions={parentCategoryOptions}
+            error={error || updateError}
           />
         </FormProvider>
       </DialogContent>

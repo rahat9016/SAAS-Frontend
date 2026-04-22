@@ -78,7 +78,12 @@ export default function CreateUpdateSubCategory({
     }
   }, [isOpen, initialValues, methods]);
 
-  const { mutate: createMutate, isPending: isCreating } = usePost(
+  const {
+    mutate: createMutate,
+    isPending: isCreating,
+    error,
+    reset: resetCreateError,
+  } = usePost(
     "/sub-category",
     () => {
       toast.success("Sub category created successfully!");
@@ -87,10 +92,28 @@ export default function CreateUpdateSubCategory({
     [["sub-categories"]]
   );
 
-  const { mutate: updateMutate, isPending: isUpdating } = usePatch(() => {
+  const {
+    mutate: updateMutate,
+    isPending: isUpdating,
+    error: updateError,
+    reset: resetUpdateError,
+  } = usePatch(() => {
     toast.success("Sub category updated successfully!");
     onClose();
   }, [["sub-categories"]]);
+
+  const handleClose = () => {
+    resetCreateError();
+    resetUpdateError();
+    onClose();
+  };
+
+  useEffect(() => {
+    if (!isOpen) {
+      resetCreateError();
+      resetUpdateError();
+    }
+  }, [isOpen, resetCreateError, resetUpdateError]);
 
   const isPending = isCreating || isUpdating;
 
@@ -117,7 +140,12 @@ export default function CreateUpdateSubCategory({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) handleClose();
+      }}
+    >
       <DialogContent className="bg-white sm:max-w-125">
         <DialogHeader>
           <DialogTitle className="text-secondary text-xl font-semibold">
@@ -129,9 +157,10 @@ export default function CreateUpdateSubCategory({
           <SubCategoryForm
             isEditMode={isUpdate}
             onSubmit={onSubmit}
-            onCancel={onClose}
+            onCancel={handleClose}
             isPending={isPending}
             categoryOptions={categoryOptions}
+            error={error || updateError}
           />
         </FormProvider>
       </DialogContent>

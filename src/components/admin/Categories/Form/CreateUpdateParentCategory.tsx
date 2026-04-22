@@ -1,10 +1,10 @@
 "use client";
 
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
 } from "@/src/components/ui/dialog";
 import { usePatch } from "@/src/hooks/usePatch";
 import { usePost } from "@/src/hooks/usePost";
@@ -13,8 +13,8 @@ import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import {
-  ParentCategoryFormValues,
-  parentCategorySchema,
+    ParentCategoryFormValues,
+    parentCategorySchema,
 } from "../Schema/parentCategorySchema";
 import { IParentCategory } from "../types";
 import ParentCategoryForm from "./ParentCategoryForm";
@@ -66,7 +66,12 @@ export default function CreateUpdateParentCategory({
     }
   }, [isOpen, initialValues, methods]);
 
-  const { mutate: createMutate, isPending: isCreating } = usePost(
+  const {
+    mutate: createMutate,
+    isPending: isCreating,
+    error,
+    reset: resetCreateError,
+  } = usePost(
     "parent-category",
     () => {
       toast.success("Parent category created successfully!");
@@ -75,10 +80,28 @@ export default function CreateUpdateParentCategory({
     [["parent-categories"]]
   );
 
-  const { mutate: updateMutate, isPending: isUpdating } = usePatch(() => {
+  const {
+    mutate: updateMutate,
+    isPending: isUpdating,
+    error: updateError,
+    reset: resetUpdateError,
+  } = usePatch(() => {
     toast.success("Parent category updated successfully!");
     onClose();
   }, [["parent-categories"]]);
+
+  const handleClose = () => {
+    resetCreateError();
+    resetUpdateError();
+    onClose();
+  };
+
+  useEffect(() => {
+    if (!isOpen) {
+      resetCreateError();
+      resetUpdateError();
+    }
+  }, [isOpen, resetCreateError, resetUpdateError]);
 
   const isPending = isCreating || isUpdating;
 
@@ -104,7 +127,12 @@ export default function CreateUpdateParentCategory({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) handleClose();
+      }}
+    >
       <DialogContent className="bg-white sm:max-w-[50%]">
         <DialogHeader>
           <DialogTitle className="text-secondary text-xl font-semibold">
@@ -116,8 +144,9 @@ export default function CreateUpdateParentCategory({
           <ParentCategoryForm
             isEditMode={isUpdate}
             onSubmit={onSubmit}
-            onCancel={onClose}
+            onCancel={handleClose}
             isPending={isPending}
+            error={error || updateError}
           />
         </FormProvider>
       </DialogContent>
