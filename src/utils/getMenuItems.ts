@@ -1,115 +1,77 @@
-import Categories from "@/public/icons/Categories.svg";
-import dashboard from "@/public/icons/dashboard.svg";
-import HealthPackages from "@/public/icons/HealthPackages.svg";
+import {
+  Layers,
+  LayoutDashboard,
+  Package,
+  Settings,
+  ShoppingCart,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
 
-import Corporate from "@/public/icons/Corporate.svg";
-import HeroManagement from "@/public/icons/HeroManagement.svg";
-import UserManagement from "@/public/icons/UserManagement.svg";
-
-import { StaticImageData } from "next/image";
 export interface MenuItem {
+  segment?: string;
   label: string;
-  icon: StaticImageData;
+  icon: LucideIcon;
   href?: string;
-  children?: { label: string; href: string }[];
+  matchRoutes?: string[];
+  children?: { label: string; href: string; matchRoutes?: string[] }[];
 }
 
 export function getMenuItems(): MenuItem[] {
   const menuItems: (MenuItem | false)[] = [
-    { label: "Dashboard", icon: dashboard, href: "/admin" },
+    { label: "Dashboard", icon: LayoutDashboard, href: "/admin" },
     {
-      label: "Categories",
-      icon: Categories,
+      segment: "Product Management",
+      label: "Manage Product",
+      icon: Package,
       children: [
-        { label: "Parent Category", href: "/admin/parent-category" },
-        { label: "Category", href: "/admin/category" },
-        { label: "Sub Category", href: "/admin/sub-category" },
+        { label: "All Products", href: "/admin/products" },
+        { label: "Draft Product", href: "/admin/products/draft" },
+        { label: "Stock Products", href: "/admin/products/stock" },
+        { label: "Product Review", href: "/admin/products/review" },
       ],
     },
-    // {
-    //   label: "Appointment",
-    //   icon: Appointment,
-    //   href: "/admin/all-appointments",
-    // },
-    // { label: "Doctors", icon: Doctors, href: "/admin/doctors" },
-    // {
-    //   label: "Health Packages",
-    //   icon: HealthPackages,
-    //   href: "/admin/health-packages",
-    // },
-    // { label: "Specialties", icon: Specialties, href: "/admin/specialties" },
-    // { label: "Membership", icon: Membership, href: "/admin/membership" },
-    // { label: "Blogs", icon: Blogs, href: "/admin/blogs" },
-    // { label: "Career", icon: Career, href: "/admin/applicant-list" },
-    // {
-    //   label: "Contact & Support",
-    //   icon: ContactSupport,
-    //   href: "/admin/contact-support-list",
-    // },
-    // {
-    //   label: "User Management",
-    //   icon: UserManagement,
-    //   href: "/admin/user-management",
-    // },
     {
-      label: "Brands",
-      icon: Corporate,
-      href: "/admin/brands",
+      label: "Categories & Attributes",
+      icon: Layers,
+      segment: "Product Management",
+      children: [
+        {
+          label: "Category List",
+          href: "/admin/category",
+          matchRoutes: [
+            "/admin/parent-category",
+            "/admin/category",
+            "/admin/sub-category",
+          ],
+        },
+        { label: "Attribute List", href: "/admin/products/attributes" },
+        { label: "Tag List", href: "/admin/products/tags" },
+        { label: "Brand List", href: "/admin/brands" },
+      ],
     },
     {
+      segment: "Order Management",
+      label: "Orders",
+      icon: ShoppingCart,
+      children: [
+        { label: "All Orders", href: "/admin/orders" },
+        { label: "Return & Refund", href: "/admin/orders/return-refund" },
+        { label: "Transactions", href: "/admin/orders/transactions" },
+      ],
+    },
+
+    {
+      segment: "User Management",
       label: "Users",
-      icon: UserManagement,
+      icon: Users,
       href: "/admin/users",
     },
     {
-      label: "Product Management",
-      icon: HealthPackages,
-      children: [
-        { label: "Product", href: "/admin/products" },
-        { label: "Attributes", href: "/admin/products/attributes" },
-        { label: "Attribute Values", href: "/admin/products/attribute-values" },
-      ],
+      label: "Admin",
+      icon: Settings,
+      href: "/admin/admin",
     },
-    {
-      label: "Order Management",
-      icon: HealthPackages,
-      children: [{ label: "All Orders", href: "/admin/orders" }],
-    },
-
-    {
-      label: "Finance",
-      icon: HealthPackages,
-      href: "/admin/finance",
-    },
-    {
-      label: "Hero Management",
-      icon: HeroManagement,
-      href: "/admin/hero-management",
-    },
-    {
-      label: "Content Management",
-      icon: HeroManagement,
-      children: [
-        { label: "Media Gallery", href: "/admin/media-gallery" },
-        { label: "Banner & Poster", href: "/admin/banner-poster" },
-      ],
-    },
-    // { label: "Corporate", icon: Corporate, href: "/admin/corporate" },
-
-    // {
-    //   label: "Events",
-    //   icon: CalendarDays,
-    //   // children: hasPermission
-    //   //   ? [
-    //   //       { label: "Event List", href: "/admin/events/events-list" },
-    //   //       {
-    //   //         label: "Events Categories",
-    //   //         href: "/admin/events/events-categories",
-    //   //       },
-    //   //       { label: "Events Tags", href: "/admin/events/events-tags" },
-    //   //     ]
-    //   //   : [{ label: "Event List", href: "/admin/events/events-list" }],
-    // },
   ];
 
   return menuItems.filter(Boolean) as MenuItem[];

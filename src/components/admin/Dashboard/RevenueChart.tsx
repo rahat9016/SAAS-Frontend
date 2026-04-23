@@ -1,20 +1,20 @@
 "use client";
 
+import { useGet } from "@/src/hooks/useGet";
+import type { RevenueResponse } from "@/src/types/dashboard/dashboard";
+import { TrendingUp } from "lucide-react";
 import {
-  AreaChart,
   Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
-import { TrendingUp } from "lucide-react";
-import { useGet } from "@/src/hooks/useGet";
-import RevenueChartSkeleton from "./Skeleton/RevenueChartSkeleton";
-import type { RevenueResponse } from "@/src/types/dashboard/dashboard";
 import CustomTooltip from "./CustomTooltip";
+import RevenueChartSkeleton from "./Skeleton/RevenueChartSkeleton";
 
 export default function RevenueChart() {
   const { data, isLoading } = useGet<RevenueResponse>(
@@ -51,7 +51,7 @@ export default function RevenueChart() {
         </div>
       </CardHeader>
       <CardContent className="pt-2 px-2 sm:px-6">
-        <div className="w-full h-[220px] sm:h-[280px] lg:h-[320px]">
+        <div className="w-full h-55 sm:h-70 lg:h-80">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart
               data={points}

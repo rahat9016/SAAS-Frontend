@@ -1,14 +1,11 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { statsCardConfigs } from "@/src/data/dashboard/statsCardConfigs";
 import { useGet } from "@/src/hooks/useGet";
-import StatsCardsSkeleton from "./Skeleton/StatsCardsSkeleton";
-import {
-  statsCardConfigs,
-  financeCardConfigs,
-} from "@/src/data/dashboard/statsCardConfigs";
 import type { DashboardStatResponse } from "@/src/types/dashboard/dashboard";
+import { motion } from "framer-motion";
+import { ArrowDownRight, ArrowUpRight } from "lucide-react";
+import StatsCardsSkeleton from "./Skeleton/StatsCardsSkeleton";
 
 const containerVariants = {
   hidden: {},
@@ -57,7 +54,7 @@ export default function StatsCards() {
           <motion.div
             key={config.key}
             variants={cardVariants}
-            className="group relative bg-white rounded-xl sm:rounded-2xl border border-gray-100 p-3 sm:p-4 xl:p-6 shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden"
+            className="group relative bg-white rounded-xl sm:rounded-2xl border border-gray-100 p-3 sm:p-4 xl:p-6 shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden h-40"
           >
             <div
               className={`absolute -top-6 -right-6 sm:-top-8 sm:-right-8 w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-linear-to-br ${config.gradient} opacity-10 group-hover:opacity-20 transition-opacity duration-300`}
@@ -69,13 +66,13 @@ export default function StatsCards() {
             </div>
 
             <div className="relative z-10 pr-12 sm:pr-14 lg:pr-16">
-              <p className="text-xs sm:text-sm font-medium text-gray-500 mb-0.5 sm:mb-1 truncate">
+              <p className="text-xs sm:text-sm font-medium text-gray-500 mb-0.5 sm:mb-2 truncate">
                 {config.label}
               </p>
-              <h3 className="text-lg sm:text-xl lg:text-[1.7rem] font-bold text-gray-900 tracking-tight">
+              <h3 className="text-lg sm:text-xl lg:text-[1.7rem] font-bold text-gray-900 tracking-tight mb-4">
                 {stat.value}
               </h3>
-              <div className="flex items-center gap-1 mt-1.5 sm:mt-2.5 flex-wrap">
+              <div className="flex items-center gap-1 mt-1.5 sm:mt-2.5 flex-wrap ">
                 <span
                   className={`inline-flex items-center gap-0.5 text-[10px] sm:text-xs font-semibold px-1.5 sm:px-2 py-0.5 rounded-full ${
                     stat.isPositive
@@ -92,55 +89,6 @@ export default function StatsCards() {
                 </span>
                 <span className="text-[10px] sm:text-xs text-gray-400 hidden sm:inline">
                   vs last month
-                </span>
-              </div>
-            </div>
-          </motion.div>
-        );
-      })}
-
-      {/* Finance stat cards (static) */}
-      {financeCardConfigs.map((config) => {
-        const Icon = config.icon;
-        return (
-          <motion.div
-            key={config.key}
-            variants={cardVariants}
-            className="group relative bg-white rounded-xl sm:rounded-2xl border border-gray-100 p-3 sm:p-4 xl:p-6 shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden"
-          >
-            <div
-              className={`absolute -top-6 -right-6 sm:-top-8 sm:-right-8 w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-linear-to-br ${config.gradient} opacity-10 group-hover:opacity-20 transition-opacity duration-300`}
-            />
-            <div
-              className={`absolute top-3 right-3 sm:top-4 sm:right-4 lg:top-5 lg:right-5 w-9 h-9 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-lg sm:rounded-xl bg-linear-to-br ${config.gradient} flex items-center justify-center shadow-lg z-10`}
-            >
-              <Icon className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-white" />
-            </div>
-
-            <div className="relative z-10 pr-12 sm:pr-14 lg:pr-16">
-              <p className="text-xs sm:text-sm font-medium text-gray-500 mb-0.5 sm:mb-1 truncate">
-                {config.label}
-              </p>
-              <h3 className="text-lg sm:text-xl lg:text-[1.7rem] font-bold text-gray-900 tracking-tight">
-                {config.value}
-              </h3>
-              <div className="flex items-center gap-1 mt-1.5 sm:mt-2.5 flex-wrap">
-                <span
-                  className={`inline-flex items-center gap-0.5 text-[10px] sm:text-xs font-semibold px-1.5 sm:px-2 py-0.5 rounded-full ${
-                    config.isPositive
-                      ? "bg-emerald-50 text-emerald-600"
-                      : "bg-red-50 text-red-500"
-                  }`}
-                >
-                  {config.isPositive ? (
-                    <ArrowUpRight className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                  ) : (
-                    <ArrowDownRight className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                  )}
-                  {config.change}
-                </span>
-                <span className="text-[10px] sm:text-xs text-gray-400 hidden sm:inline">
-                  {config.sub}
                 </span>
               </div>
             </div>
