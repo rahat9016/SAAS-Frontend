@@ -1,7 +1,9 @@
 "use client";
 
 import { siteConfig } from "@/src/config/siteConfig";
+import { openLoginModal } from "@/src/lib/redux/features/auth/authSlice";
 import { IUserInformation } from "@/src/lib/redux/features/auth/authTypes";
+import { useAppDispatch } from "@/src/lib/redux/hooks";
 import { Heart, ShoppingCart, User } from "lucide-react";
 import Link from "next/link";
 import { ProfileDropdown } from "./ProfileDropdown";
@@ -11,7 +13,6 @@ interface HeaderTopBarActionsProps {
   wishlistCount: number;
   userInformation: IUserInformation;
   authLoading: boolean;
-  onOpenLogin: () => void;
 }
 
 export default function HeaderTopBarActions({
@@ -19,8 +20,9 @@ export default function HeaderTopBarActions({
   wishlistCount,
   userInformation,
   authLoading,
-  onOpenLogin,
 }: HeaderTopBarActionsProps) {
+  const dispatch = useAppDispatch();
+
   return (
     <div className="flex items-center gap-1 lg:gap-2 shrink-0">
       <div className="hidden xl:flex items-center gap-1.5 px-3 py-2 text-xs text-gray-500">
@@ -70,7 +72,7 @@ export default function HeaderTopBarActions({
         <ProfileDropdown />
       ) : (
         <button
-          onClick={onOpenLogin}
+          onClick={() => dispatch(openLoginModal())}
           className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors cursor-pointer"
         >
           <User size={16} />

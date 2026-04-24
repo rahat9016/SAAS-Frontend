@@ -5,10 +5,9 @@ import "./globals.css";
 import LoginModal from "../components/auth/LoginModal/LoginModal";
 import ToastProvider from "../components/shared/Toast/ToastProvider";
 import { siteConfig } from "../config/siteConfig";
-import { AuthModalProvider } from "../context/AuthModalContext";
+import GoogleAuthClientProvider from "../lib/google-auth/GoogleAuthClientProvider";
 import QueryProvider from "../lib/react-query/QueryProvider";
 import StoreProvider from "../lib/redux/provider/StoreProvider";
-import GoogleAuthClientProvider from "../lib/google-auth/GoogleAuthClientProvider";
 import { UserFetcher } from "./UserFetcher";
 
 const poppins = Poppins({
@@ -34,13 +33,11 @@ export default function RootLayout({
         <StoreProvider>
           <QueryProvider>
             <GoogleAuthClientProvider>
-              <AuthModalProvider>
-                <ToastProvider>
-                  <UserFetcher />
-                  <main>{children}</main>
-                  <LoginModal />
-                </ToastProvider>
-              </AuthModalProvider>
+              <ToastProvider>
+                <UserFetcher />
+                <main>{children}</main>
+                <LoginModal />
+              </ToastProvider>
             </GoogleAuthClientProvider>
           </QueryProvider>
         </StoreProvider>
@@ -48,4 +45,3 @@ export default function RootLayout({
     </html>
   );
 }
-

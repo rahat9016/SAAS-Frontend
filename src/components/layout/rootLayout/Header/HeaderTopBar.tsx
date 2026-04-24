@@ -2,7 +2,6 @@
 
 import logo from "@/public/logo.png";
 import { siteConfig } from "@/src/config/siteConfig";
-import { useAuthModal } from "@/src/context/AuthModalContext";
 import { dummyProducts } from "@/src/data/dummyProducts";
 import { useDebounce } from "@/src/hooks/useDebounce";
 import { useAppSelector } from "@/src/lib/redux/hooks";
@@ -29,7 +28,6 @@ export default function HeaderTopBar({
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
-  const { openLoginModal } = useAuthModal();
   const cartItems = useAppSelector((state) => state.cart.items);
   const wishlistIds = useAppSelector((state) => state.wishlist.productIds);
   const { userInformation, loading: authLoading } = useAppSelector(
@@ -127,7 +125,6 @@ export default function HeaderTopBar({
           wishlistCount={wishlistIds.length}
           userInformation={userInformation}
           authLoading={authLoading}
-          onOpenLogin={openLoginModal}
         />
       </div>
 

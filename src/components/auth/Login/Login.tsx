@@ -24,7 +24,7 @@ export default function LoginPage() {
     mutateAsync: login,
     isPending,
     error,
-  } = useAuth((role: string) => {
+  } = useAuth((_data, role: string) => {
     const redirect = searchParams.get("redirect");
     if (redirect) {
       router.push(redirect);

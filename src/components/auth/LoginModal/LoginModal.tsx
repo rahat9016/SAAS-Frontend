@@ -2,8 +2,12 @@
 
 import ControlledInputField from "@/src/components/shared/FromController/ControlledInputField";
 import GoogleSignInButton from "@/src/components/shared/GoogleSignInButton/GoogleSignInButton";
-import { useAuthModal } from "@/src/context/AuthModalContext";
 import { useAuth } from "@/src/hooks/useAuth";
+import {
+  closeLoginModal,
+  setUserInformation,
+} from "@/src/lib/redux/features/auth/authSlice";
+import { useAppDispatch, useAppSelector } from "@/src/lib/redux/hooks";
 import { isAdminRole } from "@/src/utils/UserRoleEnum";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Eye, EyeOff, Lock, ShieldCheck, X } from "lucide-react";
@@ -15,15 +19,12 @@ import ErrorMessage from "../../shared/Errors/ErrorMessage";
 import { LoginFormType, loginSchema } from "../Login/Schema";
 
 export default function LoginModal() {
-  const { isLoginModalOpen, closeLoginModal, onLoginSuccess } = useAuthModal();
+  const dispatch = useAppDispatch();
+  const isLoginModalOpen = useAppSelector(
+    (state) => state.auth.isLoginModalOpen
+  );
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
-
-  const runLoginSuccess = useCallback(() => {
-    if (typeof onLoginSuccess === "function") {
-      onLoginSuccess();
-    }
-  }, [onLoginSuccess]);
 
   const methods = useForm<LoginFormType>({
     resolver: yupResolver(loginSchema),
@@ -41,26 +42,27 @@ export default function LoginModal() {
   }, [reset]);
 
   const {
-    mutateAsync: login,
+    mutateAsync: loginAsync,
     isPending,
     error,
     reset: resetAuthError,
-  } = useAuth((role: string) => {
-    closeLoginModal();
+  } = useAuth((data, role) => {
+    if (data.user) {
+      dispatch(setUserInformation(data.user));
+    }
+
+    dispatch(closeLoginModal());
     resetForm();
     if (isAdminRole(role)) {
       router.push("/admin");
-      return;
     }
-
-    runLoginSuccess();
   });
 
   const handleCloseModal = useCallback(() => {
-    closeLoginModal();
+    dispatch(closeLoginModal());
     resetForm();
     resetAuthError();
-  }, [closeLoginModal, resetAuthError, resetForm]);
+  }, [dispatch, resetAuthError, resetForm]);
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -79,7 +81,7 @@ export default function LoginModal() {
   if (!isLoginModalOpen) return null;
 
   const onSubmit: SubmitHandler<LoginFormType> = async (data) => {
-    await login(data);
+    await loginAsync(data);
   };
 
   return (
@@ -117,8 +119,6 @@ export default function LoginModal() {
               router.push("/admin");
               return;
             }
-
-            runLoginSuccess();
             resetAuthError();
           }}
         />

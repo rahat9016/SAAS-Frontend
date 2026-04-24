@@ -18,6 +18,7 @@ export interface IDataItem {
 export interface IInitialState {
   loading: boolean;
   userInformation: IUserInformation;
+  isLoginModalOpen: boolean;
   data: unknown[];
   // data: IDataItem[]; // Array of IDataItem objects
 }

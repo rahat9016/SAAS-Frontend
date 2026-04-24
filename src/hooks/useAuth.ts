@@ -2,6 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { toast } from "react-toastify";
+import { IUserInformation } from "../lib/redux/features/auth/authTypes";
 import { authService } from "../services/auth";
 import { IGenericErrorResponse } from "../types/common/common";
 
@@ -12,7 +13,16 @@ interface JwtPayload {
   sub?: string;
 }
 
-export const useAuth = (onSuccess?: (role: string) => void) => {
+export interface AuthResponse {
+  accessToken: string;
+  refreshToken: string;
+  message?: string;
+  user?: Partial<IUserInformation>;
+}
+
+export const useAuth = (
+  onSuccess?: (data: AuthResponse, role: string) => void
+) => {
   return useMutation({
     mutationFn: authService.login,
     onSuccess: async (data) => {
@@ -32,7 +42,7 @@ export const useAuth = (onSuccess?: (role: string) => void) => {
 
       toast.success(data.message || "Login successful");
       if (onSuccess) {
-        onSuccess(role);
+        onSuccess(data, role);
       }
     },
     onError: (error: IGenericErrorResponse) => {

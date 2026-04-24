@@ -17,6 +17,7 @@ const emptyUserInformation = {
 const initialState: IInitialState = {
   loading: false,
   userInformation: emptyUserInformation,
+  isLoginModalOpen: false,
   data: [],
 };
 
@@ -27,6 +28,7 @@ const authSlice = createSlice({
     logoutUser: (state) => {
       logout();
       state.userInformation = initialState.userInformation;
+      state.isLoginModalOpen = false;
     },
     setLoading: (state, action) => {
       state.loading = action.payload;
@@ -40,6 +42,12 @@ const authSlice = createSlice({
     setUserId: (state, action) => {
       state.userInformation.id = action.payload;
     },
+    openLoginModal: (state) => {
+      state.isLoginModalOpen = true;
+    },
+    closeLoginModal: (state) => {
+      state.isLoginModalOpen = false;
+    },
     setData: (state, action) => {
       state.data = action.payload;
     },
@@ -52,5 +60,7 @@ export const {
   setData,
   logoutUser,
   setUserId,
+  openLoginModal,
+  closeLoginModal,
 } = authSlice.actions;
 export default authSlice.reducer;
