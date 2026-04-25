@@ -3,6 +3,18 @@
 import { DataTable } from "@/src/components/ui/data-table";
 import { ITableProps } from "@/src/types/common/common";
 import { Palette } from "lucide-react";
+import { ReactNode } from "react";
+
+interface AttributesTableProps<T> extends ITableProps<T> {
+  rightComponents?: ReactNode;
+  title?: string;
+  searchPlaceholder?: string;
+  isShowStatus?: boolean;
+  tabs?: {
+    name: string;
+    route?: string;
+  }[];
+}
 
 const AttributesTable = <T,>({
   columns,
@@ -19,7 +31,12 @@ const AttributesTable = <T,>({
   setIsModalOpen,
   showCreateButton = false,
   createTitle,
-}: ITableProps<T>) => {
+  rightComponents,
+  title = "Product Attributes",
+  searchPlaceholder = "Searching...",
+  isShowStatus = true,
+  tabs,
+}: AttributesTableProps<T>) => {
   return (
     <DataTable
       columns={columns}
@@ -31,13 +48,17 @@ const AttributesTable = <T,>({
       onPageChange={setCurrentPage}
       setItemsPerPage={setItemsPerPage}
       icon={<Palette />}
-      title="Product Attributes"
+      title={title}
       showSearch={showSearch}
       searchValue={search}
       onSearchChange={handleSearchChange}
       createTitle={createTitle}
       IsCreate={showCreateButton}
       setIsModalOpen={setIsModalOpen}
+      rightComponents={rightComponents}
+      searchPlaceholder={searchPlaceholder}
+      isShowStatus={isShowStatus}
+      tabs={tabs}
     />
   );
 };

@@ -45,7 +45,7 @@ export function getMenuItems(): MenuItem[] {
             "/admin/sub-category",
           ],
         },
-        { label: "Attribute List", href: "/admin/products/attributes" },
+        { label: "Attribute List", href: "/admin/products/attributes", matchRoutes: ["/admin/products/attributes", "/admin/products/attribute-values"] },
         { label: "Tag List", href: "/admin/products/tags" },
         { label: "Brand List", href: "/admin/brands" },
       ],

@@ -3,16 +3,16 @@ import { Button } from "@/src/components/ui/button";
 import { ColumnDef } from "@/src/components/ui/data-table";
 import { StatusType } from "@/src/types/common/common";
 import { Pencil, Trash2 } from "lucide-react";
-import { IAttribute } from "../types";
+import { IAttributeValue } from "../types";
 
-export const GetAttributeColumns = (
-  onEdit?: (item: IAttribute) => void,
+export const GetAttributeValueColumns = (
+  onEdit?: (item: IAttributeValue) => void,
   onDelete?: (id: string) => void
-): ColumnDef<IAttribute>[] => {
+): ColumnDef<IAttributeValue>[] => {
   return [
     {
-      header: "Name",
-      accessorKey: "name",
+      header: "Value",
+      accessorKey: "value",
     },
     {
       header: "Description",
@@ -41,7 +41,7 @@ export const GetAttributeColumns = (
       header: "Action",
       accessorKey: "actions",
       cell: (_value, row) => {
-        const item = row as IAttribute;
+        const item = row as IAttributeValue;
         return (
           <div className="flex items-center justify-end gap-2 w-full">
             <Button

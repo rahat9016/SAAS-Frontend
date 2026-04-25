@@ -20,19 +20,21 @@ import { useEffect } from "react";
 import { FormProvider, Resolver, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
-import { IAttribute } from "../types";
+import { IAttributeValue } from "../types";
 
-const attributeSchema = Yup.object({
-  name: Yup.string().required("Attribute name is required"),
+const attributeValueSchema = Yup.object({
+  value: Yup.string().required("Attribute value is required"),
   description: Yup.string().optional().default(""),
   status: Yup.string().oneOf(["ACTIVE", "INACTIVE"]).required(),
 });
 
-type AttributeFormValues = Yup.InferType<typeof attributeSchema>;
-interface CreateUpdateAttributeProps {
+type AttributeValueFormValues = Yup.InferType<typeof attributeValueSchema>;
+
+interface CreateUpdateAttributeValueProps {
   isOpen: boolean;
   onClose: () => void;
-  initialValues?: IAttribute;
+  attributeId?: string;
+  initialValues?: IAttributeValue;
 }
 
 const STATUS_OPTIONS = [
@@ -40,22 +42,25 @@ const STATUS_OPTIONS = [
   { label: "Inactive", value: "INACTIVE" },
 ];
 
-export default function CreateUpdateAttribute({
+export default function CreateUpdateAttributeValue({
   isOpen,
   onClose,
+  attributeId,
   initialValues,
-}: CreateUpdateAttributeProps) {
+}: CreateUpdateAttributeValueProps) {
   const isUpdate = !!initialValues;
 
-  const methods = useForm<AttributeFormValues>({
-    resolver: yupResolver(attributeSchema) as Resolver<AttributeFormValues>,
-    defaultValues: { name: "", description: "", status: "ACTIVE" },
+  const methods = useForm<AttributeValueFormValues>({
+    resolver: yupResolver(
+      attributeValueSchema
+    ) as Resolver<AttributeValueFormValues>,
+    defaultValues: { value: "", description: "", status: "ACTIVE" },
   });
 
   useEffect(() => {
     if (isOpen) {
       methods.reset({
-        name: initialValues?.name || "",
+        value: initialValues?.value || "",
         description: initialValues?.description || "",
         status:
           String(initialValues?.status || "ACTIVE").toUpperCase() === "INACTIVE"
@@ -63,7 +68,7 @@ export default function CreateUpdateAttribute({
             : "ACTIVE",
       });
     } else {
-      methods.reset({ name: "", description: "", status: "ACTIVE" });
+      methods.reset({ value: "", description: "", status: "ACTIVE" });
     }
   }, [isOpen, initialValues, methods]);
 
@@ -73,12 +78,12 @@ export default function CreateUpdateAttribute({
     error,
     reset: resetCreateError,
   } = usePost(
-    "/product-attribute",
+    attributeId ? `/product-attribute/${attributeId}/values` : undefined,
     () => {
-      toast.success("Attribute created successfully!");
+      toast.success("Attribute value created successfully!");
       onClose();
     },
-    [["product-attributes"]]
+    [["product-attribute-values", attributeId || ""]]
   );
 
   const {
@@ -87,9 +92,9 @@ export default function CreateUpdateAttribute({
     error: updateError,
     reset: resetUpdateError,
   } = usePatch(() => {
-    toast.success("Attribute updated successfully!");
+    toast.success("Attribute value updated successfully!");
     onClose();
-  }, [["product-attributes"]]);
+  }, [["product-attribute-values", attributeId || ""]]);
 
   const isPending = isCreating || isUpdating;
 
@@ -106,16 +111,21 @@ export default function CreateUpdateAttribute({
     }
   }, [isOpen, resetCreateError, resetUpdateError]);
 
-  const onSubmit = (values: AttributeFormValues) => {
+  const onSubmit = (values: AttributeValueFormValues) => {
+    if (!attributeId) {
+      toast.error("Please select an attribute first");
+      return;
+    }
+
     const payload = {
-      name: values.name,
+      value: values.value,
       description: values.description || "",
       status: values.status,
     };
 
     if (isUpdate && initialValues) {
       updateMutate({
-        url: `/product-attribute/${initialValues.id}`,
+        url: `/product-attribute/${attributeId}/values/${initialValues.id}`,
         data: payload,
       });
       return;
@@ -134,7 +144,7 @@ export default function CreateUpdateAttribute({
       <DialogContent className="bg-white sm:max-w-125">
         <DialogHeader>
           <DialogTitle className="text-secondary text-xl font-semibold">
-            {isUpdate ? "Update" : "Create"} Attribute
+            {isUpdate ? "Update" : "Create"} Attribute Value
           </DialogTitle>
         </DialogHeader>
 
@@ -144,11 +154,11 @@ export default function CreateUpdateAttribute({
             className="w-full space-y-5 mt-2"
           >
             <div>
-              <InputLabel label="Attribute Name" required />
+              <InputLabel label="Value" required />
               <ControlledInputField
                 className="bg-light"
-                name="name"
-                placeholder="e.g. Color, Size, Weight"
+                name="value"
+                placeholder="e.g. Red, XL, 256GB"
               />
             </div>
 
@@ -157,7 +167,7 @@ export default function CreateUpdateAttribute({
               <ControlledTextareaField
                 className="bg-light h-28"
                 name="description"
-                placeholder="Enter attribute description"
+                placeholder="Enter value description"
               />
             </div>
 
