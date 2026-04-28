@@ -96,7 +96,7 @@ export default function AttributeList() {
         search={search}
         handleSearchChange={handleSearchChange}
         showCreateButton
-        createTitle="Create Attribute"
+        createTitle="Create"
         setIsModalOpen={() => {
           setSelectedItem(undefined);
           setIsModalOpen(true);

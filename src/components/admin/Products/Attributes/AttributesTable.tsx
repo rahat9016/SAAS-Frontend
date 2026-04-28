@@ -1,20 +1,8 @@
 "use client";
 
 import { DataTable } from "@/src/components/ui/data-table";
-import { ITableProps } from "@/src/types/common/common";
 import { Palette } from "lucide-react";
-import { ReactNode } from "react";
-
-interface AttributesTableProps<T> extends ITableProps<T> {
-  rightComponents?: ReactNode;
-  title?: string;
-  searchPlaceholder?: string;
-  isShowStatus?: boolean;
-  tabs?: {
-    name: string;
-    route?: string;
-  }[];
-}
+import { AttributesTableProps } from "./types";
 
 const AttributesTable = <T,>({
   columns,

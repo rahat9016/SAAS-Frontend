@@ -43,9 +43,13 @@ export enum StatusType {
   ACTIVE = "ACTIVE",
   INACTIVE = "INACTIVE",
   IN_PROGRESS = "IN_PROGRESS",
-  VERIFIED = "VERIFIED",
-  UNVERIFIED = "UNVERIFIED",
 }
+
+export const STATUS_OPTIONS: ISelectOption[] = [
+  { label: "Active", value: StatusType.ACTIVE },
+  { label: "Inactive", value: StatusType.INACTIVE },
+];
+
 export enum BookingType {
   ONSITE = "onsite",
   TELE = "tele",

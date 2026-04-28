@@ -28,13 +28,9 @@ export const GetAttributeColumns = (
       header: "Status",
       accessorKey: "status",
       cell: (value) => {
-        const normalizedStatus =
-          String(value || StatusType.INACTIVE).toUpperCase() ===
-          StatusType.ACTIVE
-            ? StatusType.ACTIVE
-            : StatusType.INACTIVE;
-
-        return <StatusBadge status={normalizedStatus} className="px-2 py-1" />;
+        return (
+          <StatusBadge status={value as StatusType} className="px-2 py-1" />
+        );
       },
     },
     {

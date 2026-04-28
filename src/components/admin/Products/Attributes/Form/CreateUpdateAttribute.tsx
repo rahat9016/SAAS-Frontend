@@ -1,17 +1,14 @@
 "use client";
 
-import ErrorMessage from "@/src/components/shared/Errors/ErrorMessage";
-import ControlledInputField from "@/src/components/shared/FromController/ControlledInputField";
-import ControlledSelectField from "@/src/components/shared/FromController/ControlledSelectField";
-import ControlledTextareaField from "@/src/components/shared/FromController/ControlledTextareaField";
-import InputLabel from "@/src/components/shared/InputLabel";
-import SubmitButton from "@/src/components/shared/SubmitButton";
-import { Button } from "@/src/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
+  AttributeFormValues,
+  attributeSchema,
+} from "@/src/components/admin/Products/Attributes/Schema";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
 } from "@/src/components/ui/dialog";
 import { usePatch } from "@/src/hooks/usePatch";
 import { usePost } from "@/src/hooks/usePost";
@@ -19,26 +16,15 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect } from "react";
 import { FormProvider, Resolver, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import * as Yup from "yup";
+import { getAttributeDefaultValues } from "../getDefaultValues";
 import { IAttribute } from "../types";
+import AttributeForm from "./AttributeForm";
 
-const attributeSchema = Yup.object({
-  name: Yup.string().required("Attribute name is required"),
-  description: Yup.string().optional().default(""),
-  status: Yup.string().oneOf(["ACTIVE", "INACTIVE"]).required(),
-});
-
-type AttributeFormValues = Yup.InferType<typeof attributeSchema>;
 interface CreateUpdateAttributeProps {
   isOpen: boolean;
   onClose: () => void;
   initialValues?: IAttribute;
 }
-
-const STATUS_OPTIONS = [
-  { label: "Active", value: "ACTIVE" },
-  { label: "Inactive", value: "INACTIVE" },
-];
 
 export default function CreateUpdateAttribute({
   isOpen,
@@ -49,23 +35,8 @@ export default function CreateUpdateAttribute({
 
   const methods = useForm<AttributeFormValues>({
     resolver: yupResolver(attributeSchema) as Resolver<AttributeFormValues>,
-    defaultValues: { name: "", description: "", status: "ACTIVE" },
+    defaultValues: getAttributeDefaultValues(),
   });
-
-  useEffect(() => {
-    if (isOpen) {
-      methods.reset({
-        name: initialValues?.name || "",
-        description: initialValues?.description || "",
-        status:
-          String(initialValues?.status || "ACTIVE").toUpperCase() === "INACTIVE"
-            ? "INACTIVE"
-            : "ACTIVE",
-      });
-    } else {
-      methods.reset({ name: "", description: "", status: "ACTIVE" });
-    }
-  }, [isOpen, initialValues, methods]);
 
   const {
     mutate: createMutate,
@@ -93,18 +64,29 @@ export default function CreateUpdateAttribute({
 
   const isPending = isCreating || isUpdating;
 
+  // Reset form and errors when modal opens/closes
+  useEffect(() => {
+    if (isOpen) {
+      // When opening, set values based on whether it's create or update mode
+      methods.reset(
+        getAttributeDefaultValues(isUpdate ? initialValues : undefined)
+      );
+      resetCreateError();
+      resetUpdateError();
+    } else {
+      // When closing, clear all values and reset errors
+      methods.reset(getAttributeDefaultValues());
+      resetCreateError();
+      resetUpdateError();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, initialValues]);
+
   const handleClose = () => {
     resetCreateError();
     resetUpdateError();
     onClose();
   };
-
-  useEffect(() => {
-    if (!isOpen) {
-      resetCreateError();
-      resetUpdateError();
-    }
-  }, [isOpen, resetCreateError, resetUpdateError]);
 
   const onSubmit = (values: AttributeFormValues) => {
     const payload = {
@@ -139,54 +121,13 @@ export default function CreateUpdateAttribute({
         </DialogHeader>
 
         <FormProvider {...methods}>
-          <form
-            onSubmit={methods.handleSubmit(onSubmit)}
-            className="w-full space-y-5 mt-2"
-          >
-            <div>
-              <InputLabel label="Attribute Name" required />
-              <ControlledInputField
-                className="bg-light"
-                name="name"
-                placeholder="e.g. Color, Size, Weight"
-              />
-            </div>
-
-            <div>
-              <InputLabel label="Description" />
-              <ControlledTextareaField
-                className="bg-light h-28"
-                name="description"
-                placeholder="Enter attribute description"
-              />
-            </div>
-
-            <div>
-              <InputLabel label="Status" required />
-              <ControlledSelectField
-                className="bg-light"
-                name="status"
-                placeholder="Select status"
-                options={STATUS_OPTIONS}
-              />
-            </div>
-
-            <ErrorMessage error={error || updateError} />
-
-            <div className="flex items-center justify-end gap-4">
-              <Button
-                type="button"
-                onClick={handleClose}
-                className="text-secondary-foreground bg-transparent hover:bg-transparent border shadow-none cursor-pointer"
-              >
-                Cancel
-              </Button>
-              <SubmitButton
-                isLoading={isPending}
-                label={isUpdate ? "Update" : "Create"}
-              />
-            </div>
-          </form>
+          <AttributeForm
+            isEditMode={isUpdate}
+            onSubmit={onSubmit}
+            onCancel={handleClose}
+            isPending={isPending}
+            error={error || updateError}
+          />
         </FormProvider>
       </DialogContent>
     </Dialog>

@@ -175,16 +175,18 @@ export function DataTable<T>({
             </div>
           </div>
           <Table className="min-w-full border-collapse">
-            <TableHeader>
+            <TableHeader> 
               <TableRow className="bg-light h-15 border border-light-dark border-t-0">
-                {columns.map((column, index) => (
-                  <TableHead
-                    key={index}
-                    className="font-medium text-sm text-secondary-dark px-5"
-                  >
-                    {column.header}
-                  </TableHead>
-                ))}
+                {columns.map((column, index) => {
+                  return (
+                    <TableHead
+                      key={index}
+                      className={`font-medium text-sm text-secondary-dark px-5 ${column.accessorKey === "actions" ? "text-end" : "text-start"}`}
+                    >
+                      {column.header}
+                    </TableHead>
+                  );
+                })}
               </TableRow>
             </TableHeader>
 
