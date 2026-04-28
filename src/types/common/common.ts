@@ -43,6 +43,8 @@ export enum StatusType {
   ACTIVE = "ACTIVE",
   INACTIVE = "INACTIVE",
   IN_PROGRESS = "IN_PROGRESS",
+  VERIFIED = "VERIFIED",
+  UNVERIFIED = "UNVERIFIED",
 }
 
 export const STATUS_OPTIONS: ISelectOption[] = [
