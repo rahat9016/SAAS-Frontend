@@ -38,15 +38,22 @@ export function getMenuItems(): MenuItem[] {
       children: [
         {
           label: "Category List",
-          href: "/admin/category",
+          href: "/admin/parent-category",
           matchRoutes: [
             "/admin/parent-category",
             "/admin/category",
             "/admin/sub-category",
           ],
         },
-        { label: "Attribute List", href: "/admin/products/attributes", matchRoutes: ["/admin/products/attributes", "/admin/products/attribute-values"] },
-        { label: "Tag List", href: "/admin/products/tags" },
+        {
+          label: "Attribute List",
+          href: "/admin/products/attributes",
+          matchRoutes: [
+            "/admin/products/attributes",
+            "/admin/products/attribute-values",
+          ],
+        },
+        // { label: "Tag List", href: "/admin/products/tags" },
         { label: "Brand List", href: "/admin/brands" },
       ],
     },
