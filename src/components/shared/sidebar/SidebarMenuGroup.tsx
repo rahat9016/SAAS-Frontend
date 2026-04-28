@@ -54,7 +54,7 @@ export default function SidebarMenuGroup({
           isExpanded ? "max-h-125 opacity-100" : "max-h-0 opacity-0"
         )}
       >
-        <div className="ml-6 mt-1 border-l-2 border-gray-200 pl-3">
+        <div className="ml-5 mt-1 border-l-2 border-gray-200 pl-3">
           {item.children?.map((child) => {
             // Check if pathname matches the child's href or any of its matchRoutes
             let isChildActive = pathname === child.href;
