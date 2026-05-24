@@ -4,6 +4,8 @@ import cartReducer from "./features/cart/cartSlice";
 import filterReducer from "./features/filter/filterSlice";
 import organizerReducer from "./features/organizer/organizationSlice";
 import permissionReducer from "./features/permission/permissionSlice";
+import plmReducer from "./features/plm/plmSlice";
+import plmRolesReducer from "./features/plm/plmRoleSlice";
 import userReducer from "./features/user/userSlice";
 import wishlistReducer from "./features/wishlist/wishlistSlice";
 
@@ -17,6 +19,8 @@ export const makeStore = () => {
       filter: filterReducer,
       cart: cartReducer,
       wishlist: wishlistReducer,
+      plm: plmReducer,
+      plmRoles: plmRolesReducer,
     },
   });
 };

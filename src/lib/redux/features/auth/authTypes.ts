@@ -1,3 +1,5 @@
+import { PlmRole } from "@/src/types/plm/productLifecycleTypes";
+
 export interface IUserInformation {
   id: string;
   email: string;
@@ -8,6 +10,10 @@ export interface IUserInformation {
   isVerified: boolean;
   status: string;
   role: string;
+  // PLM-specific identity (set from backend JWT claims when available)
+  plmRoles?: PlmRole[];
+  branchId?: string | null;
+  branchName?: string | null;
 }
 
 export interface IDataItem {

@@ -1,6 +1,7 @@
 "use client";
 
 import { getMenuItems } from "@/src/utils/getMenuItems";
+import { useAppSelector } from "@/src/lib/redux/hooks";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import SidebarMenuGroup from "./SidebarMenuGroup";
@@ -12,7 +13,8 @@ interface SidebarMenuProps {
 
 export default function SidebarMenu({ onNavigate }: SidebarMenuProps) {
   const pathname = usePathname();
-  const menuItems = getMenuItems();
+  const plmRoles = useAppSelector((state) => state.plm.userProfile.roles);
+  const menuItems = getMenuItems(plmRoles);
 
   // Track which menu items are expanded
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
@@ -73,3 +75,4 @@ export default function SidebarMenu({ onNavigate }: SidebarMenuProps) {
     </nav>
   );
 }
+
