@@ -1,9 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useAppSelector, useAppDispatch } from "@/src/lib/redux/hooks";
-import { addRawMaterial, deleteRawMaterial, allocateMaterial } from "@/src/lib/redux/features/plm/plmSlice";
-import { IRawMaterial } from "@/src/types/plm/productLifecycleTypes";
+import { useGet } from "@/src/hooks/useGet";
+import { usePost } from "@/src/hooks/usePost";
+import { useDelete } from "@/src/hooks/useDelete";
 import RoleSwitcher from "../shared/RoleSwitcher";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
@@ -13,33 +13,53 @@ import DeleteConfirmDialog from "@/src/components/shared/DeleteConfirmDialog";
 import { MATERIAL_CATEGORIES, MATERIAL_UNITS } from "@/src/constants/plm/plmConstants";
 
 export default function InventoryDashboard() {
-  const dispatch = useAppDispatch();
-  const rawMaterials = useAppSelector((state) => state.plm.rawMaterials);
-  const allocations = useAppSelector((state) => state.plm.allocations);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [formData, setFormData] = useState({ name: "", sku: "", category: "fabric", unit: "m", totalStock: 0, reorderLevel: 0, unitCost: 0 });
 
-  const lowStock = useMemo(() => rawMaterials.filter((m) => m.availableStock <= m.reorderLevel), [rawMaterials]);
-  const totalValue = useMemo(() => rawMaterials.reduce((sum, m) => sum + m.totalStock * m.unitCost, 0), [rawMaterials]);
+  // Fetch raw materials from Next.js API
+  const { data: materialsData, isLoading: isMaterialsLoading } = useGet<any>(
+    "/api/plm/inventory/material",
+    ["materials"]
+  );
+  const rawMaterials = materialsData?.data || [];
+
+  // Fetch allocations from Next.js API
+  const { data: allocationsData } = useGet<any>(
+    "/api/plm/inventory/allocate",
+    ["allocations"]
+  );
+  const allocations = allocationsData?.data || [];
+
+  const lowStock = useMemo(() => rawMaterials.filter((m: any) => m.availableStock <= m.reorderLevel), [rawMaterials]);
+  const totalValue = useMemo(() => rawMaterials.reduce((sum: number, m: any) => sum + m.totalStock * m.unitCost, 0), [rawMaterials]);
+
+  // React Query post mutation for adding material
+  const { mutate: createMutate } = usePost(
+    "/api/plm/inventory/material",
+    () => {
+      toast.success("Material added!");
+      setShowAddForm(false);
+      setFormData({ name: "", sku: "", category: "fabric", unit: "m", totalStock: 0, reorderLevel: 0, unitCost: 0 });
+    },
+    [["materials"]]
+  );
 
   const handleAdd = () => {
     if (!formData.name || !formData.sku) { toast.error("Name and SKU required"); return; }
-    const newMaterial: IRawMaterial = {
-      id: `mat-${Date.now()}`,
-      ...formData,
-      allocatedStock: 0,
-      availableStock: formData.totalStock,
-      lastRestocked: new Date().toISOString(),
-    };
-    dispatch(addRawMaterial(newMaterial));
-    toast.success("Material added!");
-    setShowAddForm(false);
-    setFormData({ name: "", sku: "", category: "fabric", unit: "m", totalStock: 0, reorderLevel: 0, unitCost: 0 });
+    createMutate(formData);
   };
 
+  // React Query delete mutation for deleting material
+  const { mutate: deleteMutate } = useDelete(() => {
+    toast.success("Material deleted");
+    setDeleteId(null);
+  }, [["materials"]]);
+
   const handleDelete = () => {
-    if (deleteId) { dispatch(deleteRawMaterial(deleteId)); toast.success("Material deleted"); setDeleteId(null); }
+    if (deleteId) {
+      deleteMutate({ url: `/api/plm/inventory/material/${deleteId}` });
+    }
   };
 
   return (
@@ -74,7 +94,7 @@ export default function InventoryDashboard() {
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
           <h3 className="text-sm font-semibold text-amber-800 mb-2 flex items-center gap-1.5"><AlertTriangle className="w-4 h-4" /> Low Stock Alert</h3>
           <div className="flex flex-wrap gap-2">
-            {lowStock.map((m) => (
+            {lowStock.map((m: any) => (
               <span key={m.id} className="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded-md font-medium">{m.name}: {m.availableStock} {m.unit} left</span>
             ))}
           </div>
@@ -110,39 +130,43 @@ export default function InventoryDashboard() {
       {/* Materials Table */}
       <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead><tr className="bg-gray-50 border-b border-gray-100">
-              <th className="text-left text-xs font-semibold text-gray-600 px-4 py-3">Material</th>
-              <th className="text-left text-xs font-semibold text-gray-600 px-4 py-3">SKU</th>
-              <th className="text-left text-xs font-semibold text-gray-600 px-4 py-3">Category</th>
-              <th className="text-right text-xs font-semibold text-gray-600 px-4 py-3">Total</th>
-              <th className="text-right text-xs font-semibold text-gray-600 px-4 py-3">Allocated</th>
-              <th className="text-right text-xs font-semibold text-gray-600 px-4 py-3">Available</th>
-              <th className="text-right text-xs font-semibold text-gray-600 px-4 py-3">Unit Cost</th>
-              <th className="text-center text-xs font-semibold text-gray-600 px-4 py-3">Action</th>
-            </tr></thead>
-            <tbody className="divide-y divide-gray-50">
-              {rawMaterials.map((mat) => (
-                <tr key={mat.id} className="hover:bg-gray-50/50 transition-colors">
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium text-sm text-secondary">{mat.name}</span>
-                      {mat.availableStock <= mat.reorderLevel && <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-xs text-gray-500 font-mono">{mat.sku}</td>
-                  <td className="px-4 py-3"><span className="capitalize text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">{mat.category}</span></td>
-                  <td className="px-4 py-3 text-right text-sm text-gray-700">{mat.totalStock} {mat.unit}</td>
-                  <td className="px-4 py-3 text-right text-sm text-blue-600 font-medium">{mat.allocatedStock} {mat.unit}</td>
-                  <td className={`px-4 py-3 text-right text-sm font-medium ${mat.availableStock <= mat.reorderLevel ? "text-amber-600" : "text-emerald-600"}`}>{mat.availableStock} {mat.unit}</td>
-                  <td className="px-4 py-3 text-right text-sm text-gray-700">৳{mat.unitCost}</td>
-                  <td className="px-4 py-3 text-center">
-                    <Button onClick={() => setDeleteId(mat.id)} className="w-8! h-8 bg-red-50 hover:bg-red-100 cursor-pointer" size="sm"><Trash2 className="w-3.5 h-3.5 text-red-500" /></Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          {isMaterialsLoading ? (
+            <div className="p-8 text-center text-gray-400 text-sm">Loading materials...</div>
+          ) : (
+            <table className="w-full">
+              <thead><tr className="bg-gray-50 border-b border-gray-100">
+                <th className="text-left text-xs font-semibold text-gray-600 px-4 py-3">Material</th>
+                <th className="text-left text-xs font-semibold text-gray-600 px-4 py-3">SKU</th>
+                <th className="text-left text-xs font-semibold text-gray-600 px-4 py-3">Category</th>
+                <th className="text-right text-xs font-semibold text-gray-600 px-4 py-3">Total</th>
+                <th className="text-right text-xs font-semibold text-gray-600 px-4 py-3">Allocated</th>
+                <th className="text-right text-xs font-semibold text-gray-600 px-4 py-3">Available</th>
+                <th className="text-right text-xs font-semibold text-gray-600 px-4 py-3">Unit Cost</th>
+                <th className="text-center text-xs font-semibold text-gray-600 px-4 py-3">Action</th>
+              </tr></thead>
+              <tbody className="divide-y divide-gray-50">
+                {rawMaterials.map((mat: any) => (
+                  <tr key={mat.id} className="hover:bg-gray-50/50 transition-colors">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-sm text-secondary">{mat.name}</span>
+                        {mat.availableStock <= mat.reorderLevel && <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-xs text-gray-500 font-mono">{mat.sku}</td>
+                    <td className="px-4 py-3"><span className="capitalize text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">{mat.category}</span></td>
+                    <td className="px-4 py-3 text-right text-sm text-gray-700">{mat.totalStock} {mat.unit}</td>
+                    <td className="px-4 py-3 text-right text-sm text-blue-600 font-medium">{mat.allocatedStock} {mat.unit}</td>
+                    <td className={`px-4 py-3 text-right text-sm font-medium ${mat.availableStock <= mat.reorderLevel ? "text-amber-600" : "text-emerald-600"}`}>{mat.availableStock} {mat.unit}</td>
+                    <td className="px-4 py-3 text-right text-sm text-gray-700">৳{mat.unitCost}</td>
+                    <td className="px-4 py-3 text-center">
+                      <Button onClick={() => setDeleteId(mat.id)} className="w-8! h-8 bg-red-50 hover:bg-red-100 cursor-pointer" size="sm"><Trash2 className="w-3.5 h-3.5 text-red-500" /></Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
 

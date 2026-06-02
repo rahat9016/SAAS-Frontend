@@ -1,67 +1,72 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
-import { useAppSelector, useAppDispatch } from "@/src/lib/redux/hooks";
-import { deleteDesign } from "@/src/lib/redux/features/plm/plmSlice";
+import { useAppSelector } from "@/src/lib/redux/hooks";
+import { useGet } from "@/src/hooks/useGet";
+import { useDelete } from "@/src/hooks/useDelete";
+import { usePagination } from "@/src/hooks/usePagination";
+import { useSearchDebounce } from "@/src/hooks/useSearchDebounce";
 import DeleteConfirmDialog from "@/src/components/shared/DeleteConfirmDialog";
 import DesignTable from "./DesignTable";
 import { GetDesignColumns } from "./TableColumns/DesignColumns";
 import { IDesignListItem, ProductStatus } from "@/src/types/plm/productLifecycleTypes";
 import RoleSwitcher from "../shared/RoleSwitcher";
 import BranchSelector from "../shared/BranchSelector";
-import { hasPermission, isBranchScoped } from "@/src/types/plm/plmPermissions";
+import { isBranchScoped } from "@/src/types/plm/plmPermissions";
 
 export default function DesignList() {
   const router = useRouter();
-  const dispatch = useAppDispatch();
-  const designs = useAppSelector((state) => state.plm.designs);
   const userProfile = useAppSelector((state) => state.plm.userProfile);
   const selectedBranchId = useAppSelector((state) => state.plm.selectedBranchId);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
+  const {
+    setCurrentPage,
+    itemsPerPage,
+    currentPage,
+    totalItems,
+    setTotalItems,
+    setItemsPerPage,
+  } = usePagination();
+  const { search, handleSearchChange, debouncedSearch } = useSearchDebounce(300);
+
   // RBAC: permission-based capabilities
-  const canDelete = hasPermission(userProfile.roles, "plm.design.create"); // only creators can delete
-  const canCreate = hasPermission(userProfile.roles, "plm.design.create");
+  const canDelete = userProfile.permissions.includes("plm.design.create");
+  const canCreate = userProfile.permissions.includes("plm.design.create");
 
-  // Map to list items with ABAC filtering
-  const designListItems: IDesignListItem[] = useMemo(() => {
-    let filtered = designs;
-
-    // ABAC: Branch-scoped users only see their branch
-    if (isBranchScoped(userProfile.roles) && userProfile.branchId) {
-      filtered = filtered.filter((d) => d.branchId === userProfile.branchId);
-    } else if (selectedBranchId) {
-      // Super Admin can filter by branch via selector
-      filtered = filtered.filter((d) => d.branchId === selectedBranchId);
+  // Query designs from Next.js backend API
+  const { data, isLoading } = useGet<any>(
+    "/api/plm/design",
+    [
+      "designs",
+      currentPage.toString(),
+      itemsPerPage.toString(),
+      debouncedSearch,
+      statusFilter,
+      selectedBranchId || "all",
+      userProfile.roles.join(","),
+    ],
+    {
+      page: currentPage.toString(),
+      limit: itemsPerPage.toString(),
+      search: debouncedSearch,
+      ...(statusFilter !== "all" && { status: statusFilter }),
+      ...(selectedBranchId && { branchId: selectedBranchId }),
     }
+  );
 
-    // ABAC: Design Team only sees their own designs
-    if (
-      userProfile.roles.includes("DESIGN_TEAM") &&
-      !userProfile.roles.includes("BRANCH_MODERATOR") &&
-      !userProfile.roles.includes("SUPER_ADMIN")
-    ) {
-      filtered = filtered.filter((d) => d.designerId === userProfile.id);
+  const { mutate: deleteMutate } = useDelete(() => {
+    toast.success("Design deleted successfully!");
+  }, [["designs"]]);
+
+  useEffect(() => {
+    if (data) {
+      setTotalItems(data.meta?.totalItems || 0);
     }
-
-    // Filter by status
-    if (statusFilter !== "all") {
-      filtered = filtered.filter((d) => d.status === statusFilter);
-    }
-
-    return filtered.map((d) => ({
-      id: d.id,
-      name: d.name,
-      category: d.category,
-      designerName: d.designerName,
-      branchName: d.branchName,
-      status: d.status,
-      createdAt: d.createdAt,
-    }));
-  }, [designs, userProfile, selectedBranchId, statusFilter]);
+  }, [data, setTotalItems]);
 
   const handleView = (id: string) => {
     router.push(`/admin/plm/designs/${id}`);
@@ -73,8 +78,7 @@ export default function DesignList() {
 
   const handleConfirmDelete = () => {
     if (deleteId) {
-      dispatch(deleteDesign(deleteId));
-      toast.success("Design deleted successfully!");
+      deleteMutate({ url: `/api/plm/design/${deleteId}` });
       setDeleteId(null);
     }
   };
@@ -122,15 +126,15 @@ export default function DesignList() {
 
       <DesignTable
         columns={columns}
-        data={designListItems}
-        isLoading={false}
-        totalItems={designListItems.length}
-        currentPage={1}
-        itemsPerPage={10}
-        setCurrentPage={() => {}}
-        setItemsPerPage={() => {}}
-        search=""
-        handleSearchChange={() => {}}
+        data={data?.data || []}
+        isLoading={isLoading}
+        totalItems={totalItems}
+        currentPage={currentPage}
+        itemsPerPage={itemsPerPage}
+        setCurrentPage={setCurrentPage}
+        setItemsPerPage={setItemsPerPage}
+        search={search}
+        handleSearchChange={handleSearchChange}
         showCreateButton={canCreate}
         createTitle="Create Design"
       />

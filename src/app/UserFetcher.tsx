@@ -79,6 +79,7 @@ export const UserFetcher = () => {
             id: data.data.id,
             name: `${data.data.firstName} ${data.data.lastName}`.trim(),
             roles: data.data.plmRoles,
+            permissions: (data.data as IUserInformation & { plmPermissions?: string[] }).plmPermissions || [],
             branchId: data.data.branchId ?? null,
             branchName: data.data.branchName ?? null,
           })

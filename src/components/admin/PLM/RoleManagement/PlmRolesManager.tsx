@@ -1,13 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useAppDispatch, useAppSelector } from "@/src/lib/redux/hooks";
-import {
-  createCustomRole,
-  updateCustomRole,
-  deleteCustomRole,
-  IPlmCustomRole,
-} from "@/src/lib/redux/features/plm/plmRoleSlice";
+import { useGet } from "@/src/hooks/useGet";
+import { usePost } from "@/src/hooks/usePost";
+import { usePatch } from "@/src/hooks/usePatch";
+import { useDelete } from "@/src/hooks/useDelete";
 import { PlmPermission } from "@/src/types/plm/plmPermissions";
 import RoleFormModal from "./RoleFormModal";
 import RolePermissionMatrix from "./RolePermissionMatrix";
@@ -25,28 +22,49 @@ import {
 } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { format } from "date-fns";
+import { toast } from "react-toastify";
 
 export default function PlmRolesManager() {
-  const dispatch = useAppDispatch();
-  const roles = useAppSelector((state) => state.plmRoles.customRoles);
-
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingRole, setEditingRole] = useState<IPlmCustomRole | null>(null);
+  const [editingRole, setEditingRole] = useState<any | null>(null);
   const [deleteRoleId, setDeleteRoleId] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  // Query roles from the Next.js API
+  const { data: rolesData, isLoading } = useGet<any>("/api/plm/role", ["customRoles"]);
+  const roles = rolesData?.data || [];
+
+  // React Query post mutation for creating role
+  const { mutate: createMutate } = usePost(
+    "/api/plm/role",
+    () => {
+      toast.success("Role created successfully!");
+      setIsModalOpen(false);
+    },
+    [["customRoles"]]
+  );
 
   const handleCreate = (data: {
     name: string;
     description: string;
     permissions: PlmPermission[];
   }) => {
-    dispatch(
-      createCustomRole({
-        ...data,
-        createdBy: "Super Admin",
-      })
-    );
+    createMutate({
+      name: data.name,
+      description: data.description,
+      permissionKeys: data.permissions,
+    });
   };
+
+  // React Query patch mutation for updating role
+  const { mutate: patchMutate } = usePatch(
+    () => {
+      toast.success("Role updated successfully!");
+      setIsModalOpen(false);
+      setEditingRole(null);
+    },
+    [["customRoles"]]
+  );
 
   const handleUpdate = (data: {
     name: string;
@@ -54,19 +72,25 @@ export default function PlmRolesManager() {
     permissions: PlmPermission[];
   }) => {
     if (!editingRole) return;
-    dispatch(
-      updateCustomRole({
-        id: editingRole.id,
-        ...data,
-      })
-    );
-    setEditingRole(null);
+    patchMutate({
+      url: `/api/plm/role/${editingRole.id}`,
+      data: {
+        name: data.name,
+        description: data.description,
+        permissionKeys: data.permissions,
+      },
+    });
   };
+
+  // React Query delete mutation for deleting role
+  const { mutate: deleteMutate } = useDelete(() => {
+    toast.success("Role deleted successfully!");
+    setDeleteRoleId(null);
+  }, [["customRoles"]]);
 
   const handleDelete = () => {
     if (!deleteRoleId) return;
-    dispatch(deleteCustomRole(deleteRoleId));
-    setDeleteRoleId(null);
+    deleteMutate({ url: `/api/plm/role/${deleteRoleId}` });
   };
 
   return (
@@ -102,13 +126,13 @@ export default function PlmRolesManager() {
           },
           {
             label: "Built-in",
-            value: roles.filter((r) => r.isBuiltIn).length,
+            value: roles.filter((r: any) => r.isBuiltIn).length,
             color: "text-gray-600",
             bg: "bg-gray-50",
           },
           {
             label: "Custom",
-            value: roles.filter((r) => !r.isBuiltIn).length,
+            value: roles.filter((r: any) => !r.isBuiltIn).length,
             color: "text-primary",
             bg: "bg-primary/5",
           },
@@ -125,7 +149,7 @@ export default function PlmRolesManager() {
 
       {/* Role Cards */}
       <div className="space-y-3">
-        {roles.map((role, index) => (
+        {roles.map((role: any, index: number) => (
           <motion.div
             key={role.id}
             initial={{ opacity: 0, y: 8 }}

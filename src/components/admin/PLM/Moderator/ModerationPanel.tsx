@@ -1,14 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { useAppSelector, useAppDispatch } from "@/src/lib/redux/hooks";
-import {
-  moderatorApproveDesigns,
-  sendToSuperAdmin,
-  updateDesignStatus,
-  moderatorResubmitToAdmin,
-  moderatorSendToRedesign,
-} from "@/src/lib/redux/features/plm/plmSlice";
+import { useState } from "react";
+import { useAppSelector } from "@/src/lib/redux/hooks";
+import { useGet } from "@/src/hooks/useGet";
+import { usePost } from "@/src/hooks/usePost";
+import { usePatch } from "@/src/hooks/usePatch";
 import { ProductStatus } from "@/src/types/plm/productLifecycleTypes";
 import StatusBadge from "../shared/StatusBadge";
 import RoleSwitcher from "../shared/RoleSwitcher";
@@ -29,9 +25,7 @@ import { Button } from "@/src/components/ui/button";
 import { useRouter } from "next/navigation";
 
 export default function ModerationPanel() {
-  const dispatch = useAppDispatch();
   const router = useRouter();
-  const designs = useAppSelector((state) => state.plm.designs);
   const selectedBranchId = useAppSelector(
     (state) => state.plm.selectedBranchId
   );
@@ -39,40 +33,36 @@ export default function ModerationPanel() {
   const [rejectDesignId, setRejectDesignId] = useState<string | null>(null);
   const [redesignDesignId, setRedesignDesignId] = useState<string | null>(null);
 
-  // ─── Section 1: Designs submitted by design team ─────────────
-  const pendingDesigns = useMemo(() => {
-    let filtered = designs.filter(
-      (d) =>
-        d.status === ProductStatus.DESIGN_SUBMITTED ||
-        d.status === ProductStatus.MODERATOR_REVIEW
-    );
-    if (selectedBranchId) {
-      filtered = filtered.filter((d) => d.branchId === selectedBranchId);
+  // Fetch designs pending moderator review or action (submitted or super admin rejected)
+  const { data: pendingData, isLoading: isPendingLoading } = useGet<any>(
+    "/api/plm/approval/moderator",
+    ["pendingModeration", selectedBranchId || "all"],
+    {
+      ...(selectedBranchId && { branchId: selectedBranchId }),
     }
-    return filtered;
-  }, [designs, selectedBranchId]);
+  );
+  const pendingDesignsAll = pendingData?.data || [];
 
-  // ─── Section 2: Approved, ready to send to Super Admin ───────
-  const approvedDesigns = useMemo(() => {
-    let filtered = designs.filter(
-      (d) => d.status === ProductStatus.MODERATOR_APPROVED
-    );
-    if (selectedBranchId) {
-      filtered = filtered.filter((d) => d.branchId === selectedBranchId);
-    }
-    return filtered;
-  }, [designs, selectedBranchId]);
+  // Split pending list on client side
+  const pendingDesigns = pendingDesignsAll.filter((d: any) =>
+    [ProductStatus.DESIGN_SUBMITTED, ProductStatus.MODERATOR_REVIEW].includes(d.status)
+  );
 
-  // ─── Section 3: Returned from Super Admin (rejected) ─────────
-  const returnedDesigns = useMemo(() => {
-    let filtered = designs.filter(
-      (d) => d.status === ProductStatus.SUPER_ADMIN_REJECTED
-    );
-    if (selectedBranchId) {
-      filtered = filtered.filter((d) => d.branchId === selectedBranchId);
+  const returnedDesigns = pendingDesignsAll.filter((d: any) =>
+    d.status === ProductStatus.SUPER_ADMIN_REJECTED
+  );
+
+  // Fetch approved designs
+  const { data: approvedData } = useGet<any>(
+    "/api/plm/design",
+    ["approvedModeration", selectedBranchId || "all"],
+    {
+      status: ProductStatus.MODERATOR_APPROVED,
+      limit: "50",
+      ...(selectedBranchId && { branchId: selectedBranchId }),
     }
-    return filtered;
-  }, [designs, selectedBranchId]);
+  );
+  const approvedDesigns = approvedData?.data || [];
 
   const toggleSelect = (id: string) => {
     setSelectedIds((prev) =>
@@ -84,25 +74,40 @@ export default function ModerationPanel() {
     if (selectedIds.length === pendingDesigns.length) {
       setSelectedIds([]);
     } else {
-      setSelectedIds(pendingDesigns.map((d) => d.id));
+      setSelectedIds(pendingDesigns.map((d: any) => d.id));
     }
   };
 
+  // Status update mutation using PATCH
+  const { mutate: patchMutate } = usePatch(
+    () => {},
+    [["pendingModeration"], ["approvedModeration"], ["designs"]]
+  );
+
   const handleMoveToReview = (designId: string) => {
-    dispatch(
-      updateDesignStatus({
-        designId,
-        newStatus: ProductStatus.MODERATOR_REVIEW,
-        changedBy: "Branch Moderator",
-        changedByRole: "BRANCH_MODERATOR",
-      })
-    );
-    toast.success("Design moved to review");
+    patchMutate({
+      url: `/api/plm/design/${designId}`,
+      data: { status: ProductStatus.MODERATOR_REVIEW },
+    }, {
+      onSuccess: () => {
+        toast.success("Design moved to review");
+      }
+    });
   };
+
+  // Batch approve mutation
+  const { mutate: batchApproveMutate } = usePost(
+    "/api/plm/approval/moderator",
+    () => {
+      setSelectedIds([]);
+      toast.success("Selected designs approved");
+    },
+    [["pendingModeration"], ["approvedModeration"], ["designs"]]
+  );
 
   const handleApproveSelected = () => {
     const reviewIds = selectedIds.filter((id) => {
-      const d = designs.find((d) => d.id === id);
+      const d = pendingDesignsAll.find((d: any) => d.id === id);
       return d?.status === ProductStatus.MODERATOR_REVIEW;
     });
 
@@ -111,71 +116,65 @@ export default function ModerationPanel() {
       return;
     }
 
-    dispatch(
-      moderatorApproveDesigns({
-        designIds: reviewIds,
-        moderatorName: "Branch Moderator",
-      })
-    );
-    setSelectedIds([]);
-    toast.success(`${reviewIds.length} design(s) approved`);
+    batchApproveMutate({
+      approvedIds: reviewIds,
+    });
   };
 
   const handleReject = (reason: string) => {
     if (rejectDesignId) {
-      dispatch(
-        updateDesignStatus({
-          designId: rejectDesignId,
-          newStatus: ProductStatus.REDESIGN_REQUIRED,
-          changedBy: "Branch Moderator",
-          changedByRole: "BRANCH_MODERATOR",
-          reason,
-        })
-      );
-      setRejectDesignId(null);
-      toast.success("Design sent back for redesign");
+      patchMutate({
+        url: `/api/plm/design/${rejectDesignId}`,
+        data: { status: ProductStatus.REDESIGN_REQUIRED, reason },
+      }, {
+        onSuccess: () => {
+          setRejectDesignId(null);
+          toast.success("Design sent back for redesign");
+        }
+      });
     }
   };
 
+  // Send to Super Admin mutation
+  const { mutate: sendToAdminMutate } = usePost(
+    "/api/plm/approval/send-to-admin",
+    () => {
+      toast.success("Approved designs sent to Super Admin for final review");
+    },
+    [["approvedModeration"], ["pendingModeration"], ["designs"]]
+  );
+
   const handleSendToAdmin = () => {
-    const approvedIds = approvedDesigns.map((d) => d.id);
+    const approvedIds = approvedDesigns.map((d: any) => d.id);
     if (approvedIds.length === 0) {
       toast.warning("No approved designs to send.");
       return;
     }
-    dispatch(
-      sendToSuperAdmin({
-        designIds: approvedIds,
-        moderatorName: "Branch Moderator",
-      })
-    );
-    toast.success(
-      `${approvedIds.length} design(s) sent to Super Admin for review`
-    );
+    sendToAdminMutate({ designIds: approvedIds });
   };
 
-  // ─── Returned from Admin: actions ────────────────────────────
   const handleResubmitToAdmin = (designId: string) => {
-    dispatch(
-      moderatorResubmitToAdmin({
-        designId,
-        moderatorName: "Branch Moderator",
-      })
-    );
-    toast.success("Design resubmitted — now in moderator review");
+    patchMutate({
+      url: `/api/plm/design/${designId}`,
+      data: { status: ProductStatus.MODERATOR_REVIEW, reason: "Resubmitted after admin rejection" },
+    }, {
+      onSuccess: () => {
+        toast.success("Design resubmitted — now in moderator review");
+      }
+    });
   };
 
   const handleSendToRedesign = (reason: string) => {
     if (redesignDesignId) {
-      dispatch(
-        moderatorSendToRedesign({
-          designId: redesignDesignId,
-          moderatorName: "Branch Moderator",
-          reason,
-        })
-      );
-      setRedesignDesignId(null);
-      toast.success("Design sent back to design team for redesign");
+      patchMutate({
+        url: `/api/plm/design/${redesignDesignId}`,
+        data: { status: ProductStatus.REDESIGN_REQUIRED, reason },
+      }, {
+        onSuccess: () => {
+          setRedesignDesignId(null);
+          toast.success("Design sent back to design team for redesign");
+        }
+      });
     }
   };
 
@@ -223,7 +222,7 @@ export default function ModerationPanel() {
             Returned from Admin ({returnedDesigns.length})
           </h2>
           <div className="space-y-3">
-            {returnedDesigns.map((design, index) => (
+            {returnedDesigns.map((design: any, index: number) => (
               <motion.div
                 key={design.id}
                 initial={{ opacity: 0, y: 8 }}
@@ -293,7 +292,11 @@ export default function ModerationPanel() {
         <h2 className="text-sm font-semibold text-gray-600 mb-3 uppercase tracking-wider">
           Pending Review ({pendingDesigns.length})
         </h2>
-        {pendingDesigns.length === 0 ? (
+        {isPendingLoading ? (
+          <div className="bg-white rounded-xl border border-gray-100 p-8 text-center text-gray-400 text-sm">
+            Loading designs pending review...
+          </div>
+        ) : pendingDesigns.length === 0 ? (
           <div className="bg-white rounded-xl border border-gray-100 p-8 text-center text-gray-400 text-sm">
             No designs pending review
           </div>
@@ -315,7 +318,7 @@ export default function ModerationPanel() {
               </span>
             </div>
 
-            {pendingDesigns.map((design, index) => (
+            {pendingDesigns.map((design: any, index: number) => (
               <motion.div
                 key={design.id}
                 initial={{ opacity: 0, y: 8 }}
@@ -395,7 +398,7 @@ export default function ModerationPanel() {
             Approved — Ready to Send ({approvedDesigns.length})
           </h2>
           <div className="space-y-3">
-            {approvedDesigns.map((design) => (
+            {approvedDesigns.map((design: any) => (
               <div
                 key={design.id}
                 className="bg-emerald-50/50 rounded-xl border border-emerald-100 p-4"

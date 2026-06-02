@@ -13,8 +13,8 @@ interface SidebarMenuProps {
 
 export default function SidebarMenu({ onNavigate }: SidebarMenuProps) {
   const pathname = usePathname();
-  const plmRoles = useAppSelector((state) => state.plm.userProfile.roles);
-  const menuItems = getMenuItems(plmRoles);
+  const plmPermissions = useAppSelector((state) => state.plm.userProfile.permissions);
+  const menuItems = getMenuItems(plmPermissions);
 
   // Track which menu items are expanded
   const [expandedItems, setExpandedItems] = useState<string[]>([]);

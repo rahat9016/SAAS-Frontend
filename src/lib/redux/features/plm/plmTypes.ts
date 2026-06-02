@@ -11,6 +11,7 @@ export interface IPlmUserProfile {
   id: string;
   name: string;
   roles: PlmRole[];
+  permissions: string[];
   branchId: string | null;
   branchName: string | null;
 }

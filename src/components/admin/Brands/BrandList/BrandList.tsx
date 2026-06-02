@@ -31,7 +31,7 @@ export default function BrandList() {
   const { sortBy } = useAppSelector((state) => state.filter);
 
   const { data, isLoading } = useGet<IBrand[]>(
-    "/brand",
+    "/api/brands",
     [
       "brands",
       currentPage.toString(),
@@ -71,7 +71,7 @@ export default function BrandList() {
 
   const handleConfirmDelete = () => {
     if (deleteId) {
-      deleteMutate({ url: `/brand/${deleteId}` });
+      deleteMutate({ url: `/api/brands/${deleteId}` });
       setDeleteId(null);
     }
   };

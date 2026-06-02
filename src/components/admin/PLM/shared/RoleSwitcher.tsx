@@ -3,8 +3,10 @@
 import { useAppDispatch, useAppSelector } from "@/src/lib/redux/hooks";
 import { setUserProfile } from "@/src/lib/redux/features/plm/plmSlice";
 import { PLM_ROLE_LABELS, PLM_ROLE_COLORS } from "@/src/constants/plm/plmConstants";
-import { PLM_USER_PRESETS } from "@/src/types/plm/plmPermissions";
-import { hasPermission } from "@/src/types/plm/plmPermissions";
+import { PLM_USER_PRESETS, PlmUserPreset } from "@/src/types/plm/plmPermissions";
+import { authKey, refreshTokenKey } from "@/src/constants/auth/storageKey";
+import Cookies from "js-cookie";
+import { toast } from "react-toastify";
 import {
   ChevronDown,
   Shield,
@@ -33,7 +35,44 @@ export default function RoleSwitcher() {
     !!authUser?.plmRoles &&
     authUser.plmRoles.length > 0;
 
-  const isSuperAdmin = hasPermission(userProfile.roles, "plm.branch.create");
+  const isSuperAdmin = userProfile.permissions.includes("plm.branch.create");
+
+  const handlePresetSwitch = async (preset: PlmUserPreset) => {
+    let email = "admin@xplaza.com";
+    if (preset.userId === "user-mod-001") email = "kamal@xplaza.com";
+    else if (preset.userId === "user-design-001") email = "fatima@xplaza.com";
+    else if (preset.userId === "user-prod-001") email = "sohel@xplaza.com";
+    else if (preset.userId === "user-inv-001") email = "rafiq@xplaza.com";
+
+    try {
+      const response = await fetch("/api/plm/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password: "password123" }),
+      });
+      const resData = await response.json();
+      if (resData.data?.accessToken) {
+        Cookies.set(authKey, resData.data.accessToken);
+        Cookies.set(refreshTokenKey, resData.data.refreshToken);
+        dispatch(
+          setUserProfile({
+            id: preset.userId,
+            name: preset.userName,
+            roles: preset.roles,
+            permissions: resData.data.user?.permissions || [],
+            branchId: preset.branchId,
+            branchName: preset.branchName,
+          })
+        );
+        toast.success(`Switched to ${preset.label} (Authenticated)`);
+      } else {
+        toast.error("Failed to authenticate preset user");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Error authenticating preset user");
+    }
+  };
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -46,6 +85,16 @@ export default function RoleSwitcher() {
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Background login on mount if no cookie is set
+  useEffect(() => {
+    const token = Cookies.get(authKey);
+    if (!token && !isRealAuthProfile) {
+      const defaultPreset = PLM_USER_PRESETS[0];
+      handlePresetSwitch(defaultPreset);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const activePreset = PLM_USER_PRESETS.find(
@@ -164,15 +213,7 @@ export default function RoleSwitcher() {
                     <button
                       key={preset.id}
                       onClick={() => {
-                        dispatch(
-                          setUserProfile({
-                            id: preset.userId,
-                            name: preset.userName,
-                            roles: preset.roles,
-                            branchId: preset.branchId,
-                            branchName: preset.branchName,
-                          })
-                        );
+                        handlePresetSwitch(preset);
                         setIsOpen(false);
                       }}
                       className={`flex items-start gap-2 w-full px-2 py-2 rounded-md text-left transition-colors cursor-pointer ${
@@ -231,15 +272,7 @@ export default function RoleSwitcher() {
                     <button
                       key={preset.id}
                       onClick={() => {
-                        dispatch(
-                          setUserProfile({
-                            id: preset.userId,
-                            name: preset.userName,
-                            roles: preset.roles,
-                            branchId: preset.branchId,
-                            branchName: preset.branchName,
-                          })
-                        );
+                        handlePresetSwitch(preset);
                         setIsOpen(false);
                       }}
                       className={`flex items-start gap-2 w-full px-2 py-2 rounded-md text-left transition-colors cursor-pointer ${

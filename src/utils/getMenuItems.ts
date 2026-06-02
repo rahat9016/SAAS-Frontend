@@ -8,7 +8,6 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { getPlmMenuItems } from "./getPlmMenuItems";
-import { PlmRole } from "@/src/types/plm/productLifecycleTypes";
 
 export interface MenuItem {
   segment?: string;
@@ -19,7 +18,7 @@ export interface MenuItem {
   children?: { label: string; href: string; matchRoutes?: string[] }[];
 }
 
-export function getMenuItems(plmRoles?: PlmRole[]): MenuItem[] {
+export function getMenuItems(plmPermissions?: string[]): MenuItem[] {
   const menuItems: (MenuItem | false)[] = [
     { label: "Dashboard", icon: LayoutDashboard, href: "/admin" },
     {
@@ -85,9 +84,9 @@ export function getMenuItems(plmRoles?: PlmRole[]): MenuItem[] {
 
   const baseItems = menuItems.filter(Boolean) as MenuItem[];
 
-  // Merge PLM menu items if PLM roles are provided
-  if (plmRoles && plmRoles.length > 0) {
-    const plmItems = getPlmMenuItems(plmRoles);
+  // Merge PLM menu items if PLM permissions are provided
+  if (plmPermissions && plmPermissions.length > 0) {
+    const plmItems = getPlmMenuItems(plmPermissions);
     return [...baseItems, ...plmItems];
   }
 

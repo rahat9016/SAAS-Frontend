@@ -1,0 +1,327 @@
+// ─── PLM Workflow — Prisma Schema ────────────────────────────────
+// Product Design-to-Production Workflow (Multi-Branch System)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// Organization & Branch
+// ═══════════════════════════════════════════════════════════════════
+
+model Organization {
+  id        String   @id @default(uuid())
+  name      String
+  code      String   @unique
+  branches  Branch[]
+  users     User[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("organizations")
+}
+
+model Branch {
+  id             String       @id @default(uuid())
+  name           String
+  code           String       @unique
+  location       String       @default("")
+  isActive       Boolean      @default(true) @map("is_active")
+  organizationId String       @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  departments    Department[]
+  designs        ProductDesign[]
+  users          User[]
+  worksheets     ProductionWorksheet[]
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+
+  @@map("branches")
+}
+
+model Department {
+  id        String   @id @default(uuid())
+  name      String
+  branchId  String   @map("branch_id")
+  branch    Branch   @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("departments")
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// Users & RBAC
+// ═══════════════════════════════════════════════════════════════════
+
+model User {
+  id             String        @id @default(uuid())
+  name           String
+  email          String        @unique
+  password       String
+  avatar         String?
+  organizationId String?       @map("organization_id")
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  branchId       String?       @map("branch_id")
+  branch         Branch?       @relation(fields: [branchId], references: [id])
+  userRoles      UserRole[]
+  designs        ProductDesign[] @relation("Designer")
+  approvals      Approval[]
+  statusChanges  ApprovalHistory[] @relation("StatusChanger")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model Role {
+  id          String           @id @default(uuid())
+  name        String           @unique
+  description String?
+  isBuiltIn   Boolean          @default(false) @map("is_built_in")
+  permissions RolePermission[]
+  userRoles   UserRole[]
+  createdBy   String?          @map("created_by")
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+
+  @@map("roles")
+}
+
+model Permission {
+  id          String           @id @default(uuid())
+  key         String           @unique
+  description String?
+  module      String           @default("plm")
+  roles       RolePermission[]
+  createdAt   DateTime         @default(now()) @map("created_at")
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  id           String     @id @default(uuid())
+  roleId       String     @map("role_id")
+  permissionId String     @map("permission_id")
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model UserRole {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  roleId     String   @map("role_id")
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role       Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  assignedBy String?  @map("assigned_by")
+  assignedAt DateTime @default(now()) @map("assigned_at")
+
+  @@unique([userId, roleId])
+  @@map("user_roles")
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// Product Status Enum (Full Lifecycle)
+// ═══════════════════════════════════════════════════════════════════
+
+enum ProductStatus {
+  CONCEPT
+  DESIGN_IN_PROGRESS
+  DESIGN_SUBMITTED
+  MODERATOR_REVIEW
+  MODERATOR_APPROVED
+  MODERATOR_REJECTED
+  SUPER_ADMIN_REVIEW
+  SUPER_ADMIN_APPROVED
+  SUPER_ADMIN_PARTIAL_APPROVED
+  SUPER_ADMIN_REJECTED
+  REDESIGN_REQUIRED
+  PROTOTYPE
+  SELLS_MAN_SAMPLE
+  SAMPLE_DEVELOPMENT
+  RAW_MATERIAL_ALLOCATED
+  PRODUCTION_WORKSHEET_CREATED
+  READY_FOR_PRODUCTION
+  IN_PRODUCTION
+  QUALITY_CHECK
+  READY_FOR_BRANCH
+  FREE_FOR_BRANCH
+  FFW
+  LIVE_FOR_SALE
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// Product Design (Core Workflow Entity)
+// ═══════════════════════════════════════════════════════════════════
+
+model ProductDesign {
+  id              String        @id @default(uuid())
+  name            String
+  description     String        @default("")
+  category        String        @default("")
+  images          String[]      @default([])
+  status          ProductStatus @default(CONCEPT)
+  rejectionReason String?       @map("rejection_reason")
+  moderatorNotes  String?       @map("moderator_notes")
+  adminNotes      String?       @map("admin_notes")
+  designerId      String        @map("designer_id")
+  designer        User          @relation("Designer", fields: [designerId], references: [id])
+  branchId        String        @map("branch_id")
+  branch          Branch        @relation(fields: [branchId], references: [id])
+  revisions       ProductRevision[]
+  approvals       Approval[]
+  statusHistory   ApprovalHistory[]
+  worksheets      ProductionWorksheet[]
+  product         Product?
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+
+  @@index([branchId])
+  @@index([designerId])
+  @@index([status])
+  @@map("product_designs")
+}
+
+model ProductRevision {
+  id        String        @id @default(uuid())
+  designId  String        @map("design_id")
+  design    ProductDesign @relation(fields: [designId], references: [id], onDelete: Cascade)
+  version   Int
+  changes   String
+  changedBy String        @map("changed_by")
+  createdAt DateTime      @default(now()) @map("created_at")
+
+  @@map("product_revisions")
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// Approval & History
+// ═══════════════════════════════════════════════════════════════════
+
+model Approval {
+  id        String        @id @default(uuid())
+  designId  String        @map("design_id")
+  design    ProductDesign @relation(fields: [designId], references: [id], onDelete: Cascade)
+  userId    String        @map("user_id")
+  user      User          @relation(fields: [userId], references: [id])
+  decision  String        // APPROVED, REJECTED, PARTIAL_APPROVED
+  reason    String?
+  level     String        // MODERATOR, SUPER_ADMIN
+  createdAt DateTime      @default(now()) @map("created_at")
+
+  @@index([designId])
+  @@map("approvals")
+}
+
+model ApprovalHistory {
+  id            String         @id @default(uuid())
+  designId      String         @map("design_id")
+  design        ProductDesign  @relation(fields: [designId], references: [id], onDelete: Cascade)
+  fromStatus    ProductStatus? @map("from_status")
+  toStatus      ProductStatus  @map("to_status")
+  changedBy     String         @map("changed_by")
+  changedByUser User           @relation("StatusChanger", fields: [changedBy], references: [id])
+  changedByRole String         @map("changed_by_role")
+  reason        String?
+  createdAt     DateTime       @default(now()) @map("created_at")
+
+  @@index([designId])
+  @@map("approval_histories")
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// Production
+// ═══════════════════════════════════════════════════════════════════
+
+model Product {
+  id              String        @id @default(uuid())
+  designId        String        @unique @map("design_id")
+  design          ProductDesign @relation(fields: [designId], references: [id])
+  sku             String?       @unique
+  worksheets      ProductionWorksheet[]
+  billOfMaterials BillOfMaterial[]
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+
+  @@map("products")
+}
+
+model ProductionWorksheet {
+  id                      String        @id @default(uuid())
+  designId                String        @map("design_id")
+  design                  ProductDesign @relation(fields: [designId], references: [id])
+  productId               String?       @map("product_id")
+  product                 Product?      @relation(fields: [productId], references: [id])
+  branchId                String        @map("branch_id")
+  branch                  Branch        @relation(fields: [branchId], references: [id])
+  assignedTo              String        @map("assigned_to")
+  status                  ProductStatus
+  estimatedCompletionDate DateTime      @map("estimated_completion_date")
+  actualCompletionDate    DateTime?     @map("actual_completion_date")
+  notes                   String?
+  materials               Json          @default("[]")
+  createdAt               DateTime      @default(now()) @map("created_at")
+  updatedAt               DateTime      @updatedAt @map("updated_at")
+
+  @@index([branchId])
+  @@index([status])
+  @@map("production_worksheets")
+}
+
+model BillOfMaterial {
+  id         String      @id @default(uuid())
+  productId  String      @map("product_id")
+  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  materialId String      @map("material_id")
+  material   RawMaterial @relation(fields: [materialId], references: [id])
+  quantity   Float
+  unit       String
+
+  @@map("bill_of_materials")
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// Inventory
+// ═══════════════════════════════════════════════════════════════════
+
+model RawMaterial {
+  id              String                @id @default(uuid())
+  name            String
+  sku             String                @unique
+  category        String                @default("")
+  unit            String                @default("pcs")
+  totalStock      Float                 @default(0) @map("total_stock")
+  allocatedStock  Float                 @default(0) @map("allocated_stock")
+  availableStock  Float                 @default(0) @map("available_stock")
+  reorderLevel    Float                 @default(0) @map("reorder_level")
+  unitCost        Float                 @default(0) @map("unit_cost")
+  lastRestocked   DateTime?             @map("last_restocked")
+  allocations     RawMaterialAllocation[]
+  billOfMaterials BillOfMaterial[]
+  createdAt       DateTime              @default(now()) @map("created_at")
+  updatedAt       DateTime              @updatedAt @map("updated_at")
+
+  @@map("raw_materials")
+}
+
+model RawMaterialAllocation {
+  id          String      @id @default(uuid())
+  materialId  String      @map("material_id")
+  material    RawMaterial @relation(fields: [materialId], references: [id])
+  worksheetId String      @map("worksheet_id")
+  designName  String      @map("design_name")
+  quantity    Float
+  unit        String
+  allocatedBy String      @map("allocated_by")
+  allocatedAt DateTime    @default(now()) @map("allocated_at")
+
+  @@index([materialId])
+  @@map("raw_material_allocations")
+}

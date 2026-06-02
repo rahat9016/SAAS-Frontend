@@ -1,10 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { useAppSelector, useAppDispatch } from "@/src/lib/redux/hooks";
-import {
-  superAdminBatchDecision,
-} from "@/src/lib/redux/features/plm/plmSlice";
+import { useEffect, useMemo, useState } from "react";
+import { useAppSelector } from "@/src/lib/redux/hooks";
+import { useGet } from "@/src/hooks/useGet";
+import { usePost } from "@/src/hooks/usePost";
 import { ProductStatus } from "@/src/types/plm/productLifecycleTypes";
 import StatusBadge from "../shared/StatusBadge";
 import RoleSwitcher from "../shared/RoleSwitcher";
@@ -22,50 +21,54 @@ import { Button } from "@/src/components/ui/button";
 import { useRouter } from "next/navigation";
 
 export default function ApprovalPanel() {
-  const dispatch = useAppDispatch();
   const router = useRouter();
-  const designs = useAppSelector((state) => state.plm.designs);
   const selectedBranchId = useAppSelector(
     (state) => state.plm.selectedBranchId
   );
 
-  // Multi-select: these are the items the admin APPROVES
+  // Multi-select: approved design IDs
   const [approvedIds, setApprovedIds] = useState<string[]>([]);
-  // Per-item rejection reasons
   const [rejectionReasons, setRejectionReasons] = useState<
     Record<string, string>
   >({});
-  // Step: 'select' or 'confirm'
   const [step, setStep] = useState<"select" | "confirm">("select");
 
-  // Designs pending Super Admin review
-  const pendingApproval = useMemo(() => {
-    let filtered = designs.filter(
-      (d) => d.status === ProductStatus.SUPER_ADMIN_REVIEW
-    );
-    if (selectedBranchId)
-      filtered = filtered.filter((d) => d.branchId === selectedBranchId);
-    return filtered;
-  }, [designs, selectedBranchId]);
+  // Fetch designs pending Super Admin review
+  const { data: pendingData, isLoading: isPendingLoading } = useGet<any>(
+    "/api/plm/approval/admin",
+    ["pendingApprovals", selectedBranchId || "all"],
+    {
+      ...(selectedBranchId && { branchId: selectedBranchId }),
+    }
+  );
+  const pendingApproval = pendingData?.data || [];
 
-  // Recently decided
+  // Fetch decided designs (history)
+  const { data: recentData } = useGet<any>(
+    "/api/plm/design",
+    ["recentDecisions", selectedBranchId || "all"],
+    {
+      limit: "20",
+      ...(selectedBranchId && { branchId: selectedBranchId }),
+    }
+  );
+
+  // Filter decided ones on the client
   const recentDecisions = useMemo(() => {
-    let filtered = designs.filter((d) =>
+    const list = recentData?.data || [];
+    return list.filter((d: any) =>
       [
         ProductStatus.SUPER_ADMIN_APPROVED,
         ProductStatus.SUPER_ADMIN_REJECTED,
         ProductStatus.SUPER_ADMIN_PARTIAL_APPROVED,
       ].includes(d.status)
-    );
-    if (selectedBranchId)
-      filtered = filtered.filter((d) => d.branchId === selectedBranchId);
-    return filtered.slice(0, 10);
-  }, [designs, selectedBranchId]);
+    ).slice(0, 10);
+  }, [recentData]);
 
   // Items NOT selected = will be rejected
   const rejectedIds = pendingApproval
-    .filter((d) => !approvedIds.includes(d.id))
-    .map((d) => d.id);
+    .filter((d: any) => !approvedIds.includes(d.id))
+    .map((d: any) => d.id);
 
   const toggleApprove = (id: string) => {
     setApprovedIds((prev) =>
@@ -77,7 +80,7 @@ export default function ApprovalPanel() {
     if (approvedIds.length === pendingApproval.length) {
       setApprovedIds([]);
     } else {
-      setApprovedIds(pendingApproval.map((d) => d.id));
+      setApprovedIds(pendingApproval.map((d: any) => d.id));
     }
   };
 
@@ -86,40 +89,40 @@ export default function ApprovalPanel() {
       toast.warning("No items to process.");
       return;
     }
-    // Pre-populate rejection reasons
     const reasons: Record<string, string> = {};
-    rejectedIds.forEach((id) => {
+    rejectedIds.forEach((id: string) => {
       reasons[id] = rejectionReasons[id] || "";
     });
     setRejectionReasons(reasons);
     setStep("confirm");
   };
 
+  // Submit decision mutation
+  const { mutate: submitDecisionMutate } = usePost(
+    "/api/plm/approval/admin",
+    () => {
+      toast.success("Decisions submitted successfully!");
+      setApprovedIds([]);
+      setRejectionReasons({});
+      setStep("select");
+    },
+    [["pendingApprovals"], ["recentDecisions"], ["designs"]]
+  );
+
   const handleSubmitDecision = () => {
-    // Validate all rejected items have reasons
     const missingReasons = rejectedIds.filter(
-      (id) => !rejectionReasons[id]?.trim()
+      (id: string) => !rejectionReasons[id]?.trim()
     );
     if (missingReasons.length > 0) {
       toast.error("Please provide rejection reasons for all rejected items.");
       return;
     }
 
-    dispatch(
-      superAdminBatchDecision({
-        approvedIds,
-        rejectedIds,
-        rejectedReasons: rejectionReasons,
-        adminName: "Super Admin",
-      })
-    );
-
-    toast.success(
-      `${approvedIds.length} approved, ${rejectedIds.length} rejected`
-    );
-    setApprovedIds([]);
-    setRejectionReasons({});
-    setStep("select");
+    submitDecisionMutate({
+      approvedIds,
+      rejectedIds,
+      rejectedReasons: rejectionReasons,
+    });
   };
 
   const handleBack = () => {
@@ -193,7 +196,7 @@ export default function ApprovalPanel() {
                 </span>
               </div>
 
-              {pendingApproval.map((design, index) => {
+              {pendingApproval.map((design: any, index: number) => {
                 const isApproved = approvedIds.includes(design.id);
                 return (
                   <motion.div
@@ -288,8 +291,8 @@ export default function ApprovalPanel() {
               </h2>
               <div className="space-y-2">
                 {pendingApproval
-                  .filter((d) => approvedIds.includes(d.id))
-                  .map((design) => (
+                  .filter((d: any) => approvedIds.includes(d.id))
+                  .map((design: any) => (
                     <div
                       key={design.id}
                       className="bg-emerald-50 rounded-lg border border-emerald-100 p-3 flex items-center gap-3"
@@ -318,8 +321,8 @@ export default function ApprovalPanel() {
               </h2>
               <div className="space-y-3">
                 {pendingApproval
-                  .filter((d) => rejectedIds.includes(d.id))
-                  .map((design) => (
+                  .filter((d: any) => rejectedIds.includes(d.id))
+                  .map((design: any) => (
                     <div
                       key={design.id}
                       className="bg-red-50/50 rounded-lg border border-red-100 p-4"
@@ -369,7 +372,7 @@ export default function ApprovalPanel() {
             Recent Decisions
           </h2>
           <div className="bg-white rounded-xl border border-gray-100 divide-y divide-gray-50">
-            {recentDecisions.map((d) => (
+            {recentDecisions.map((d: any) => (
               <div key={d.id} className="p-4 flex items-center gap-3">
                 <div className="flex-1 min-w-0">
                   <h3 className="font-medium text-secondary text-sm truncate">

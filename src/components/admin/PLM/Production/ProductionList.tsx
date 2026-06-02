@@ -1,8 +1,9 @@
 "use client";
 
 import { useMemo } from "react";
-import { useAppSelector, useAppDispatch } from "@/src/lib/redux/hooks";
-import { updateWorksheetStatus } from "@/src/lib/redux/features/plm/plmSlice";
+import { useAppSelector } from "@/src/lib/redux/hooks";
+import { useGet } from "@/src/hooks/useGet";
+import { usePatch } from "@/src/hooks/usePatch";
 import { ProductStatus } from "@/src/types/plm/productLifecycleTypes";
 import { PRODUCT_STATUS_LABELS } from "@/src/constants/plm/plmConstants";
 import StatusBadge from "../shared/StatusBadge";
@@ -16,26 +17,56 @@ import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 
 export default function ProductionList() {
-  const dispatch = useAppDispatch();
   const router = useRouter();
-  const worksheets = useAppSelector((state) => state.plm.worksheets);
-  const designs = useAppSelector((state) => state.plm.designs);
   const selectedBranchId = useAppSelector((state) => state.plm.selectedBranchId);
 
-  // Approved designs not yet in production
+  // Fetch approved designs not yet in production
+  const { data: designsData } = useGet<any>(
+    "/api/plm/design",
+    ["designsWaitingProduction", selectedBranchId || "all"],
+    {
+      limit: "50",
+      ...(selectedBranchId && { branchId: selectedBranchId }),
+    }
+  );
+
   const approvedDesigns = useMemo(() => {
-    let filtered = designs.filter((d) =>
-      [ProductStatus.SUPER_ADMIN_APPROVED, ProductStatus.SUPER_ADMIN_PARTIAL_APPROVED, ProductStatus.SAMPLE_DEVELOPMENT].includes(d.status)
+    const list = designsData?.data || [];
+    return list.filter((d: any) =>
+      [
+        ProductStatus.SUPER_ADMIN_APPROVED,
+        ProductStatus.SUPER_ADMIN_PARTIAL_APPROVED,
+        ProductStatus.SAMPLE_DEVELOPMENT,
+      ].includes(d.status)
     );
-    if (selectedBranchId) filtered = filtered.filter((d) => d.branchId === selectedBranchId);
-    return filtered;
-  }, [designs, selectedBranchId]);
+  }, [designsData]);
+
+  // Fetch production worksheets
+  const { data: worksheetsData, isLoading: isWorksheetsLoading } = useGet<any>(
+    "/api/plm/production/worksheet",
+    ["worksheets", selectedBranchId || "all"],
+    {
+      ...(selectedBranchId && { branchId: selectedBranchId }),
+    }
+  );
 
   const activeWorksheets = useMemo(() => {
-    let filtered = worksheets;
-    if (selectedBranchId) filtered = filtered.filter((w) => w.branchId === selectedBranchId);
-    return filtered;
-  }, [worksheets, selectedBranchId]);
+    const list = worksheetsData?.data || [];
+    return list.map((ws: any) => {
+      let materialsList = [];
+      try {
+        materialsList = typeof ws.materials === "string" ? JSON.parse(ws.materials) : ws.materials;
+      } catch (e) {
+        console.error("Failed to parse materials JSON", e);
+      }
+      return {
+        ...ws,
+        designName: ws.design?.name || "Unknown Design",
+        branchName: ws.branch?.name || "Unknown Branch",
+        materials: Array.isArray(materialsList) ? materialsList : [],
+      };
+    });
+  }, [worksheetsData]);
 
   const progressStatuses: ProductStatus[] = [
     ProductStatus.SAMPLE_DEVELOPMENT,
@@ -53,12 +84,23 @@ export default function ProductionList() {
     return idx >= 0 ? Math.round(((idx + 1) / progressStatuses.length) * 100) : 0;
   };
 
+  const { mutate: patchMutate } = usePatch(
+    () => {},
+    [["worksheets"], ["designsWaitingProduction"], ["designs"]]
+  );
+
   const handleAdvanceStatus = (worksheetId: string, currentStatus: ProductStatus) => {
     const idx = progressStatuses.indexOf(currentStatus);
     if (idx >= 0 && idx < progressStatuses.length - 1) {
       const nextStatus = progressStatuses[idx + 1];
-      dispatch(updateWorksheetStatus({ worksheetId, newStatus: nextStatus }));
-      toast.success(`Advanced to ${PRODUCT_STATUS_LABELS[nextStatus]}`);
+      patchMutate({
+        url: `/api/plm/production/worksheet/${worksheetId}`,
+        data: { status: nextStatus },
+      }, {
+        onSuccess: () => {
+          toast.success(`Advanced to ${PRODUCT_STATUS_LABELS[nextStatus]}`);
+        }
+      });
     }
   };
 
@@ -73,11 +115,13 @@ export default function ProductionList() {
       {/* Active Worksheets */}
       <div>
         <h2 className="text-sm font-semibold text-gray-600 mb-3 uppercase tracking-wider">Active Production ({activeWorksheets.length})</h2>
-        {activeWorksheets.length === 0 ? (
+        {isWorksheetsLoading ? (
+          <div className="bg-white rounded-xl border border-gray-100 p-8 text-center text-gray-400 text-sm">Loading active production...</div>
+        ) : activeWorksheets.length === 0 ? (
           <div className="bg-white rounded-xl border border-gray-100 p-8 text-center text-gray-400 text-sm">No active production</div>
         ) : (
           <div className="space-y-4">
-            {activeWorksheets.map((ws, i) => {
+            {activeWorksheets.map((ws: any, i: number) => {
               const progress = getProgress(ws.status);
               return (
                 <motion.div key={ws.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className="bg-white rounded-xl border border-gray-100 p-5">
@@ -109,7 +153,7 @@ export default function ProductionList() {
                     <div className="mb-3">
                       <p className="text-xs font-medium text-gray-600 mb-1">Materials:</p>
                       <div className="flex flex-wrap gap-1.5">
-                        {ws.materials.map((m) => (
+                        {ws.materials.map((m: any) => (
                           <span key={m.materialId} className="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded">{m.materialName} ({m.allocatedQty}/{m.requiredQty} {m.unit})</span>
                         ))}
                       </div>
@@ -134,7 +178,7 @@ export default function ProductionList() {
         <div>
           <h2 className="text-sm font-semibold text-gray-600 mb-3 uppercase tracking-wider">Approved — Awaiting Production ({approvedDesigns.length})</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {approvedDesigns.map((d) => (
+            {approvedDesigns.map((d: any) => (
               <div key={d.id} className="bg-emerald-50/50 rounded-xl border border-emerald-100 p-4 flex items-center gap-3">
                 <Factory className="w-5 h-5 text-emerald-600 flex-shrink-0" />
                 <div className="flex-1 min-w-0">

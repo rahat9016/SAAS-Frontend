@@ -10,7 +10,7 @@ import {
   ProductStatus,
   STATUS_TRANSITIONS,
 } from "@/src/types/plm/productLifecycleTypes";
-import { hasPermission } from "@/src/types/plm/plmPermissions";
+
 import { toast } from "react-toastify";
 import { ArrowLeft, Calendar, MapPin, User, Tag } from "lucide-react";
 import { format } from "date-fns";
@@ -45,7 +45,7 @@ export default function DesignDetail({ designId }: DesignDetailProps) {
   const allowedTransitions = STATUS_TRANSITIONS[design.status] || [];
 
   // RBAC: Only show transition actions if the user has permission to advance
-  const canAdvance = hasPermission(userProfile.roles, "plm.design.advance");
+  const canAdvance = userProfile.permissions.includes("plm.design.advance");
 
   const handleTransition = (newStatus: ProductStatus) => {
     dispatch(

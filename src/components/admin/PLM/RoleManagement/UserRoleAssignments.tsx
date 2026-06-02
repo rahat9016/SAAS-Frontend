@@ -1,13 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useAppDispatch, useAppSelector } from "@/src/lib/redux/hooks";
-import {
-  assignRoleToUser,
-  updateUserAssignment,
-  revokeUserAssignment,
-  IUserRoleAssignment,
-} from "@/src/lib/redux/features/plm/plmRoleSlice";
+import { useGet } from "@/src/hooks/useGet";
+import { usePost } from "@/src/hooks/usePost";
+import { useDelete } from "@/src/hooks/useDelete";
 import { PlmRole } from "@/src/types/plm/productLifecycleTypes";
 import { PLM_ROLE_LABELS, PLM_ROLE_COLORS } from "@/src/constants/plm/plmConstants";
 import { motion } from "framer-motion";
@@ -18,25 +14,17 @@ import {
   MapPin,
   Shield,
   Check,
-  X,
 } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { format } from "date-fns";
 import DeleteConfirmDialog from "@/src/components/shared/DeleteConfirmDialog";
-
-const ALL_PLM_ROLES: PlmRole[] = [
-  "SUPER_ADMIN",
-  "BRANCH_MODERATOR",
-  "DESIGN_TEAM",
-  "PRODUCTION_TEAM",
-  "INVENTORY_TEAM",
-];
+import { toast } from "react-toastify";
 
 interface AssignmentFormData {
   userId: string;
   userName: string;
   userEmail: string;
-  plmRoles: PlmRole[];
+  plmRoles: string[];
   branchId: string | null;
   branchName: string | null;
 }
@@ -51,15 +39,51 @@ const EMPTY_FORM: AssignmentFormData = {
 };
 
 export default function UserRoleAssignments() {
-  const dispatch = useAppDispatch();
-  const assignments = useAppSelector((state) => state.plmRoles.userAssignments);
-  const branches = useAppSelector((state) => state.plm.branches);
-
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<AssignmentFormData>(EMPTY_FORM);
   const [revokeId, setRevokeId] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Query custom assignments from API
+  const { data: assignmentsData, isLoading: isAssignmentsLoading } = useGet<any>(
+    "/api/plm/role/assignment",
+    ["userAssignments"]
+  );
+  const assignments = assignmentsData?.data || [];
+
+  // Query custom roles list from API
+  const { data: rolesData } = useGet<any>("/api/plm/role", ["customRoles"]);
+  const dbRoles = rolesData?.data || [];
+
+  // Query branches from API
+  const { data: branchesData } = useGet<any>("/api/plm/branch", ["branches"]);
+  const branches = branchesData?.data || [];
+
+  const rolesList = dbRoles.length > 0 ? dbRoles.map((r: any) => r.name) : [
+    "SUPER_ADMIN",
+    "BRANCH_MODERATOR",
+    "DESIGN_TEAM",
+    "PRODUCTION_TEAM",
+    "INVENTORY_TEAM",
+  ];
+
+  // Assign or Update user roles API Mutation
+  const { mutate: assignMutate } = usePost(
+    "/api/plm/role/assignment",
+    () => {
+      toast.success(editingId ? "Role assignment updated successfully!" : "Role assigned successfully!");
+      setShowForm(false);
+      setEditingId(null);
+    },
+    [["userAssignments"]]
+  );
+
+  // Revoke role assignments API Mutation
+  const { mutate: revokeMutate } = useDelete(() => {
+    toast.success("Role assignment revoked successfully!");
+    setRevokeId(null);
+  }, [["userAssignments"]]);
 
   const openCreate = () => {
     setForm(EMPTY_FORM);
@@ -68,16 +92,16 @@ export default function UserRoleAssignments() {
     setShowForm(true);
   };
 
-  const openEdit = (a: IUserRoleAssignment) => {
+  const openEdit = (a: any) => {
     setForm({
       userId: a.userId,
       userName: a.userName,
       userEmail: a.userEmail,
-      plmRoles: [...a.plmRoles],
+      plmRoles: a.roles.map((r: any) => r.name),
       branchId: a.branchId,
       branchName: a.branchName,
     });
-    setEditingId(a.id);
+    setEditingId(a.userId);
     setErrors({});
     setShowForm(true);
   };
@@ -95,34 +119,31 @@ export default function UserRoleAssignments() {
   const handleSave = () => {
     if (!validate()) return;
 
-    if (editingId) {
-      dispatch(
-        updateUserAssignment({
-          assignmentId: editingId,
-          plmRoles: form.plmRoles,
-          branchId: form.branchId,
-          branchName: form.branchName,
-        })
-      );
-    } else {
-      dispatch(
-        assignRoleToUser({
-          userId: form.userId || `user-${Date.now()}`,
-          userName: form.userName,
-          userEmail: form.userEmail,
-          plmRoles: form.plmRoles,
-          branchId: form.branchId,
-          branchName: form.branchName,
-          assignedBy: "Super Admin",
-        })
-      );
+    // Map role names to their respective UUIDs from the API role list
+    const roleIds = form.plmRoles
+      .map((roleName) => {
+        const found = dbRoles.find((r: any) => r.name === roleName);
+        return found ? found.id : null;
+      })
+      .filter(Boolean);
+
+    // If the roles list is loaded but we didn't map any ID (could happen for hardcoded fallbacks if DB role query is pending),
+    // we use their name as fallback if the API supports it, or show a small toast warning.
+    if (roleIds.length === 0 && form.plmRoles.length > 0) {
+      toast.warning("Synchronizing with DB role definitions...");
+      return;
     }
 
-    setShowForm(false);
-    setEditingId(null);
+    assignMutate({
+      userId: editingId || null,
+      userName: form.userName,
+      userEmail: form.userEmail,
+      roleIds,
+      branchId: form.branchId,
+    });
   };
 
-  const toggleRole = (role: PlmRole) => {
+  const toggleRole = (role: string) => {
     if (form.plmRoles.includes(role)) {
       setForm((f) => ({ ...f, plmRoles: f.plmRoles.filter((r) => r !== role) }));
     } else {
@@ -131,13 +152,26 @@ export default function UserRoleAssignments() {
   };
 
   const handleBranchChange = (branchId: string) => {
-    const branch = branches.find((b) => b.id === branchId);
+    const branch = branches.find((b: any) => b.id === branchId);
     setForm((f) => ({
       ...f,
       branchId: branchId || null,
       branchName: branch?.name ?? null,
     }));
   };
+
+  const handleRevoke = () => {
+    if (!revokeId) return;
+    revokeMutate({ url: `/api/plm/role/assignment?userId=${revokeId}` });
+  };
+
+  if (isAssignmentsLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[300px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -224,7 +258,7 @@ export default function UserRoleAssignments() {
                 className="w-full text-sm px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary cursor-pointer"
               >
                 <option value="">No branch (Super Admin)</option>
-                {branches.map((b) => (
+                {branches.map((b: any) => (
                   <option key={b.id} value={b.id}>
                     {b.name}
                   </option>
@@ -243,8 +277,11 @@ export default function UserRoleAssignments() {
               <span className="font-normal text-gray-400">(select one or more)</span>
             </label>
             <div className="flex flex-wrap gap-2">
-              {ALL_PLM_ROLES.map((role) => {
+              {rolesList.map((role: any) => {
                 const isSelected = form.plmRoles.includes(role);
+                const colorClass = PLM_ROLE_COLORS[role as PlmRole] || "bg-gradient-to-r from-slate-500 to-gray-500";
+                const labelText = PLM_ROLE_LABELS[role as PlmRole] || role;
+
                 return (
                   <button
                     key={role}
@@ -252,13 +289,13 @@ export default function UserRoleAssignments() {
                     onClick={() => toggleRole(role)}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all cursor-pointer ${
                       isSelected
-                        ? `${PLM_ROLE_COLORS[role]} text-white border-transparent`
+                        ? `${colorClass} text-white border-transparent`
                         : "bg-white border-gray-200 text-gray-600 hover:border-gray-300"
                     }`}
                   >
                     {isSelected && <Check className="w-3 h-3" />}
                     <Shield className="w-3 h-3" />
-                    {PLM_ROLE_LABELS[role]}
+                    {labelText}
                   </button>
                 );
               })}
@@ -316,9 +353,9 @@ export default function UserRoleAssignments() {
               </tr>
             </thead>
             <tbody>
-              {assignments.map((a, index) => (
+              {assignments.map((a: any, index: number) => (
                 <motion.tr
-                  key={a.id}
+                  key={a.userId}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: index * 0.03 }}
@@ -330,14 +367,18 @@ export default function UserRoleAssignments() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-1">
-                      {a.plmRoles.map((role) => (
-                        <span
-                          key={role}
-                          className={`text-[10px] font-bold text-white px-2 py-0.5 rounded-full ${PLM_ROLE_COLORS[role]}`}
-                        >
-                          {PLM_ROLE_LABELS[role]}
-                        </span>
-                      ))}
+                      {a.roles.map((role: any) => {
+                        const colorClass = PLM_ROLE_COLORS[role.name as PlmRole] || "bg-gradient-to-r from-slate-500 to-gray-500";
+                        const labelText = PLM_ROLE_LABELS[role.name as PlmRole] || role.name;
+                        return (
+                          <span
+                            key={role.id}
+                            className={`text-[10px] font-bold text-white px-2 py-0.5 rounded-full ${colorClass}`}
+                          >
+                            {labelText}
+                          </span>
+                        );
+                      })}
                     </div>
                   </td>
                   <td className="px-4 py-3">
@@ -352,9 +393,9 @@ export default function UserRoleAssignments() {
                   </td>
                   <td className="px-4 py-3">
                     <p className="text-xs text-gray-400">
-                      {format(new Date(a.assignedAt), "MMM d, yyyy")}
+                      {a.assignedAt ? format(new Date(a.assignedAt), "MMM d, yyyy") : "N/A"}
                     </p>
-                    <p className="text-[10px] text-gray-300">by {a.assignedBy}</p>
+                    <p className="text-[10px] text-gray-300">by Super Admin</p>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1 justify-end">
@@ -365,7 +406,7 @@ export default function UserRoleAssignments() {
                         <Pencil className="w-3.5 h-3.5 text-blue-400" />
                       </button>
                       <button
-                        onClick={() => setRevokeId(a.id)}
+                        onClick={() => setRevokeId(a.userId)}
                         className="p-1.5 rounded-lg hover:bg-red-50 cursor-pointer transition-colors"
                       >
                         <Trash2 className="w-3.5 h-3.5 text-red-400" />
@@ -382,10 +423,7 @@ export default function UserRoleAssignments() {
       <DeleteConfirmDialog
         isOpen={!!revokeId}
         onClose={() => setRevokeId(null)}
-        onConfirm={() => {
-          if (revokeId) dispatch(revokeUserAssignment(revokeId));
-          setRevokeId(null);
-        }}
+        onConfirm={handleRevoke}
         title="Revoke Assignment"
         description="This will remove the user's PLM roles. They will immediately lose access on next login."
       />

@@ -10,8 +10,7 @@ import {
   Users,
   type LucideIcon,
 } from "lucide-react";
-import { PlmRole } from "@/src/types/plm/productLifecycleTypes";
-import { PlmPermission, hasPermission } from "@/src/types/plm/plmPermissions";
+import { PlmPermission } from "@/src/types/plm/plmPermissions";
 
 export interface PlmMenuItem {
   segment?: string;
@@ -25,10 +24,10 @@ export interface PlmMenuItem {
 }
 
 /**
- * Returns PLM menu items filtered by the user's EFFECTIVE permissions
- * computed from their set of roles (supports multi-role).
+ * Returns PLM menu items filtered by the user's dynamic permissions
+ * fetched from the backend API (supports custom roles).
  */
-export function getPlmMenuItems(roles: PlmRole[]): PlmMenuItem[] {
+export function getPlmMenuItems(permissions: string[]): PlmMenuItem[] {
   const allItems: PlmMenuItem[] = [
     // ─── Super Admin ─────────────────────────────────────────────
     {
@@ -121,9 +120,9 @@ export function getPlmMenuItems(roles: PlmRole[]): PlmMenuItem[] {
     },
   ];
 
-  // Filter by permissions
+  // Filter by dynamic permissions from the API
   return allItems.filter((item) => {
     if (!item.requiredPermission) return true;
-    return hasPermission(roles, item.requiredPermission);
+    return permissions.includes(item.requiredPermission);
   });
 }

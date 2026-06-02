@@ -11,28 +11,24 @@ import {
   IRawMaterial,
   IRawMaterialAllocation,
 } from "@/src/types/plm/productLifecycleTypes";
-import {
-  MOCK_BRANCHES,
-  MOCK_DESIGNS,
-  MOCK_WORKSHEETS,
-  MOCK_RAW_MATERIALS,
-  MOCK_ALLOCATIONS,
-} from "@/src/data/plm/plmMockData";
-
 const initialState: IPlmState = {
   userProfile: {
     id: "user-sa-001",
     name: "Super Admin",
     roles: ["SUPER_ADMIN"],
+    permissions: [
+      "plm.dashboard.view", "plm.branch.view", "plm.branch.create", "plm.branch.delete",
+      "plm.design.view", "plm.approval.decide", "plm.production.view", "plm.inventory.view",
+    ],
     branchId: null,
     branchName: null,
   },
   selectedBranchId: null,
-  branches: MOCK_BRANCHES,
-  designs: MOCK_DESIGNS,
-  worksheets: MOCK_WORKSHEETS,
-  rawMaterials: MOCK_RAW_MATERIALS,
-  allocations: MOCK_ALLOCATIONS,
+  branches: [],
+  designs: [],
+  worksheets: [],
+  rawMaterials: [],
+  allocations: [],
 };
 
 const plmSlice = createSlice({

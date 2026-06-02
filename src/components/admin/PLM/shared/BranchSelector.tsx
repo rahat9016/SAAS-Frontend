@@ -3,6 +3,7 @@
 import { useAppSelector } from "@/src/lib/redux/hooks";
 import { useAppDispatch } from "@/src/lib/redux/hooks";
 import { setSelectedBranch } from "@/src/lib/redux/features/plm/plmSlice";
+import { useGet } from "@/src/hooks/useGet";
 import { MapPin } from "lucide-react";
 
 interface BranchSelectorProps {
@@ -11,7 +12,8 @@ interface BranchSelectorProps {
 
 export default function BranchSelector({ showAll = true }: BranchSelectorProps) {
   const dispatch = useAppDispatch();
-  const branches = useAppSelector((state) => state.plm.branches);
+  const { data } = useGet<any>("/api/plm/branch", ["branches"]);
+  const branches = data?.data || [];
   const selectedBranchId = useAppSelector(
     (state) => state.plm.selectedBranchId
   );
@@ -27,7 +29,7 @@ export default function BranchSelector({ showAll = true }: BranchSelectorProps) 
         className="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary cursor-pointer"
       >
         {showAll && <option value="">All Branches</option>}
-        {branches.map((branch) => (
+        {branches.map((branch: any) => (
           <option key={branch.id} value={branch.id}>
             {branch.name}
           </option>
