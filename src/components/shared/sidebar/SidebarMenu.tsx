@@ -1,8 +1,11 @@
 "use client";
 
-import { getMenuItems } from "@/src/utils/getMenuItems";
+import { filterMenuByAccess, getMenuItems } from "@/src/utils/getMenuItems";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useAppSelector } from "@/src/lib/redux/hooks";
+import { selectRbac } from "@/src/lib/redux/features/rbac/rbacSelectors";
+import { useRbacPermissions } from "@/src/hooks/useRbacPermissions";
 import SidebarMenuGroup from "./SidebarMenuGroup";
 import SidebarMenuItem from "./SidebarMenuItem";
 
@@ -12,7 +15,17 @@ interface SidebarMenuProps {
 
 export default function SidebarMenu({ onNavigate }: SidebarMenuProps) {
   const pathname = usePathname();
-  const menuItems = getMenuItems();
+
+  // Load + read the user's RBAC permission map, then gate menu entries.
+  useRbacPermissions();
+  const rbac = useAppSelector(selectRbac);
+
+  const menuItems = useMemo(() => {
+    const can = (resource: string) =>
+      rbac.user.isSuperAdmin ||
+      Object.values(rbac.permissions[resource] ?? {}).some(Boolean);
+    return filterMenuByAccess(getMenuItems(), can);
+  }, [rbac]);
 
   // Track which menu items are expanded
   const [expandedItems, setExpandedItems] = useState<string[]>([]);

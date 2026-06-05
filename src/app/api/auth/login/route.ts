@@ -27,7 +27,7 @@ export async function POST(request: Request) {
       sub: user.id,
       email: user.email,
       name: user.name,
-      role: user.globalRole,
+      isSuperAdmin: user.isSuperAdmin,
       branchId: user.branchId,
       organizationId: user.organizationId,
     });
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
           name: user.name,
           email: user.email,
           avatar: user.avatar,
-          role: user.globalRole,
+          isSuperAdmin: user.isSuperAdmin,
         },
       },
     });

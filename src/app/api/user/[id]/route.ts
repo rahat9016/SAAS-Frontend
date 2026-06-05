@@ -31,7 +31,7 @@ export async function GET(
       profilePicture: user.avatar || null,
       isVerified: true,
       status: "ACTIVE",
-      role: user.globalRole, // single global role string
+      isSuperAdmin: user.isSuperAdmin,
       branchId: user.branchId,
       branchName: user.branch?.name || null,
       organizationId: user.organizationId,

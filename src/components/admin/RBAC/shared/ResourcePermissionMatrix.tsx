@@ -1,30 +1,22 @@
 "use client";
 
-import { ACTIONS, RESOURCES, type Action } from "@/src/config/rbac";
+import { RESOURCES } from "@/src/config/rbac";
+import { useActions } from "@/src/hooks/useActions";
 import { Check } from "lucide-react";
 
-export type SelectedGrants = Record<string, Action[]>;
+export type SelectedGrants = Record<string, string[]>;
 
 interface ResourcePermissionMatrixProps {
-  /** resource -> selected actions */
+  /** resource -> selected action keys */
   selected: SelectedGrants;
   onChange: (next: SelectedGrants) => void;
   /**
    * Optional ceiling. When provided, only these resources/actions are shown
-   * and selectable (used for branch-scoped role forms). Omit for full scope
-   * (super-admin branch scope editor).
+   * and selectable (branch-scoped role forms). Omit for full scope.
    */
   scope?: SelectedGrants;
   readOnly?: boolean;
 }
-
-const ACTION_LABEL: Record<Action, string> = {
-  create: "Create",
-  read: "Read",
-  update: "Update",
-  delete: "Delete",
-  export: "Export",
-};
 
 export default function ResourcePermissionMatrix({
   selected,
@@ -32,18 +24,24 @@ export default function ResourcePermissionMatrix({
   scope,
   readOnly = false,
 }: ResourcePermissionMatrixProps) {
-  // Which resources to render: the scope's keys, or every known resource.
+  const { actions: catalog } = useActions();
+
+  // Columns = dynamic action keys (filtered to scope union when capped).
+  const allKeys = catalog.map((a) => a.key);
+  const labelOf = (key: string) =>
+    catalog.find((a) => a.key === key)?.label ?? key;
+
   const resources = scope
     ? RESOURCES.filter((r) => (scope[r]?.length ?? 0) > 0)
     : [...RESOURCES];
 
-  const actionsFor = (resource: string): Action[] =>
-    scope ? scope[resource] ?? [] : [...ACTIONS];
+  const actionsFor = (resource: string): string[] =>
+    scope ? scope[resource] ?? [] : allKeys;
 
-  const isSelected = (resource: string, action: Action) =>
+  const isSelected = (resource: string, action: string) =>
     selected[resource]?.includes(action) ?? false;
 
-  const toggle = (resource: string, action: Action) => {
+  const toggle = (resource: string, action: string) => {
     if (readOnly) return;
     const current = selected[resource] ?? [];
     const next = current.includes(action)
@@ -69,24 +67,35 @@ export default function ResourcePermissionMatrix({
   if (resources.length === 0) {
     return (
       <p className="text-xs text-gray-400 italic py-3">
-        No resources available in this branch&apos;s scope.
+        No resources available in this scope.
+      </p>
+    );
+  }
+  if (allKeys.length === 0) {
+    return (
+      <p className="text-xs text-gray-400 italic py-3">
+        No actions defined yet. Create actions first.
       </p>
     );
   }
 
+  const columns = allKeys;
+
   return (
-    <div className="border border-gray-100 rounded-xl overflow-hidden">
-      {/* Header row */}
-      <div className="grid grid-cols-[1.4fr_repeat(5,1fr)] bg-gray-50 border-b border-gray-100">
+    <div className="border border-gray-100 rounded-xl overflow-x-auto">
+      <div
+        className="grid bg-gray-50 border-b border-gray-100 min-w-max"
+        style={{ gridTemplateColumns: `1.4fr repeat(${columns.length}, minmax(72px,1fr))` }}
+      >
         <div className="px-3 py-2 text-[10px] font-bold text-gray-500 uppercase tracking-wider">
           Resource
         </div>
-        {ACTIONS.map((a) => (
+        {columns.map((a) => (
           <div
             key={a}
             className="px-2 py-2 text-[10px] font-bold text-gray-500 uppercase tracking-wider text-center"
           >
-            {ACTION_LABEL[a]}
+            {labelOf(a)}
           </div>
         ))}
       </div>
@@ -96,7 +105,8 @@ export default function ResourcePermissionMatrix({
         return (
           <div
             key={resource}
-            className="grid grid-cols-[1.4fr_repeat(5,1fr)] border-b border-gray-50 last:border-0 items-center"
+            className="grid border-b border-gray-50 last:border-0 items-center min-w-max"
+            style={{ gridTemplateColumns: `1.4fr repeat(${columns.length}, minmax(72px,1fr))` }}
           >
             <button
               type="button"
@@ -109,7 +119,7 @@ export default function ResourcePermissionMatrix({
               {resource}
             </button>
 
-            {ACTIONS.map((action) => {
+            {columns.map((action) => {
               const allowed = available.includes(action);
               const checked = isSelected(resource, action);
               return (
@@ -120,14 +130,10 @@ export default function ResourcePermissionMatrix({
                       onClick={() => toggle(resource, action)}
                       disabled={readOnly}
                       className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${
-                        checked
-                          ? "bg-primary border-primary"
-                          : "border-gray-300 bg-white"
+                        checked ? "bg-primary border-primary" : "border-gray-300 bg-white"
                       } ${readOnly ? "cursor-default" : "cursor-pointer"}`}
                     >
-                      {checked && (
-                        <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />
-                      )}
+                      {checked && <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />}
                     </button>
                   ) : (
                     <span className="w-4 h-4 rounded bg-gray-50 border border-dashed border-gray-200" />

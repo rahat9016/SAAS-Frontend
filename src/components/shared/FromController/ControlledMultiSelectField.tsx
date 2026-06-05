@@ -1,9 +1,12 @@
 import { useRef } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import CreatableSelect from "react-select/creatable";
+
+type SelectOption = { label: string; value: string };
+
 interface ControlledMultiSelectFieldProps {
   name: string;
-  options: { label: string; value: string }[];
+  options: SelectOption[];
   placeholder?: string;
   className?: string;
 }
@@ -25,14 +28,14 @@ const ControlledMultiSelectField: React.FC<ControlledMultiSelectFieldProps> = ({
           <CreatableSelect
             isMulti
             options={options}
-            value={options.filter((opt) =>
+            value={options.filter((opt: SelectOption) =>
               field.value?.includes(Number(opt.value))
             )}
             placeholder={placeholder || "Select options"}
-            onChange={(selected) => {
+            onChange={(selected: readonly SelectOption[]) => {
               field.onChange(selected.map((opt) => Number(opt.value)));
             }}
-            onCreateOption={(inputValue) => {
+            onCreateOption={(inputValue: string) => {
               const newOption = {
                 label: inputValue,
                 value: String(Date.now()),

@@ -1,30 +1,29 @@
 // /api/branches/roles/[id]
 //   GET    → fetch one branch role
-//   PATCH  → rename and/or replace its resource permissions
+//   PATCH  → rename and/or replace its resource permissions (capped to scope)
 //   DELETE → remove the role (assigned users keep their record, role → null)
-// All scoped: a Branch Admin may only touch roles in their own branch.
+// Guard: super admin, or a user with access to the "roles" resource. A
+// non-super-admin may only touch roles in their own branch.
 
-import { GlobalRole, Role } from "@prisma/client";
+import { Role } from "@prisma/client";
 import { prisma } from "@/src/lib/prisma";
 import {
-  requireGlobalRole,
+  requireManage,
   rbacError,
   rbacSuccess,
   validateGrantsAgainstScope,
+  getActionKeys,
   type RbacUser,
   type GrantInput,
 } from "@/src/lib/rbac";
 
 type Ctx = { params: Promise<{ id: string }> };
 
-/** Load a role and assert the admin is allowed to manage it. */
+/** Load a branch role and assert the caller may manage it. */
 async function loadOwnedRole(admin: RbacUser, id: string) {
   const role = await prisma.role.findUnique({ where: { id } });
   if (!role || !role.branchId) return { role: null, error: rbacError("Role not found", 404) };
-  if (
-    admin.globalRole !== GlobalRole.SUPER_ADMIN &&
-    role.branchId !== admin.branchId
-  ) {
+  if (!admin.isSuperAdmin && role.branchId !== admin.branchId) {
     return { role: null, error: rbacError("Access denied: role belongs to another branch", 403) };
   }
   return { role, error: null as null };
@@ -32,11 +31,7 @@ async function loadOwnedRole(admin: RbacUser, id: string) {
 
 export async function GET(request: Request, { params }: Ctx) {
   try {
-    const { user: admin, errorResponse } = await requireGlobalRole(
-      request,
-      GlobalRole.BRANCH_ADMIN,
-      GlobalRole.SUPER_ADMIN,
-    );
+    const { user: admin, errorResponse } = await requireManage(request, "roles");
     if (errorResponse) return errorResponse;
 
     const { id } = await params;
@@ -56,11 +51,7 @@ export async function GET(request: Request, { params }: Ctx) {
 
 export async function PATCH(request: Request, { params }: Ctx) {
   try {
-    const { user: admin, errorResponse } = await requireGlobalRole(
-      request,
-      GlobalRole.BRANCH_ADMIN,
-      GlobalRole.SUPER_ADMIN,
-    );
+    const { user: admin, errorResponse } = await requireManage(request, "roles");
     if (errorResponse) return errorResponse;
 
     const { id } = await params;
@@ -72,7 +63,6 @@ export async function PATCH(request: Request, { params }: Ctx) {
     const { name } = body;
     const requested: GrantInput[] | undefined = body.permissions;
 
-    // Re-validate any new permissions against the branch's current scope.
     let grants: GrantInput[] | null = null;
     let newName: string | undefined;
 
@@ -84,11 +74,11 @@ export async function PATCH(request: Request, { params }: Ctx) {
       if (!branch) return rbacError("Branch not found", 404);
 
       if (requested) {
-        const res = validateGrantsAgainstScope(branch.branchPermissions, requested);
+        const actionKeys = await getActionKeys();
+        const res = validateGrantsAgainstScope(branch.branchPermissions, requested, actionKeys);
         if (res.error) return rbacError(res.error, 403);
         grants = res.grants;
       }
-      // Namespace the name with branch code, matching create.
       if (name) newName = `${branch.code} - ${name}`;
     }
 
@@ -120,11 +110,7 @@ export async function PATCH(request: Request, { params }: Ctx) {
 
 export async function DELETE(request: Request, { params }: Ctx) {
   try {
-    const { user: admin, errorResponse } = await requireGlobalRole(
-      request,
-      GlobalRole.BRANCH_ADMIN,
-      GlobalRole.SUPER_ADMIN,
-    );
+    const { user: admin, errorResponse } = await requireManage(request, "roles");
     if (errorResponse) return errorResponse;
 
     const { id } = await params;

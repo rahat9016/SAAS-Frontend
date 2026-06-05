@@ -1,92 +1,112 @@
-# Branch RBAC/ABAC — Phase 1
+# Branch RBAC/ABAC
 
-Multi-branch dynamic Role-Based + action-based Access Control. Self-contained
-within this Next.js app (Prisma + PostgreSQL). The legacy PLM subsystem has been
-fully removed (code + DB tables); this is the sole RBAC system.
+Multi-branch **dynamic** Role + action-based Access Control. Self-contained in this
+Next.js app (Prisma + PostgreSQL). The legacy PLM subsystem is fully removed; this is
+the sole RBAC system.
 
-Auth lives in `src/lib/auth-tokens.ts` (`signTokens`/`verifyToken`/`getAuthUser`)
-+ `/api/auth/{login,refresh,profile}`. JWT secret shared via `JWT_SECRET` env.
+Auth lives in `src/lib/auth-tokens.ts` (`signTokens`/`verifyToken`/`getAuthUser`) +
+`/api/auth/{login,refresh,profile}`. JWT secret via `JWT_SECRET`. The token carries
+**identity only** (`sub`, `isSuperAdmin`); permissions are always re-derived from the DB.
 
 ## Concept
 
-- **Attributes = CRUD-style actions only**: `create`, `read`, `update`, `delete`, `export`. No condition logic.
-- **Permission = Resource + Actions** (e.g. `orders: [read, update]`). Resources are routes/modules.
-- **Top-down validation**:
-  1. **Super Admin** creates a Branch and assigns its allowed scope (`BranchPermission`).
-  2. **Branch Admin** creates Roles + Users inside the branch.
-  3. A Branch Admin can ONLY grant permissions that exist in the branch's scope (subset enforced server-side).
+- **Actions are dynamic** — rows in the `actions` table (`create/read/update/delete/export`
+  + any custom key the super admin creates). Referenced by key in permission arrays.
+- **Resources** are a fixed config list in `src/config/rbac.ts` (`RESOURCES`).
+- **Permission = Resource + Actions** (e.g. `orders: [read, update]`).
+- **Roles are dynamic, with two scopes / two places:**
+  - `SUPER_ADMIN` scope (global) — managed at `/api/super-admin/roles`, **no branch ceiling**.
+  - `BRANCH` scope — managed at `/api/branches/roles`, **capped to the branch's scope**.
+- **Top-down validation:** super admin sets a branch's allowed scope (`BranchPermission`);
+  branch managers may only grant role permissions that are a subset of that scope.
 
-## Roles (`GlobalRole`)
+## Identity (no fixed role enum)
 
-| Role | Access |
-|---|---|
-| `SUPER_ADMIN` | Global. Bypasses branch scope. Manages branches + all branch roles/users. |
-| `BRANCH_ADMIN` | Owns one branch. Full branch scope. Creates roles + users in own branch. |
-| `BRANCH_USER` | Effective permissions = assigned Role grants ∩ branch scope. |
+| Who | How | Powers |
+|---|---|---|
+| **Super admin** | `User.isSuperAdmin = true` (bootstrap, seeded) | Bypasses everything; CRUD on actions/branches/global roles. |
+| **Branch admin** | a branch user whose role has `users`+`roles` CRUD | Manages roles/users in their own branch (permission-driven, not a hard role). |
+| **Branch user** | branch user with a limited role | Effective perms = role grants ∩ branch scope. |
 
-## Data Model (additive to existing schema)
+Cases: (1) super admin full CRUD on roles + actions; (2) a branch admin grants a user
+read-only (`orders:[read]`); (3) super admin grants any resource×action dynamically.
 
-- `GlobalRole` enum on `User.globalRole`; `User.roleId` → primary `Role`.
-- `Role.branchId` → branch-scoped roles (namespaced `"<CODE> - <name>"`, global `name @unique`).
+## Data Model
+
+- `User.isSuperAdmin` (bootstrap god flag) + `User.roleId` → primary `Role`.
+- `enum RoleScope { SUPER_ADMIN BRANCH }`; `Role.scope`, `Role.branchId` (null for global).
+  Branch role names namespaced `"<CODE> - <name>"` (global `name @unique`); UI strips prefix.
+- `Action` (`key @unique`, `label`, `isBuiltIn`) — dynamic action catalog.
 - `BranchPermission` (`branchId`, `resource`, `actions[]`) — branch scope / ceiling.
 - `RoleResourcePermission` (`roleId`, `resource`, `actions[]`) — role grants.
 
-Migration: `prisma/migrations/20260604174047_add_branch_rbac` (additive only).
-Seed: `prisma/seed-rbac.ts` → `npx ts-node prisma/seed-rbac.ts`.
+Migrations: `…_add_branch_rbac` then `…_dynamic_rbac`.
+Seed: `npx ts-node prisma/seed-rbac.ts` (also wired as the Prisma seed in package.json).
 
 ## API
 
 | Method | Route | Guard | Purpose |
 |---|---|---|---|
-| POST | `/api/auth/login` | — | Credentials → access+refresh JWT (identity + global role). |
+| POST | `/api/auth/login` | — | Credentials → access+refresh JWT (`isSuperAdmin`). |
 | POST | `/api/auth/refresh` | — | Refresh token → new tokens. |
 | GET | `/api/auth/profile` | auth | Current user profile. |
-| GET | `/api/auth/permissions` | auth | O(1) `{user, permissions}` map. Re-derived from DB (token = identity only). |
-| GET/POST | `/api/super-admin/branches` | SUPER_ADMIN | List branches+scope / create branch + scope |
-| GET/POST | `/api/super-admin/organizations` | SUPER_ADMIN | Org list/create (branch needs an org) |
-| GET/POST | `/api/branches/roles` | BRANCH_ADMIN, SUPER_ADMIN | List / create dynamic role (grants ⊆ branch scope) |
-| GET/PATCH/DELETE | `/api/branches/roles/[id]` | BRANCH_ADMIN, SUPER_ADMIN | Get / rename+repermission / delete (branch-owned) |
-| GET/POST | `/api/branches/users` | BRANCH_ADMIN, SUPER_ADMIN | List / create user, assign existing `roleId` (or inline role) |
+| GET | `/api/auth/permissions` | auth | O(1) `{user:{id,isSuperAdmin,branchId}, permissions}` map, DB-derived. |
+| GET/POST | `/api/actions` | auth (GET) | Read-only action catalog for the permission matrix. |
+| GET/POST | `/api/super-admin/actions` (+`/[id]` PATCH/DELETE) | super admin | Dynamic action CRUD (built-ins delete-protected). |
+| GET/POST | `/api/super-admin/roles` (+`/[id]`) | super admin | Global (SUPER_ADMIN-scope) roles — no branch ceiling. |
+| GET/POST | `/api/super-admin/branches` | super admin | Branches + scope (paginated). |
+| GET/POST | `/api/super-admin/organizations` | super admin | Org list/create. |
+| GET/POST | `/api/branches/roles` (+`/[id]`) | super admin or `roles` access | Branch roles; grants ⊆ branch scope. |
+| GET/POST | `/api/branches/users` (+`/[id]` PATCH/DELETE) | super admin or `users` access | Branch users; assign `roleId`. |
 
 Permission map rules:
-- `SUPER_ADMIN` → all resources/actions `true`.
-- `BRANCH_ADMIN` → full branch scope.
-- `BRANCH_USER` → role grants ∩ branch scope (resources outside scope denied).
+- `isSuperAdmin` → every resource × every action key `true`.
+- `SUPER_ADMIN`-scope role → grants verbatim (no ceiling).
+- `BRANCH`-scope role → grants ∩ branch scope.
 
-Branch isolation: non-super-admin requests are hard-scoped to `user.branchId`;
-`branchId` in the body is ignored for Branch Admins.
+Branch isolation: non-super-admin is hard-scoped to `user.branchId`; `branchId` in the body
+is ignored for branch users.
 
 ## Backend files
 
-- `src/lib/rbac.ts` — auth layer: token verify, `getRbacUser` (DB re-derive), `buildPermissionMap`, guards (`requireAuth`/`requireGlobalRole`/`requireResourceAction`), `branchScopeWhere`, `validateGrantsAgainstScope`, `resolveTargetBranchId`.
-- `src/config/rbac.ts` — `RESOURCES`, `ACTIONS`, map helpers.
+- `src/lib/rbac.ts` — token verify, `getRbacUser`, `getActionKeys`, `buildPermissionMap(user, actionKeys)`,
+  guards (`requireAuth`/`requireSuperAdmin`/`requireResourceAction`/`requireManage`),
+  `branchScopeWhere`, `validateGrantsAgainstScope`, `resolveTargetBranchId`, `rbacPaginated`/`getListParams`.
+- `src/config/rbac.ts` — `RESOURCES`, `BUILT_IN_ACTIONS`, dynamic-action map helpers.
+- `src/lib/auth-tokens.ts` — JWT + `getAuthUser` (returns `isSuperAdmin`).
 - `src/lib/prisma.ts` — Prisma singleton.
 
-## Frontend files
+## Frontend files (brands pattern)
 
-- Redux: `src/lib/redux/features/rbac/{rbacSlice,rbacTypes,rbacSelectors}.ts` (wired in `store.ts`).
-  - `selectCan(resource, action)`, `selectIsSuperAdmin` for button gating.
-- Loader: `src/services/rbac.service.ts` + `src/hooks/useRbacPermissions.ts`.
-- Types: `src/types/rbac/rbac.ts` (`scopeToMap`/`mapToScope`).
-- Components `src/components/admin/RBAC/`:
-  - `shared/RbacRouteGuard.tsx` (role-gated page wrapper).
-  - `shared/ResourcePermissionMatrix.tsx` (resource × action grid; `scope` prop constrains to branch ceiling).
-  - `Branches/BranchRbacManager.tsx` + `BranchFormModal.tsx`.
-  - `Roles/BranchRolesManager.tsx` + `BranchRoleFormModal.tsx`.
-  - `Users/BranchUsersManager.tsx` + `BranchUserFormModal.tsx`.
-- Pages `src/app/admin/(rbac)/rbac/{branches,roles,users}/page.tsx`.
-- Nav: `src/utils/getMenuItems.ts` → "Access Control → Branch RBAC".
+Each entity follows `src/components/admin/Brands/`: `XList` (useGet+usePagination+useSearchDebounce+useDelete)
+→ `XTable` (`ui/data-table`) + `Form/CreateUpdateX` (Dialog + FormProvider + yupResolver + usePost/usePatch)
++ `Form/XForm` (Controlled* fields) + `Schema/*` (yup) + `TableColumns/*` + `types/`.
+
+- `src/components/admin/RBAC/Actions/*` — dynamic action CRUD.
+- `src/components/admin/RBAC/Roles/*` — scope tabs (Global vs Branch) + branch picker; `RoleForm` embeds the matrix.
+- `src/components/admin/RBAC/Branches/*` — create branch + scope matrix (super admin).
+- `src/components/admin/RBAC/Users/*` — create/edit user, assign branch role.
+- `src/components/admin/RBAC/shared/ResourcePermissionMatrix.tsx` — resource × **dynamic action** grid,
+  `scope` prop caps to branch ceiling. `shared/RbacRouteGuard.tsx` — gates by `isSuperAdmin` or a resource.
+- `src/hooks/useActions.ts` — action catalog; `src/hooks/useRbacPermissions.ts` — loads the map into redux.
+- Redux `src/lib/redux/features/rbac/*`: user `{ id, isSuperAdmin, branchId }`; `selectCan`, `selectIsSuperAdmin`.
+- Pages `src/app/admin/(rbac)/rbac/{actions,roles,branches,users}/page.tsx`.
+- Nav: `src/utils/getMenuItems.ts` → "Access Control" (Branches, Actions, Roles, Users).
 
 ## Seed logins (`password123`)
 
-| Email | Role | Branch / scope |
-|---|---|---|
-| `superadmin@demo.com` | SUPER_ADMIN | global |
-| `admin.a@demo.com` | BRANCH_ADMIN | BR-A (orders C/R/U/export, products R) |
-| `staff.a@demo.com` | BRANCH_USER | BR-A, role `orders:[read]` |
-| `admin.b@demo.com` | BRANCH_ADMIN | BR-B (orders R, products C/R) — isolated |
+| Email | isSuperAdmin | Branch | Role |
+|---|---|---|---|
+| `superadmin@demo.com` | yes | — | (bypass) |
+| `admin.a@demo.com` | no | BR-A | `BR-A - Branch Admin` (users+roles CRUD, orders all) |
+| `staff.a@demo.com` | no | BR-A | `BR-A - Orders Staff` (`orders:[read]`) |
+| `admin.b@demo.com` | no | BR-B | `BR-B - Branch Admin` (isolated) |
 
-## Notes / TODO
+Plus a `Platform Admin` global (SUPER_ADMIN-scope) role demo.
 
-- Sidebar RBAC group currently shows for any admin (page guard still blocks unauthorized roles). To hide by `globalRole`, wire the `rbac` slice into `SidebarMenu`.
-- Role `name` is globally unique → branch role names are namespaced with the branch code (UI strips the prefix for display).
+## Notes
+
+- After `prisma generate`, a running `next dev` keeps a stale Prisma client — **restart the dev
+  server** before testing the new fields/endpoints over HTTP.
+- ESLint binary is currently broken in `node_modules` (missing `./eslint` internal) — reinstall to lint.
+- Sidebar group shows for any admin; pages still guard by `isSuperAdmin` / resource permission.

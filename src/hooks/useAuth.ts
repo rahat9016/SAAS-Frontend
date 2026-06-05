@@ -8,6 +8,8 @@ import { IGenericErrorResponse } from "../types/common/common";
 
 interface JwtPayload {
   role?: string;
+  isSuperAdmin?: boolean;
+  branchId?: string | null;
   id?: string;
   userId?: string;
   sub?: string;
@@ -31,11 +33,14 @@ export const useAuth = (
       Cookies.set("refreshToken", data.refreshToken, { expires: 2 });
       window.dispatchEvent(new Event("auth-token-updated"));
 
-      // Decode role from JWT
+      // Decode identity from JWT. RBAC users (super admin or any branch
+      // member) are admin-panel users → route to /admin.
       let role = "user";
       try {
         const decoded = jwtDecode<JwtPayload>(data.accessToken);
-        role = decoded.role || "user";
+        if (decoded.isSuperAdmin) role = "SUPER_ADMIN";
+        else if (decoded.branchId) role = "BRANCH_USER";
+        else role = decoded.role || "user";
       } catch {
         console.error("Failed to decode JWT");
       }

@@ -1,11 +1,17 @@
-// POST /api/super-admin/branches
-// Super Admin only. Creates a Branch and assigns its base permission
-// scope (BranchPermission). That scope is the ceiling for every Role a
-// Branch Admin can later create inside the branch.
+// /api/super-admin/branches — Super Admin only.
+//   GET  → paginated list of branches with their permission scope + counts
+//   POST → create a Branch + its base scope (BranchPermission), the ceiling
+//          for every BRANCH-scope role created inside it.
 
-import { GlobalRole } from "@prisma/client";
 import { prisma } from "@/src/lib/prisma";
-import { requireGlobalRole, rbacError, rbacSuccess } from "@/src/lib/rbac";
+import {
+  requireSuperAdmin,
+  rbacError,
+  rbacSuccess,
+  rbacPaginated,
+  getListParams,
+  getActionKeys,
+} from "@/src/lib/rbac";
 import { RESOURCES, sanitizeActions } from "@/src/config/rbac";
 
 interface ScopeInput {
@@ -13,25 +19,40 @@ interface ScopeInput {
   actions: string[];
 }
 
-// GET — list all branches with their permission scope + counts.
 export async function GET(request: Request) {
   try {
-    const { errorResponse } = await requireGlobalRole(
-      request,
-      GlobalRole.SUPER_ADMIN,
-    );
+    const { errorResponse } = await requireSuperAdmin(request);
     if (errorResponse) return errorResponse;
 
-    const branches = await prisma.branch.findMany({
-      include: {
-        branchPermissions: true,
-        organization: { select: { id: true, name: true, code: true } },
-        _count: { select: { users: true, roles: true } },
-      },
-      orderBy: { createdAt: "desc" },
-    });
+    const { page, limit, search } = getListParams(new URL(request.url).searchParams);
+    const where = search
+      ? {
+          OR: [
+            { name: { contains: search, mode: "insensitive" as const } },
+            { code: { contains: search, mode: "insensitive" as const } },
+          ],
+        }
+      : {};
 
-    return rbacSuccess(branches);
+    const skip = limit === -1 ? undefined : (page - 1) * limit;
+    const take = limit === -1 ? undefined : limit;
+
+    const [branches, totalItems] = await Promise.all([
+      prisma.branch.findMany({
+        where,
+        skip,
+        take,
+        include: {
+          branchPermissions: true,
+          organization: { select: { id: true, name: true, code: true } },
+          _count: { select: { users: true, roles: true } },
+        },
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.branch.count({ where }),
+    ]);
+
+    return rbacPaginated(branches, totalItems, page, limit === -1 ? totalItems : limit);
   } catch (e) {
     console.error("list branches error:", e);
     return rbacError("Internal server error", 500);
@@ -40,10 +61,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const { errorResponse } = await requireGlobalRole(
-      request,
-      GlobalRole.SUPER_ADMIN,
-    );
+    const { errorResponse } = await requireSuperAdmin(request);
     if (errorResponse) return errorResponse;
 
     const body = await request.json();
@@ -54,12 +72,12 @@ export async function POST(request: Request) {
       return rbacError("name, code, and organizationId are required", 400);
     }
 
-    // Validate resources and drop unknown actions.
+    const actionKeys = await getActionKeys();
     const cleanScope = permissions
       .filter((p) => (RESOURCES as readonly string[]).includes(p.resource))
       .map((p) => ({
         resource: p.resource,
-        actions: sanitizeActions(p.actions ?? []),
+        actions: sanitizeActions(p.actions ?? [], actionKeys),
       }));
 
     const branch = await prisma.branch.create({
@@ -68,16 +86,13 @@ export async function POST(request: Request) {
         code,
         location: location ?? "",
         organizationId,
-        branchPermissions: {
-          create: cleanScope,
-        },
+        branchPermissions: { create: cleanScope },
       },
       include: { branchPermissions: true },
     });
 
     return rbacSuccess(branch, 201);
   } catch (e: unknown) {
-    // Unique violation on branch code
     if (typeof e === "object" && e && "code" in e && (e as { code: string }).code === "P2002") {
       return rbacError("A branch with this code already exists", 409);
     }

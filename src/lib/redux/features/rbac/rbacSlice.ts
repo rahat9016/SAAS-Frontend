@@ -4,7 +4,7 @@ import { PermissionMap } from "@/src/config/rbac";
 
 const initialState: IRbacState = {
   loaded: false,
-  user: { id: "", role: "", branchId: null },
+  user: { id: "", isSuperAdmin: false, branchId: null },
   permissions: {},
 };
 

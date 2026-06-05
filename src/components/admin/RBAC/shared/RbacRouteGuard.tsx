@@ -2,29 +2,37 @@
 
 import { ReactNode } from "react";
 import { useAppSelector } from "@/src/lib/redux/hooks";
-import { selectRbacRole } from "@/src/lib/redux/features/rbac/rbacSelectors";
+import {
+  selectIsSuperAdmin,
+  selectCan,
+} from "@/src/lib/redux/features/rbac/rbacSelectors";
 import { useRbacPermissions } from "@/src/hooks/useRbacPermissions";
-import type { RbacGlobalRole } from "@/src/lib/redux/features/rbac/rbacTypes";
 import { ShieldAlert, Loader2 } from "lucide-react";
 
 interface RbacRouteGuardProps {
-  /** Global roles allowed to view the page. */
-  allowedRoles: RbacGlobalRole[];
+  /** When true, only super admin may view the page. */
+  superAdminOnly?: boolean;
+  /** Otherwise allow super admin OR a user with `read` on this resource. */
+  resource?: string;
   children: ReactNode;
 }
 
 /**
- * Loads the RBAC permission map (once), then gates the page by global role.
- * Mirrors PlmRouteGuard but for the branch RBAC system.
+ * Loads the RBAC permission map (once), then gates the page by either
+ * super-admin status or a resource permission.
  */
 export default function RbacRouteGuard({
-  allowedRoles,
+  superAdminOnly = false,
+  resource,
   children,
 }: RbacRouteGuardProps) {
-  const { isLoading } = useRbacPermissions();
-  const role = useAppSelector(selectRbacRole);
+  const { isLoading, loaded } = useRbacPermissions();
+  const isSuperAdmin = useAppSelector(selectIsSuperAdmin);
+  const canRead = useAppSelector(
+    resource ? selectCan(resource, "read") : () => false,
+  );
 
-  if (isLoading && !role) {
+  if (isLoading && !loaded) {
     return (
       <div className="flex items-center justify-center py-24 text-gray-400">
         <Loader2 className="w-5 h-5 animate-spin mr-2" />
@@ -33,7 +41,9 @@ export default function RbacRouteGuard({
     );
   }
 
-  if (!role || !allowedRoles.includes(role as RbacGlobalRole)) {
+  const allowed = isSuperAdmin || (!superAdminOnly && !!resource && canRead);
+
+  if (!allowed) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-center">
         <div className="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center mb-4">
@@ -41,13 +51,9 @@ export default function RbacRouteGuard({
         </div>
         <h2 className="text-lg font-bold text-gray-900">Access Denied</h2>
         <p className="text-sm text-gray-500 mt-1 max-w-sm">
-          This page requires one of: {allowedRoles.join(", ")}.
-          {role && (
-            <>
-              {" "}
-              Your role: <span className="font-semibold">{role}</span>.
-            </>
-          )}
+          {superAdminOnly
+            ? "This page is restricted to the super admin."
+            : `You need access to the "${resource}" module.`}
         </p>
       </div>
     );

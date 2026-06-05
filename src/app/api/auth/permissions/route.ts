@@ -2,19 +2,25 @@
 // Returns the authenticated user's O(1) permission lookup map.
 // Permissions are re-derived from the DB (token is identity-only).
 
-import { getRbacUser, buildPermissionMap, rbacError } from "@/src/lib/rbac";
+import {
+  getRbacUser,
+  buildPermissionMap,
+  getActionKeys,
+  rbacError,
+} from "@/src/lib/rbac";
 
 export async function GET(request: Request) {
   try {
     const user = await getRbacUser(request);
     if (!user) return rbacError("Unauthorized", 401);
 
-    const permissions = buildPermissionMap(user);
+    const actionKeys = await getActionKeys();
+    const permissions = buildPermissionMap(user, actionKeys);
 
     return Response.json({
       user: {
         id: user.id,
-        role: user.globalRole,
+        isSuperAdmin: user.isSuperAdmin,
         branchId: user.branchId,
       },
       permissions,

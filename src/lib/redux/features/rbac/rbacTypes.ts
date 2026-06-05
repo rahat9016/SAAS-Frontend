@@ -1,10 +1,8 @@
 import type { Action, PermissionMap } from "@/src/config/rbac";
 
-export type RbacGlobalRole = "SUPER_ADMIN" | "BRANCH_ADMIN" | "BRANCH_USER";
-
 export interface RbacUserInfo {
   id: string;
-  role: RbacGlobalRole | "";
+  isSuperAdmin: boolean;
   branchId: string | null;
 }
 

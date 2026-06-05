@@ -1,61 +1,68 @@
-// POST /api/branches/users
-// Branch Admin (or Super Admin) creates a user inside a branch.
-//
-// Roles are dynamic: prefer assigning an EXISTING branch role via `roleId`
-// (managed at /api/branches/roles). For convenience an inline role may
-// still be created by passing `roleName` + `permissions` — those grants
-// are validated as a SUBSET of the branch's allowed scope (top-down RBAC).
+// /api/branches/users
+//   GET  → paginated list of branch users
+//   POST → create a user inside a branch, assign an existing BRANCH role
+//          via `roleId` (preferred) or an inline role (`roleName` + grants).
+// Guard: super admin, or a user with access to the "users" resource.
 
 import bcryptjs from "bcryptjs";
-import { GlobalRole } from "@prisma/client";
+import { RoleScope } from "@prisma/client";
 import { prisma } from "@/src/lib/prisma";
 import {
-  requireGlobalRole,
+  requireManage,
   rbacError,
   rbacSuccess,
+  rbacPaginated,
+  getListParams,
   resolveTargetBranchId,
   validateGrantsAgainstScope,
+  getActionKeys,
   type GrantInput,
 } from "@/src/lib/rbac";
 
-// GET — list branch users (a Branch Admin sees only their own branch).
 export async function GET(request: Request) {
   try {
-    const { user: admin, errorResponse } = await requireGlobalRole(
-      request,
-      GlobalRole.BRANCH_ADMIN,
-      GlobalRole.SUPER_ADMIN,
-    );
+    const { user: admin, errorResponse } = await requireManage(request, "users");
     if (errorResponse) return errorResponse;
 
     const { searchParams } = new URL(request.url);
-    const branchId = resolveTargetBranchId(
-      admin,
-      searchParams.get("branchId") ?? undefined,
-    );
+    const { page, limit, search } = getListParams(searchParams);
+    const branchId = resolveTargetBranchId(admin, searchParams.get("branchId") ?? undefined);
 
-    const where =
-      admin.globalRole === GlobalRole.SUPER_ADMIN
-        ? branchId
-          ? { branchId }
-          : { globalRole: GlobalRole.BRANCH_USER }
-        : { branchId: branchId ?? "__none__" };
+    const where = {
+      ...(branchId ? { branchId } : { branchId: { not: null } }),
+      ...(search
+        ? {
+            OR: [
+              { name: { contains: search, mode: "insensitive" as const } },
+              { email: { contains: search, mode: "insensitive" as const } },
+            ],
+          }
+        : {}),
+    };
 
-    const users = await prisma.user.findMany({
-      where,
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        globalRole: true,
-        branchId: true,
-        role: { select: { id: true, name: true } },
-        createdAt: true,
-      },
-      orderBy: { createdAt: "desc" },
-    });
+    const skip = limit === -1 ? undefined : (page - 1) * limit;
+    const take = limit === -1 ? undefined : limit;
 
-    return rbacSuccess(users);
+    const [users, totalItems] = await Promise.all([
+      prisma.user.findMany({
+        where,
+        skip,
+        take,
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          isSuperAdmin: true,
+          branchId: true,
+          role: { select: { id: true, name: true } },
+          createdAt: true,
+        },
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.user.count({ where }),
+    ]);
+
+    return rbacPaginated(users, totalItems, page, limit === -1 ? totalItems : limit);
   } catch (e) {
     console.error("list branch users error:", e);
     return rbacError("Internal server error", 500);
@@ -64,11 +71,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const { user: admin, errorResponse } = await requireGlobalRole(
-      request,
-      GlobalRole.BRANCH_ADMIN,
-      GlobalRole.SUPER_ADMIN,
-    );
+    const { user: admin, errorResponse } = await requireManage(request, "users");
     if (errorResponse) return errorResponse;
 
     const body = await request.json();
@@ -91,7 +94,7 @@ export async function POST(request: Request) {
     });
     if (!branch) return rbacError("Branch not found", 404);
 
-    // ─── Path A: assign an existing dynamic role ──────────────────
+    // Path A: assign an existing branch role.
     let resolvedRoleId: string;
     if (roleId) {
       const role = await prisma.role.findUnique({ where: { id: roleId } });
@@ -100,16 +103,19 @@ export async function POST(request: Request) {
       }
       resolvedRoleId = role.id;
     } else {
-      // ─── Path B: create an inline role from validated grants ────
+      // Path B: create an inline role from validated grants.
+      const actionKeys = await getActionKeys();
       const { grants, error } = validateGrantsAgainstScope(
         branch.branchPermissions,
         requested,
+        actionKeys,
       );
       if (error) return rbacError(error, 403);
 
       const role = await prisma.role.create({
         data: {
           name: `${branch.code} - ${roleName}`,
+          scope: RoleScope.BRANCH,
           branchId: branch.id,
           createdBy: admin.id,
           resourcePermissions: { create: grants },
@@ -124,7 +130,6 @@ export async function POST(request: Request) {
         name: name ?? email,
         email,
         password: hashed,
-        globalRole: GlobalRole.BRANCH_USER,
         branchId: branch.id,
         organizationId: branch.organizationId,
         roleId: resolvedRoleId,
@@ -133,7 +138,7 @@ export async function POST(request: Request) {
         id: true,
         name: true,
         email: true,
-        globalRole: true,
+        isSuperAdmin: true,
         branchId: true,
         roleId: true,
       },

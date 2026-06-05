@@ -24,7 +24,7 @@ export interface JwtPayload {
   sub: string;
   email: string;
   name: string;
-  role: string; // GlobalRole
+  isSuperAdmin: boolean;
   branchId: string | null;
   organizationId: string | null;
 }
@@ -62,7 +62,7 @@ export async function getAuthUser(request: Request) {
     name: user.name,
     email: user.email,
     avatar: user.avatar,
-    role: user.globalRole,
+    isSuperAdmin: user.isSuperAdmin,
     branchId: user.branchId,
     branchName: user.branch?.name || null,
     organizationId: user.organizationId,

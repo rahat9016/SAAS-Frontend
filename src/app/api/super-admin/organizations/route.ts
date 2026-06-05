@@ -3,16 +3,12 @@
 //   POST → create an organization
 // Super Admin only.
 
-import { GlobalRole } from "@prisma/client";
 import { prisma } from "@/src/lib/prisma";
-import { requireGlobalRole, rbacError, rbacSuccess } from "@/src/lib/rbac";
+import { requireSuperAdmin, rbacError, rbacSuccess } from "@/src/lib/rbac";
 
 export async function GET(request: Request) {
   try {
-    const { errorResponse } = await requireGlobalRole(
-      request,
-      GlobalRole.SUPER_ADMIN,
-    );
+    const { errorResponse } = await requireSuperAdmin(request);
     if (errorResponse) return errorResponse;
 
     const orgs = await prisma.organization.findMany({
@@ -28,10 +24,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const { errorResponse } = await requireGlobalRole(
-      request,
-      GlobalRole.SUPER_ADMIN,
-    );
+    const { errorResponse } = await requireSuperAdmin(request);
     if (errorResponse) return errorResponse;
 
     const { name, code } = await request.json();

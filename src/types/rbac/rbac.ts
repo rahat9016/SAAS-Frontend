@@ -25,24 +25,29 @@ export interface RbacBranch {
   createdAt: string;
 }
 
+export type RbacRoleScope = "SUPER_ADMIN" | "BRANCH";
+
 export interface RbacRole {
   id: string;
   name: string;
   description: string | null;
+  scope: RbacRoleScope;
   branchId: string | null;
   resourcePermissions: RbacScopeEntry[];
   _count?: { directUsers: number };
   createdAt: string;
+  actions?: string;
 }
 
 export interface RbacBranchUser {
   id: string;
   name: string | null;
   email: string;
-  globalRole: string;
+  isSuperAdmin: boolean;
   branchId: string | null;
   role: { id: string; name: string } | null;
   createdAt: string;
+  actions?: string;
 }
 
 /** Convert a scope/grant array into the matrix's keyed shape. */

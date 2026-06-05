@@ -46,10 +46,9 @@ model Branch {
 // Users & Roles
 // ═══════════════════════════════════════════════════════════════════
 
-enum GlobalRole {
+enum RoleScope {
   SUPER_ADMIN
-  BRANCH_ADMIN
-  BRANCH_USER
+  BRANCH
 }
 
 model User {
@@ -58,7 +57,7 @@ model User {
   email          String        @unique
   password       String
   avatar         String?
-  globalRole     GlobalRole    @default(BRANCH_USER) @map("global_role")
+  isSuperAdmin   Boolean       @default(false) @map("is_super_admin")
   organizationId String?       @map("organization_id")
   organization   Organization? @relation(fields: [organizationId], references: [id])
   branchId       String?       @map("branch_id")
@@ -75,6 +74,7 @@ model Role {
   id                  String                   @id @default(uuid())
   name                String                   @unique
   description         String?
+  scope               RoleScope                @default(BRANCH)
   isBuiltIn           Boolean                  @default(false) @map("is_built_in")
   branchId            String?                  @map("branch_id")
   branch              Branch?                  @relation(fields: [branchId], references: [id], onDelete: Cascade)
@@ -85,6 +85,18 @@ model Role {
   updatedAt           DateTime                 @updatedAt @map("updated_at")
 
   @@map("roles")
+}
+
+// Dynamic action catalog ("attributes": create/read/update/delete/export + custom).
+// Super admin manages these; permission action arrays reference Action.key.
+model Action {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  label     String
+  isBuiltIn Boolean  @default(false) @map("is_built_in")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("actions")
 }
 
 // ═══════════════════════════════════════════════════════════════════
