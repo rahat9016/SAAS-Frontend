@@ -1,8 +1,8 @@
 // ─── RBAC/ABAC Auth Layer ─────────────────────────────────────────
-// Independent of the PLM auth helpers (src/lib/plm-api.ts). Verifies
-// the same JWT (shared secret, so the existing login flow still works)
-// but ALWAYS re-derives permissions from the database by token `sub` —
-// the token is trusted only for identity, never for authorization.
+// Verifies the JWT issued by /api/auth/login (shared secret in
+// src/lib/auth-tokens.ts) but ALWAYS re-derives permissions from the
+// database by token `sub` — the token is trusted only for identity,
+// never for authorization.
 
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";

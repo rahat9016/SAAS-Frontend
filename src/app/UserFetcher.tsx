@@ -9,7 +9,6 @@ import {
 } from "../lib/redux/features/auth/authSlice";
 import { IUserInformation } from "../lib/redux/features/auth/authTypes";
 import { setPermissionsFromRole } from "../lib/redux/features/permission/permissionSlice";
-import { setUserProfile } from "../lib/redux/features/plm/plmSlice";
 import { useAppDispatch } from "../lib/redux/hooks";
 import { decodedToken } from "../services/jwt";
 
@@ -70,21 +69,6 @@ export const UserFetcher = () => {
       dispatch(setUserInformation(data.data));
       dispatch(setPermissionsFromRole(data.data.role));
       dispatch(setLoading(false));
-
-      // Auto-set PLM user profile from real auth data when backend provides plmRoles.
-      // Falls back to the dev-mode switcher when plmRoles is not present.
-      if (data.data.plmRoles && data.data.plmRoles.length > 0) {
-        dispatch(
-          setUserProfile({
-            id: data.data.id,
-            name: `${data.data.firstName} ${data.data.lastName}`.trim(),
-            roles: data.data.plmRoles,
-            permissions: (data.data as IUserInformation & { plmPermissions?: string[] }).plmPermissions || [],
-            branchId: data.data.branchId ?? null,
-            branchName: data.data.branchName ?? null,
-          })
-        );
-      }
     }
   }, [isSuccess, data, dispatch]);
 

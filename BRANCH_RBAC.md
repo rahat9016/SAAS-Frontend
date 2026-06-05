@@ -1,8 +1,11 @@
 # Branch RBAC/ABAC — Phase 1
 
 Multi-branch dynamic Role-Based + action-based Access Control. Self-contained
-within this Next.js app (Prisma + PostgreSQL). Independent of the existing PLM
-RBAC (both coexist).
+within this Next.js app (Prisma + PostgreSQL). The legacy PLM subsystem has been
+fully removed (code + DB tables); this is the sole RBAC system.
+
+Auth lives in `src/lib/auth-tokens.ts` (`signTokens`/`verifyToken`/`getAuthUser`)
++ `/api/auth/{login,refresh,profile}`. JWT secret shared via `JWT_SECRET` env.
 
 ## Concept
 
@@ -35,6 +38,9 @@ Seed: `prisma/seed-rbac.ts` → `npx ts-node prisma/seed-rbac.ts`.
 
 | Method | Route | Guard | Purpose |
 |---|---|---|---|
+| POST | `/api/auth/login` | — | Credentials → access+refresh JWT (identity + global role). |
+| POST | `/api/auth/refresh` | — | Refresh token → new tokens. |
+| GET | `/api/auth/profile` | auth | Current user profile. |
 | GET | `/api/auth/permissions` | auth | O(1) `{user, permissions}` map. Re-derived from DB (token = identity only). |
 | GET/POST | `/api/super-admin/branches` | SUPER_ADMIN | List branches+scope / create branch + scope |
 | GET/POST | `/api/super-admin/organizations` | SUPER_ADMIN | Org list/create (branch needs an org) |

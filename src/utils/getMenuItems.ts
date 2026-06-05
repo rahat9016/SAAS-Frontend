@@ -8,8 +8,6 @@ import {
   Users,
   type LucideIcon,
 } from "lucide-react";
-import { getPlmMenuItems } from "./getPlmMenuItems";
-
 export interface MenuItem {
   segment?: string;
   label: string;
@@ -19,7 +17,7 @@ export interface MenuItem {
   children?: { label: string; href: string; matchRoutes?: string[] }[];
 }
 
-export function getMenuItems(plmPermissions?: string[]): MenuItem[] {
+export function getMenuItems(): MenuItem[] {
   const menuItems: (MenuItem | false)[] = [
     { label: "Dashboard", icon: LayoutDashboard, href: "/admin" },
     {
@@ -93,14 +91,6 @@ export function getMenuItems(plmPermissions?: string[]): MenuItem[] {
     },
   ];
 
-  const baseItems = menuItems.filter(Boolean) as MenuItem[];
-
-  // Merge PLM menu items if PLM permissions are provided
-  if (plmPermissions && plmPermissions.length > 0) {
-    const plmItems = getPlmMenuItems(plmPermissions);
-    return [...baseItems, ...plmItems];
-  }
-
-  return baseItems;
+  return menuItems.filter(Boolean) as MenuItem[];
 }
 
