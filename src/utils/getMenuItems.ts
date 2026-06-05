@@ -3,6 +3,7 @@ import {
   LayoutDashboard,
   Package,
   Settings,
+  ShieldCheck,
   ShoppingCart,
   Users,
   type LucideIcon,
@@ -74,6 +75,16 @@ export function getMenuItems(plmPermissions?: string[]): MenuItem[] {
       label: "Users",
       icon: Users,
       href: "/admin/users",
+    },
+    {
+      segment: "Access Control",
+      label: "Branch RBAC",
+      icon: ShieldCheck,
+      children: [
+        { label: "Branches & Scope", href: "/admin/rbac/branches" },
+        { label: "Branch Roles", href: "/admin/rbac/roles" },
+        { label: "Branch Users", href: "/admin/rbac/users" },
+      ],
     },
     {
       label: "Admin",

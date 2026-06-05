@@ -26,19 +26,21 @@ model Organization {
 }
 
 model Branch {
-  id             String       @id @default(uuid())
-  name           String
-  code           String       @unique
-  location       String       @default("")
-  isActive       Boolean      @default(true) @map("is_active")
-  organizationId String       @map("organization_id")
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  departments    Department[]
-  designs        ProductDesign[]
-  users          User[]
-  worksheets     ProductionWorksheet[]
-  createdAt      DateTime     @default(now()) @map("created_at")
-  updatedAt      DateTime     @updatedAt @map("updated_at")
+  id                String                @id @default(uuid())
+  name              String
+  code              String                @unique
+  location          String                @default("")
+  isActive          Boolean               @default(true) @map("is_active")
+  organizationId    String                @map("organization_id")
+  organization      Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  departments       Department[]
+  designs           ProductDesign[]
+  users             User[]
+  worksheets        ProductionWorksheet[]
+  roles             Role[]
+  branchPermissions BranchPermission[]
+  createdAt         DateTime              @default(now()) @map("created_at")
+  updatedAt         DateTime              @updatedAt @map("updated_at")
 
   @@map("branches")
 }
@@ -58,38 +60,81 @@ model Department {
 // Users & RBAC
 // ═══════════════════════════════════════════════════════════════════
 
+enum GlobalRole {
+  SUPER_ADMIN
+  BRANCH_ADMIN
+  BRANCH_USER
+}
+
 model User {
-  id             String        @id @default(uuid())
+  id             String            @id @default(uuid())
   name           String
-  email          String        @unique
+  email          String            @unique
   password       String
   avatar         String?
-  organizationId String?       @map("organization_id")
-  organization   Organization? @relation(fields: [organizationId], references: [id])
-  branchId       String?       @map("branch_id")
-  branch         Branch?       @relation(fields: [branchId], references: [id])
+  globalRole     GlobalRole        @default(BRANCH_USER) @map("global_role")
+  organizationId String?           @map("organization_id")
+  organization   Organization?     @relation(fields: [organizationId], references: [id])
+  branchId       String?           @map("branch_id")
+  branch         Branch?           @relation(fields: [branchId], references: [id])
+  roleId         String?           @map("role_id")
+  role           Role?             @relation("UserPrimaryRole", fields: [roleId], references: [id], onDelete: SetNull)
   userRoles      UserRole[]
-  designs        ProductDesign[] @relation("Designer")
+  designs        ProductDesign[]   @relation("Designer")
   approvals      Approval[]
   statusChanges  ApprovalHistory[] @relation("StatusChanger")
-  createdAt      DateTime      @default(now()) @map("created_at")
-  updatedAt      DateTime      @updatedAt @map("updated_at")
+  createdAt      DateTime          @default(now()) @map("created_at")
+  updatedAt      DateTime          @updatedAt @map("updated_at")
 
   @@map("users")
 }
 
 model Role {
-  id          String           @id @default(uuid())
-  name        String           @unique
-  description String?
-  isBuiltIn   Boolean          @default(false) @map("is_built_in")
-  permissions RolePermission[]
-  userRoles   UserRole[]
-  createdBy   String?          @map("created_by")
-  createdAt   DateTime         @default(now()) @map("created_at")
-  updatedAt   DateTime         @updatedAt @map("updated_at")
+  id                  String                   @id @default(uuid())
+  name                String                   @unique
+  description         String?
+  isBuiltIn           Boolean                  @default(false) @map("is_built_in")
+  branchId            String?                  @map("branch_id")
+  branch              Branch?                  @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  permissions         RolePermission[]
+  resourcePermissions RoleResourcePermission[]
+  userRoles           UserRole[]
+  directUsers         User[]                   @relation("UserPrimaryRole")
+  createdBy           String?                  @map("created_by")
+  createdAt           DateTime                 @default(now()) @map("created_at")
+  updatedAt           DateTime                 @updatedAt @map("updated_at")
 
   @@map("roles")
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// Branch-scoped Dynamic RBAC/ABAC (resource + actions model)
+// ═══════════════════════════════════════════════════════════════════
+// "Attributes" here are strictly CRUD-style actions on a resource
+// (route/module). Super Admin assigns a Branch its allowed scope
+// (BranchPermission). A Branch Admin grants Role permissions
+// (RoleResourcePermission) that must be a SUBSET of that scope.
+
+model BranchPermission {
+  id       String   @id @default(uuid())
+  branchId String   @map("branch_id")
+  branch   Branch   @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  resource String
+  actions  String[] @default([])
+
+  @@unique([branchId, resource])
+  @@map("branch_permissions")
+}
+
+model RoleResourcePermission {
+  id       String   @id @default(uuid())
+  roleId   String   @map("role_id")
+  role     Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  resource String
+  actions  String[] @default([])
+
+  @@unique([roleId, resource])
+  @@map("role_resource_permissions")
 }
 
 model Permission {
@@ -162,26 +207,26 @@ enum ProductStatus {
 // ═══════════════════════════════════════════════════════════════════
 
 model ProductDesign {
-  id              String        @id @default(uuid())
+  id              String                @id @default(uuid())
   name            String
-  description     String        @default("")
-  category        String        @default("")
-  images          String[]      @default([])
-  status          ProductStatus @default(CONCEPT)
-  rejectionReason String?       @map("rejection_reason")
-  moderatorNotes  String?       @map("moderator_notes")
-  adminNotes      String?       @map("admin_notes")
-  designerId      String        @map("designer_id")
-  designer        User          @relation("Designer", fields: [designerId], references: [id])
-  branchId        String        @map("branch_id")
-  branch          Branch        @relation(fields: [branchId], references: [id])
+  description     String                @default("")
+  category        String                @default("")
+  images          String[]              @default([])
+  status          ProductStatus         @default(CONCEPT)
+  rejectionReason String?               @map("rejection_reason")
+  moderatorNotes  String?               @map("moderator_notes")
+  adminNotes      String?               @map("admin_notes")
+  designerId      String                @map("designer_id")
+  designer        User                  @relation("Designer", fields: [designerId], references: [id])
+  branchId        String                @map("branch_id")
+  branch          Branch                @relation(fields: [branchId], references: [id])
   revisions       ProductRevision[]
   approvals       Approval[]
   statusHistory   ApprovalHistory[]
   worksheets      ProductionWorksheet[]
   product         Product?
-  createdAt       DateTime      @default(now()) @map("created_at")
-  updatedAt       DateTime      @updatedAt @map("updated_at")
+  createdAt       DateTime              @default(now()) @map("created_at")
+  updatedAt       DateTime              @updatedAt @map("updated_at")
 
   @@index([branchId])
   @@index([designerId])
@@ -211,9 +256,9 @@ model Approval {
   design    ProductDesign @relation(fields: [designId], references: [id], onDelete: Cascade)
   userId    String        @map("user_id")
   user      User          @relation(fields: [userId], references: [id])
-  decision  String        // APPROVED, REJECTED, PARTIAL_APPROVED
+  decision  String // APPROVED, REJECTED, PARTIAL_APPROVED
   reason    String?
-  level     String        // MODERATOR, SUPER_ADMIN
+  level     String // MODERATOR, SUPER_ADMIN
   createdAt DateTime      @default(now()) @map("created_at")
 
   @@index([designId])
@@ -241,14 +286,14 @@ model ApprovalHistory {
 // ═══════════════════════════════════════════════════════════════════
 
 model Product {
-  id              String        @id @default(uuid())
-  designId        String        @unique @map("design_id")
-  design          ProductDesign @relation(fields: [designId], references: [id])
-  sku             String?       @unique
+  id              String                @id @default(uuid())
+  designId        String                @unique @map("design_id")
+  design          ProductDesign         @relation(fields: [designId], references: [id])
+  sku             String?               @unique
   worksheets      ProductionWorksheet[]
   billOfMaterials BillOfMaterial[]
-  createdAt       DateTime      @default(now()) @map("created_at")
-  updatedAt       DateTime      @updatedAt @map("updated_at")
+  createdAt       DateTime              @default(now()) @map("created_at")
+  updatedAt       DateTime              @updatedAt @map("updated_at")
 
   @@map("products")
 }
@@ -292,21 +337,21 @@ model BillOfMaterial {
 // ═══════════════════════════════════════════════════════════════════
 
 model RawMaterial {
-  id              String                @id @default(uuid())
+  id              String                  @id @default(uuid())
   name            String
-  sku             String                @unique
-  category        String                @default("")
-  unit            String                @default("pcs")
-  totalStock      Float                 @default(0) @map("total_stock")
-  allocatedStock  Float                 @default(0) @map("allocated_stock")
-  availableStock  Float                 @default(0) @map("available_stock")
-  reorderLevel    Float                 @default(0) @map("reorder_level")
-  unitCost        Float                 @default(0) @map("unit_cost")
-  lastRestocked   DateTime?             @map("last_restocked")
+  sku             String                  @unique
+  category        String                  @default("")
+  unit            String                  @default("pcs")
+  totalStock      Float                   @default(0) @map("total_stock")
+  allocatedStock  Float                   @default(0) @map("allocated_stock")
+  availableStock  Float                   @default(0) @map("available_stock")
+  reorderLevel    Float                   @default(0) @map("reorder_level")
+  unitCost        Float                   @default(0) @map("unit_cost")
+  lastRestocked   DateTime?               @map("last_restocked")
   allocations     RawMaterialAllocation[]
   billOfMaterials BillOfMaterial[]
-  createdAt       DateTime              @default(now()) @map("created_at")
-  updatedAt       DateTime              @updatedAt @map("updated_at")
+  createdAt       DateTime                @default(now()) @map("created_at")
+  updatedAt       DateTime                @updatedAt @map("updated_at")
 
   @@map("raw_materials")
 }

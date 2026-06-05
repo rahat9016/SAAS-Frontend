@@ -6,6 +6,7 @@ import organizerReducer from "./features/organizer/organizationSlice";
 import permissionReducer from "./features/permission/permissionSlice";
 import plmReducer from "./features/plm/plmSlice";
 import plmRolesReducer from "./features/plm/plmRoleSlice";
+import rbacReducer from "./features/rbac/rbacSlice";
 import userReducer from "./features/user/userSlice";
 import wishlistReducer from "./features/wishlist/wishlistSlice";
 
@@ -21,6 +22,7 @@ export const makeStore = () => {
       wishlist: wishlistReducer,
       plm: plmReducer,
       plmRoles: plmRolesReducer,
+      rbac: rbacReducer,
     },
   });
 };
