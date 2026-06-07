@@ -5,22 +5,16 @@ import { useDelete } from "@/src/hooks/useDelete";
 import { useGet } from "@/src/hooks/useGet";
 import { usePagination } from "@/src/hooks/usePagination";
 import { useSearchDebounce } from "@/src/hooks/useSearchDebounce";
-import { useAppSelector } from "@/src/lib/redux/hooks";
-import { selectIsSuperAdmin } from "@/src/lib/redux/features/rbac/rbacSelectors";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import UsersTable from "../UsersTable";
-import CreateUpdateUser from "../Form/CreateUpdateUser";
-import UserPermissionsModal from "../Form/UserPermissionsModal";
-import { GetUserColumns } from "../TableColumns/UserColumns";
-import { RbacUser } from "../types";
+import RolesTable from "../RolesTable";
+import CreateUpdateRole from "../Form/CreateUpdateRole";
+import { GetRoleColumns } from "../TableColumns/RoleColumns";
+import { RbacRoleItem } from "../types";
 
-export default function UserList() {
-  const isSuperAdmin = useAppSelector(selectIsSuperAdmin);
-
+export default function RoleList() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<RbacUser | undefined>();
-  const [permUser, setPermUser] = useState<RbacUser | null>(null);
+  const [selectedItem, setSelectedItem] = useState<RbacRoleItem | undefined>();
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const {
@@ -33,9 +27,9 @@ export default function UserList() {
   } = usePagination();
   const { search, handleSearchChange, debouncedSearch } = useSearchDebounce(300);
 
-  const { data, isLoading } = useGet<RbacUser[]>(
-    "/api/branches/users",
-    ["rbac-users", currentPage.toString(), itemsPerPage.toString(), debouncedSearch],
+  const { data, isLoading } = useGet<RbacRoleItem[]>(
+    "/api/super-admin/roles",
+    ["rbac-roles", currentPage.toString(), itemsPerPage.toString(), debouncedSearch],
     {
       ...(itemsPerPage !== -1 && {
         page: currentPage.toString(),
@@ -46,27 +40,26 @@ export default function UserList() {
   );
 
   const { mutate: deleteMutate } = useDelete(() => {
-    toast.success("User deleted successfully!");
+    toast.success("Role deleted successfully!");
     setDeleteId(null);
-  }, [["rbac-users"]]);
+  }, [["rbac-roles"]]);
 
   useEffect(() => {
     if (data) setTotalItems(data.meta?.totalItems || 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
-  const columns = GetUserColumns(
+  const columns = GetRoleColumns(
     (item) => {
       setSelectedItem(item);
       setIsModalOpen(true);
     },
     (id) => setDeleteId(id),
-    (item) => setPermUser(item),
   );
 
   return (
     <div>
-      <UsersTable
+      <RolesTable
         columns={columns}
         data={data?.data || []}
         isLoading={isLoading}
@@ -79,30 +72,28 @@ export default function UserList() {
         showSearch
         handleSearchChange={handleSearchChange}
         showCreateButton
-        createTitle="Create User"
+        createTitle="Create Role"
         setIsModalOpen={() => {
           setSelectedItem(undefined);
           setIsModalOpen(true);
         }}
       />
-      <CreateUpdateUser
+      <CreateUpdateRole
         isOpen={isModalOpen}
         onClose={() => {
           setIsModalOpen(false);
           setSelectedItem(undefined);
         }}
         initialValues={selectedItem}
-        isSuperAdmin={isSuperAdmin}
       />
-      <UserPermissionsModal user={permUser} onClose={() => setPermUser(null)} />
       <DeleteConfirmDialog
         isOpen={!!deleteId}
         onClose={() => setDeleteId(null)}
         onConfirm={() => {
-          if (deleteId) deleteMutate({ url: `/api/branches/users/${deleteId}` });
+          if (deleteId) deleteMutate({ url: `/api/super-admin/roles/${deleteId}` });
         }}
-        title="Delete User"
-        description="This permanently removes the user account."
+        title="Delete Role"
+        description="Users with this role keep their account but lose the role label."
       />
     </div>
   );

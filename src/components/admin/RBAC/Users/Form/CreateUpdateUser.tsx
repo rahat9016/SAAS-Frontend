@@ -13,11 +13,14 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect, useMemo } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { mapToScope, scopeToMap } from "@/src/types/rbac/rbac";
-import type { SelectedGrants } from "../../shared/ResourcePermissionMatrix";
 import { makeUserSchema, UserFormValues } from "../Schema/userSchema";
 import { RbacBranch, RbacUser } from "../types";
 import UserForm from "./UserForm";
+
+interface RoleOption {
+  id: string;
+  name: string;
+}
 
 interface Props {
   isOpen: boolean;
@@ -35,9 +38,14 @@ export default function CreateUpdateUser({ isOpen, onClose, initialValues, isSup
     resolver: yupResolver(schema) as any,
     defaultValues: {
       firstName: "", lastName: "", email: "", password: "", phone: "",
-      role: "USER", branchId: "", gender: "", dateOfBirth: "", permissions: {},
+      roleId: "", branchId: "", gender: "", dateOfBirth: "",
     },
   });
+
+  const { data: roleData } = useGet<RoleOption[]>("/api/roles", ["roles-select"], undefined, {
+    enabled: isOpen,
+  });
+  const roleOptions = (roleData?.data ?? []).map((r) => ({ label: r.name, value: r.id }));
 
   const { data: branchData } = useGet<RbacBranch[]>(
     "/api/super-admin/branches",
@@ -58,11 +66,10 @@ export default function CreateUpdateUser({ isOpen, onClose, initialValues, isSup
         email: initialValues?.email ?? "",
         password: "",
         phone: initialValues?.phone ?? "",
-        role: initialValues?.role === "BRANCH_ADMIN" ? "BRANCH_ADMIN" : "USER",
+        roleId: initialValues?.role?.id ?? "",
         branchId: initialValues?.branchId ?? "",
         gender: initialValues?.gender ?? "",
         dateOfBirth: initialValues?.dateOfBirth?.slice(0, 10) ?? "",
-        permissions: initialValues ? scopeToMap(initialValues.permissions) : {},
       });
     }
   }, [isOpen, initialValues, methods]);
@@ -87,15 +94,13 @@ export default function CreateUpdateUser({ isOpen, onClose, initialValues, isSup
   const isPending = isCreating || isUpdating;
 
   const onSubmit = (values: UserFormValues) => {
-    const permissions = mapToScope((values.permissions ?? {}) as SelectedGrants);
     const base = {
       firstName: values.firstName,
       lastName: values.lastName,
       phone: values.phone,
-      role: values.role,
+      roleId: values.roleId || undefined,
       gender: values.gender || undefined,
       dateOfBirth: values.dateOfBirth || undefined,
-      permissions,
       ...(isSuperAdmin ? { branchId: values.branchId || undefined } : {}),
     };
     if (isUpdate && initialValues) {
@@ -120,6 +125,7 @@ export default function CreateUpdateUser({ isOpen, onClose, initialValues, isSup
           <UserForm
             isEditMode={isUpdate}
             isSuperAdmin={isSuperAdmin}
+            roleOptions={roleOptions}
             branchOptions={branchOptions}
             onSubmit={onSubmit}
             onCancel={onClose}

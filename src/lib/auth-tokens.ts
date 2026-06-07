@@ -24,7 +24,8 @@ export interface JwtPayload {
   sub: string;
   email: string;
   name: string;
-  role: string; // Roles enum
+  isSuperAdmin: boolean;
+  roleName: string | null;
   branchId: string | null;
 }
 
@@ -52,7 +53,7 @@ export async function getAuthUser(request: Request) {
 
   const user = await prisma.user.findUnique({
     where: { id: decoded.sub },
-    include: { branch: true },
+    include: { branch: true, role: true },
   });
   if (!user) return null;
 
@@ -64,7 +65,8 @@ export async function getAuthUser(request: Request) {
     email: user.email,
     phone: user.phone,
     profilePicture: user.profilePicture,
-    role: user.role,
+    isSuperAdmin: user.role?.isSuperAdmin ?? false,
+    roleName: user.role?.name ?? null,
     status: user.status,
     branchId: user.branchId,
     branchCode: user.branch?.code || null,

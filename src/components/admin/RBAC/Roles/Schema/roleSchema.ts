@@ -1,14 +1,13 @@
 import * as Yup from "yup";
 
-export const actionSchema = Yup.object({
-  key: Yup.string()
-    .required("Key is required")
+export const roleSchema = Yup.object({
+  name: Yup.string()
+    .required("Role name is required")
     .transform((v) => (typeof v === "string" ? v.toUpperCase() : v))
     .matches(
       /^[A-Z][A-Z0-9_]*$/,
       "UPPERCASE letters, numbers, underscore; must start with a letter",
     ),
-  label: Yup.string().required("Label is required"),
 });
 
-export type ActionFormValues = Yup.InferType<typeof actionSchema>;
+export type RoleFormValues = Yup.InferType<typeof roleSchema>;

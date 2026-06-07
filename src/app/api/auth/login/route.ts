@@ -14,7 +14,10 @@ export async function POST(request: Request) {
       return fail("Email and password are required", 400);
     }
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findUnique({
+      where: { email },
+      include: { role: true },
+    });
     if (!user) return fail("Invalid credentials", 401);
     if (user.status !== "ACTIVE") return fail("Account is inactive", 403);
 
@@ -27,11 +30,13 @@ export async function POST(request: Request) {
     });
 
     const name = [user.firstName, user.lastName].filter(Boolean).join(" ");
+    const isSuperAdmin = user.role?.isSuperAdmin ?? false;
     const { accessToken, refreshToken } = signTokens({
       sub: user.id,
       email: user.email,
       name,
-      role: user.role,
+      isSuperAdmin,
+      roleName: user.role?.name ?? null,
       branchId: user.branchId,
     });
 
@@ -45,7 +50,8 @@ export async function POST(request: Request) {
           lastName: user.lastName,
           email: user.email,
           profilePicture: user.profilePicture,
-          role: user.role,
+          isSuperAdmin,
+          role: user.role?.name ?? null,
           branchId: user.branchId,
         },
       },

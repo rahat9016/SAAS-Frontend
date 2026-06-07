@@ -10,7 +10,7 @@ export async function GET(
 
     const user = await prisma.user.findUnique({
       where: { id },
-      include: { branch: true },
+      include: { branch: true, role: true },
     });
 
     if (!user) {
@@ -26,7 +26,8 @@ export async function GET(
       profilePicture: user.profilePicture || null,
       isVerified: user.isVerified,
       status: user.status,
-      role: user.role,
+      role: user.role?.name ?? null,
+      isSuperAdmin: user.role?.isSuperAdmin ?? false,
       branchId: user.branchId,
       branchCode: user.branch?.code || null,
     };

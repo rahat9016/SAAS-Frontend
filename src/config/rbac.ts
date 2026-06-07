@@ -6,13 +6,13 @@
 export type Action = string;
 
 // Default action keys seeded into the `actions` table on first run.
-// Kept here only as the seed source + delete-protection list.
+// Kept here only as the seed source + delete-protection list. UPPERCASE.
 export const BUILT_IN_ACTIONS = [
-  "create",
-  "read",
-  "update",
-  "delete",
-  "export",
+  "CREATE",
+  "READ",
+  "UPDATE",
+  "DELETE",
+  "EXPORT",
 ] as const;
 
 // Resources = protected routes/modules. UI button visibility and API

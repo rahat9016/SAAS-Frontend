@@ -12,59 +12,54 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { ActionFormValues, actionSchema } from "../Schema/actionSchema";
-import { IActionItem } from "../types";
-import ActionForm from "./ActionForm";
+import { roleSchema, RoleFormValues } from "../Schema/roleSchema";
+import { RbacRoleItem } from "../types";
+import RoleForm from "./RoleForm";
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  initialValues?: IActionItem;
+  initialValues?: RbacRoleItem;
 }
 
-export default function CreateUpdateAction({ isOpen, onClose, initialValues }: Props) {
+export default function CreateUpdateRole({ isOpen, onClose, initialValues }: Props) {
   const isUpdate = !!initialValues;
 
-  const methods = useForm<ActionFormValues>({
+  const methods = useForm<RoleFormValues>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    resolver: yupResolver(actionSchema) as any,
-    defaultValues: { key: "", label: "" },
+    resolver: yupResolver(roleSchema) as any,
+    defaultValues: { name: "" },
   });
 
   useEffect(() => {
-    methods.reset({
-      key: initialValues?.key || "",
-      label: initialValues?.label || "",
-    });
+    methods.reset({ name: initialValues?.name ?? "" });
   }, [isOpen, initialValues, methods]);
 
   const { mutate: createMutate, isPending: isCreating, error } = usePost(
-    "/api/super-admin/actions",
+    "/api/super-admin/roles",
     () => {
-      toast.success("Action created successfully!");
+      toast.success("Role created successfully!");
       onClose();
     },
-    [["actions"], ["actions-catalog"]],
+    [["rbac-roles"]],
   );
 
   const { mutate: updateMutate, isPending: isUpdating, error: updateError } = usePatch(
     () => {
-      toast.success("Action updated successfully!");
+      toast.success("Role updated successfully!");
       onClose();
     },
-    [["actions"], ["actions-catalog"]],
+    [["rbac-roles"]],
   );
 
   const isPending = isCreating || isUpdating;
 
-  const onSubmit = (values: ActionFormValues) => {
+  const onSubmit = (values: RoleFormValues) => {
+    const data = { name: values.name.toUpperCase() };
     if (isUpdate && initialValues) {
-      updateMutate({
-        url: `/api/super-admin/actions/${initialValues.id}`,
-        data: { label: values.label },
-      });
+      updateMutate({ url: `/api/super-admin/roles/${initialValues.id}`, data });
     } else {
-      createMutate({ data: { key: values.key.toUpperCase(), label: values.label } });
+      createMutate({ data });
     }
   };
 
@@ -73,11 +68,11 @@ export default function CreateUpdateAction({ isOpen, onClose, initialValues }: P
       <DialogContent className="bg-white sm:max-w-125">
         <DialogHeader>
           <DialogTitle className="text-secondary text-xl font-semibold">
-            {isUpdate ? "Update" : "Create"} Action
+            {isUpdate ? "Update" : "Create"} Role
           </DialogTitle>
         </DialogHeader>
         <FormProvider {...methods}>
-          <ActionForm
+          <RoleForm
             isEditMode={isUpdate}
             onSubmit={onSubmit}
             onCancel={onClose}

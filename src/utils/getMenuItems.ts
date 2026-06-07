@@ -93,6 +93,7 @@ export function getMenuItems(): MenuItem[] {
       icon: ShieldCheck,
       children: [
         { label: "Branches", href: "/admin/rbac/branches", resource: "branches" },
+        { label: "Roles", href: "/admin/rbac/roles", resource: "roles" },
         { label: "Actions", href: "/admin/rbac/actions", resource: "actions" },
         { label: "Users", href: "/admin/rbac/users", resource: "users" },
       ],

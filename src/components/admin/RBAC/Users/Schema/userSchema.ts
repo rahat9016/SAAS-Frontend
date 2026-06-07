@@ -1,5 +1,4 @@
 import * as Yup from "yup";
-import type { SelectedGrants } from "../../shared/ResourcePermissionMatrix";
 
 export const makeUserSchema = (isEdit: boolean) =>
   Yup.object({
@@ -10,12 +9,10 @@ export const makeUserSchema = (isEdit: boolean) =>
       ? Yup.string().default("")
       : Yup.string().required("Password is required").min(6, "Min 6 characters"),
     phone: Yup.string().default(""),
-    role: Yup.string().oneOf(["BRANCH_ADMIN", "USER"]).default("USER"),
+    roleId: Yup.string().default(""),
     branchId: Yup.string().default(""),
     gender: Yup.string().default(""),
     dateOfBirth: Yup.string().default(""),
-    // Per-user route+action permissions; held in the form, not validated.
-    permissions: Yup.mixed<SelectedGrants>().default({}),
   });
 
 export type UserFormValues = {
@@ -24,9 +21,8 @@ export type UserFormValues = {
   email: string;
   password: string;
   phone: string;
-  role: string;
+  roleId: string;
   branchId: string;
   gender: string;
   dateOfBirth: string;
-  permissions: SelectedGrants;
 };

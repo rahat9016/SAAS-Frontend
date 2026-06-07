@@ -1,11 +1,10 @@
 // /api/branches/users
 //   GET  → paginated list of users (branch-scoped for non-super-admin)
-//   POST → create a user, map to a branch, and assign per-user permissions
-//          (resource + actions) — the super admin decides routes/actions.
+//   POST → create a user, mapped to a branch + role. NO permissions here —
+//          permissions are assigned separately (PUT .../[id]/permissions).
 // Guard: super admin, or a user with access to the "users" resource.
 
 import bcryptjs from "bcryptjs";
-import { Roles } from "@prisma/client";
 import { prisma } from "@/src/lib/prisma";
 import {
   requireManage,
@@ -14,12 +13,7 @@ import {
   rbacPaginated,
   getListParams,
   resolveTargetBranchId,
-  validateGrants,
-  getActionKeys,
-  type GrantInput,
 } from "@/src/lib/rbac";
-
-const ASSIGNABLE_ROLES: Roles[] = [Roles.BRANCH_ADMIN, Roles.USER];
 
 export async function GET(request: Request) {
   try {
@@ -57,9 +51,9 @@ export async function GET(request: Request) {
           lastName: true,
           email: true,
           phone: true,
-          role: true,
           status: true,
           branchId: true,
+          role: { select: { id: true, name: true, isSuperAdmin: true } },
           branch: { select: { id: true, code: true } },
           permissions: { select: { resource: true, actions: true } },
           createdAt: true,
@@ -82,21 +76,22 @@ export async function POST(request: Request) {
     if (errorResponse) return errorResponse;
 
     const body = await request.json();
-    const { firstName, lastName, email, password, phone, gender, dateOfBirth } = body;
-    const role: Roles = ASSIGNABLE_ROLES.includes(body.role) ? body.role : Roles.USER;
-    const requested: GrantInput[] = body.permissions ?? [];
+    const { firstName, lastName, email, password, phone, gender, dateOfBirth, roleId } = body;
 
     if (!firstName || !email || !password) {
       return rbacError("firstName, email and password are required", 400);
     }
 
+    // Don't allow assigning the super-admin role through this endpoint.
+    if (roleId) {
+      const role = await prisma.role.findUnique({ where: { id: roleId } });
+      if (!role) return rbacError("Role not found", 404);
+      if (role.isSuperAdmin) return rbacError("Cannot assign the SUPER_ADMIN role", 403);
+    }
+
     const branchId = resolveTargetBranchId(admin, body.branchId);
-
-    const actionKeys = await getActionKeys();
-    const { grants, error } = validateGrants(requested, actionKeys);
-    if (error) return rbacError(error, 400);
-
     const hashed = await bcryptjs.hash(password, 10);
+
     const user = await prisma.user.create({
       data: {
         firstName,
@@ -104,13 +99,12 @@ export async function POST(request: Request) {
         email,
         phone: phone || null,
         password: hashed,
-        role,
+        roleId: roleId || null,
         gender: gender || null,
         dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
         branchId: branchId ?? null,
-        permissions: { create: grants },
       },
-      select: { id: true, firstName: true, email: true, role: true, branchId: true },
+      select: { id: true, firstName: true, email: true, roleId: true, branchId: true },
     });
 
     return rbacSuccess(user, 201);

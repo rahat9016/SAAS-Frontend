@@ -1,30 +1,20 @@
 // /api/branches/users/[id]
-//   GET    → one user (with permissions)
-//   PATCH  → update fields / role / status / branch / password + replace permissions
+//   GET    → one user (with role + branch)
+//   PATCH  → update profile / role / branch / status / password (NOT permissions)
 //   DELETE → remove user
 // Guard: super admin, or a user with access to the "users" resource.
 // Non-super-admin is restricted to users in their own branch.
 
 import bcryptjs from "bcryptjs";
-import { Roles } from "@prisma/client";
 import { prisma } from "@/src/lib/prisma";
-import {
-  requireManage,
-  rbacError,
-  rbacSuccess,
-  validateGrants,
-  getActionKeys,
-  type RbacUser,
-  type GrantInput,
-} from "@/src/lib/rbac";
+import { requireManage, rbacError, rbacSuccess, type RbacUser } from "@/src/lib/rbac";
 
 type Ctx = { params: Promise<{ id: string }> };
-const ASSIGNABLE_ROLES: Roles[] = [Roles.BRANCH_ADMIN, Roles.USER];
 
 async function loadUser(admin: RbacUser, id: string) {
-  const user = await prisma.user.findUnique({ where: { id } });
+  const user = await prisma.user.findUnique({ where: { id }, include: { role: true } });
   if (!user) return { user: null, error: rbacError("User not found", 404) };
-  if (admin.role !== Roles.SUPER_ADMIN && user.branchId !== admin.branchId) {
+  if (!admin.isSuperAdmin && user.branchId !== admin.branchId) {
     return { user: null, error: rbacError("Access denied: user in another branch", 403) };
   }
   return { user, error: null as null };
@@ -42,7 +32,8 @@ export async function GET(request: Request, { params }: Ctx) {
       where: { id },
       select: {
         id: true, firstName: true, lastName: true, email: true, phone: true,
-        gender: true, dateOfBirth: true, role: true, status: true, branchId: true,
+        gender: true, dateOfBirth: true, status: true, branchId: true,
+        role: { select: { id: true, name: true, isSuperAdmin: true } },
         permissions: { select: { resource: true, actions: true } },
       },
     });
@@ -63,48 +54,35 @@ export async function PATCH(request: Request, { params }: Ctx) {
 
     const body = await request.json();
     const { firstName, lastName, phone, gender, dateOfBirth, password, status } = body;
-    const requested: GrantInput[] | undefined = body.permissions;
-
-    let grants: GrantInput[] | null = null;
-    if (requested) {
-      const res = validateGrants(requested, await getActionKeys());
-      if (res.error) return rbacError(res.error, 400);
-      grants = res.grants;
-    }
 
     // Super admin may move branch / change role; others cannot.
-    const branchId = admin.role === Roles.SUPER_ADMIN ? body.branchId : undefined;
-    const role =
-      admin.role === Roles.SUPER_ADMIN && ASSIGNABLE_ROLES.includes(body.role)
-        ? body.role
-        : undefined;
-
-    const updated = await prisma.$transaction(async (tx) => {
-      if (grants) {
-        await tx.userPermission.deleteMany({ where: { userId: id } });
-        if (grants.length) {
-          await tx.userPermission.createMany({
-            data: grants.map((g) => ({ userId: id, ...g })),
-          });
-        }
+    const branchId = admin.isSuperAdmin ? body.branchId : undefined;
+    let roleId: string | undefined;
+    if (admin.isSuperAdmin && body.roleId !== undefined) {
+      if (body.roleId) {
+        const role = await prisma.role.findUnique({ where: { id: body.roleId } });
+        if (!role) return rbacError("Role not found", 404);
+        if (role.isSuperAdmin) return rbacError("Cannot assign the SUPER_ADMIN role", 403);
       }
-      return tx.user.update({
-        where: { id },
-        data: {
-          ...(firstName !== undefined ? { firstName } : {}),
-          ...(lastName !== undefined ? { lastName: lastName || null } : {}),
-          ...(phone !== undefined ? { phone: phone || null } : {}),
-          ...(gender !== undefined ? { gender: gender || null } : {}),
-          ...(dateOfBirth !== undefined
-            ? { dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null }
-            : {}),
-          ...(status === "ACTIVE" || status === "INACTIVE" ? { status } : {}),
-          ...(password ? { password: await bcryptjs.hash(password, 10) } : {}),
-          ...(branchId !== undefined ? { branchId: branchId || null } : {}),
-          ...(role ? { role } : {}),
-        },
-        select: { id: true, firstName: true, email: true, role: true, branchId: true },
-      });
+      roleId = body.roleId || null;
+    }
+
+    const updated = await prisma.user.update({
+      where: { id },
+      data: {
+        ...(firstName !== undefined ? { firstName } : {}),
+        ...(lastName !== undefined ? { lastName: lastName || null } : {}),
+        ...(phone !== undefined ? { phone: phone || null } : {}),
+        ...(gender !== undefined ? { gender: gender || null } : {}),
+        ...(dateOfBirth !== undefined
+          ? { dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null }
+          : {}),
+        ...(status === "ACTIVE" || status === "INACTIVE" ? { status } : {}),
+        ...(password ? { password: await bcryptjs.hash(password, 10) } : {}),
+        ...(branchId !== undefined ? { branchId: branchId || null } : {}),
+        ...(roleId !== undefined ? { roleId } : {}),
+      },
+      select: { id: true, firstName: true, email: true, roleId: true, branchId: true },
     });
 
     return rbacSuccess(updated);

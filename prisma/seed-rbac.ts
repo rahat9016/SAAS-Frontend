@@ -2,13 +2,14 @@
 // Run with:  npx ts-node prisma/seed-rbac.ts
 //
 // Model:
-//   - role SUPER_ADMIN bypasses everything.
-//   - branch admins / users are mapped to a branch and given per-user
-//     route+action permissions (UserPermission).
+//   - Roles are dynamic labels; only SUPER_ADMIN is built-in/constant.
+//   - role.isSuperAdmin bypasses everything.
+//   - users are mapped to a branch + role; route+action permissions are
+//     assigned PER USER (UserPermission). Action keys are UPPERCASE.
 // All passwords: "password123".
 
 import "dotenv/config";
-import { PrismaClient, Roles, Status } from "@prisma/client";
+import { PrismaClient, Status } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import pg from "pg";
 import bcryptjs from "bcryptjs";
@@ -17,25 +18,27 @@ const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
-const BUILT_IN_ACTIONS = ["create", "read", "update", "delete", "export"];
-const ALL = ["create", "read", "update", "delete", "export"];
-const MANAGE = ["create", "read", "update", "delete"];
+const BUILT_IN_ACTIONS = ["CREATE", "READ", "UPDATE", "DELETE", "EXPORT"];
+const ALL = ["CREATE", "READ", "UPDATE", "DELETE", "EXPORT"];
+const MANAGE = ["CREATE", "READ", "UPDATE", "DELETE"];
 
 async function main() {
   console.log("🌱 Seeding Branch RBAC...");
   const pw = await bcryptjs.hash("password123", 10);
 
-  // Dynamic actions
-  const LABELS: Record<string, string> = {
-    create: "Create", read: "Read", update: "Update", delete: "Delete", export: "Export",
-  };
+  // Dynamic actions (UPPERCASE)
   for (const key of BUILT_IN_ACTIONS) {
     await prisma.action.upsert({
       where: { key },
       update: {},
-      create: { key, label: LABELS[key] ?? key, isBuiltIn: true },
+      create: { key, label: key.charAt(0) + key.slice(1).toLowerCase(), isBuiltIn: true },
     });
   }
+
+  // Roles (only SUPER_ADMIN is built-in)
+  const superRole = await upsertRole("SUPER_ADMIN", { isSuperAdmin: true, isBuiltIn: true });
+  const branchAdminRole = await upsertRole("BRANCH_ADMIN", {});
+  const staffRole = await upsertRole("STAFF", {});
 
   // Branches
   const branchA = await prisma.branch.upsert({
@@ -51,12 +54,12 @@ async function main() {
 
   // Super admin
   await upsertUser("superadmin@demo.com", {
-    firstName: "Super", lastName: "Admin", password: pw, role: Roles.SUPER_ADMIN,
+    firstName: "Super", lastName: "Admin", password: pw, roleId: superRole.id,
   }, []);
 
-  // Branch A admin — manages users + full orders in branch A
+  // Branch A admin — manage users + full orders
   await upsertUser("admin.a@demo.com", {
-    firstName: "Branch A", lastName: "Admin", password: pw, role: Roles.BRANCH_ADMIN, branchId: branchA.id,
+    firstName: "Branch A", lastName: "Admin", password: pw, roleId: branchAdminRole.id, branchId: branchA.id,
   }, [
     { resource: "users", actions: MANAGE },
     { resource: "orders", actions: ALL },
@@ -64,42 +67,47 @@ async function main() {
 
   // Branch A staff — read-only orders
   await upsertUser("staff.a@demo.com", {
-    firstName: "Branch A", lastName: "Staff", password: pw, role: Roles.USER, branchId: branchA.id,
+    firstName: "Branch A", lastName: "Staff", password: pw, roleId: staffRole.id, branchId: branchA.id,
   }, [
-    { resource: "orders", actions: ["read"] },
+    { resource: "orders", actions: ["READ"] },
   ]);
 
-  // Branch B admin — read orders, read users (isolated)
+  // Branch B admin — read orders/users (isolated)
   await upsertUser("admin.b@demo.com", {
-    firstName: "Branch B", lastName: "Admin", password: pw, role: Roles.BRANCH_ADMIN, branchId: branchB.id,
+    firstName: "Branch B", lastName: "Admin", password: pw, roleId: branchAdminRole.id, branchId: branchB.id,
   }, [
-    { resource: "users", actions: ["read"] },
-    { resource: "orders", actions: ["read"] },
+    { resource: "users", actions: ["READ"] },
+    { resource: "orders", actions: ["READ"] },
   ]);
 
-  console.log("✅ RBAC seed complete (5 actions, 2 branches, 4 users).");
+  console.log("✅ RBAC seed complete (5 actions, 3 roles, 2 branches, 4 users).");
+}
+
+async function upsertRole(
+  name: string,
+  opts: { isSuperAdmin?: boolean; isBuiltIn?: boolean },
+) {
+  return prisma.role.upsert({
+    where: { name },
+    update: { isSuperAdmin: opts.isSuperAdmin ?? false, isBuiltIn: opts.isBuiltIn ?? false },
+    create: { name, isSuperAdmin: opts.isSuperAdmin ?? false, isBuiltIn: opts.isBuiltIn ?? false },
+  });
 }
 
 async function upsertUser(
   email: string,
-  data: {
-    firstName: string;
-    lastName?: string;
-    password: string;
-    role: Roles;
-    branchId?: string;
-  },
+  data: { firstName: string; lastName?: string; password: string; roleId?: string; branchId?: string },
   permissions: { resource: string; actions: string[] }[],
 ) {
   const user = await prisma.user.upsert({
     where: { email },
-    update: { role: data.role, branchId: data.branchId ?? null },
+    update: { roleId: data.roleId ?? null, branchId: data.branchId ?? null },
     create: {
       email,
       firstName: data.firstName,
       lastName: data.lastName ?? null,
       password: data.password,
-      role: data.role,
+      roleId: data.roleId ?? null,
       branchId: data.branchId ?? null,
     },
   });

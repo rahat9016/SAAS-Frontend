@@ -34,7 +34,7 @@ export async function GET(request: Request) {
     }).filter((entry) => entry.actions.length > 0);
 
     return rbacSuccess({
-      user: { id: user.id, role: user.role, branchId: user.branchId },
+      user: { id: user.id, isSuperAdmin: user.isSuperAdmin, roleName: user.roleName, branchId: user.branchId },
       access,
     });
   } catch (e) {

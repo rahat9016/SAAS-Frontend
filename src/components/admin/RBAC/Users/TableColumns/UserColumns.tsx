@@ -2,12 +2,13 @@ import StatusBadge from "@/src/components/shared/Status/Status";
 import { Button } from "@/src/components/ui/button";
 import { ColumnDef } from "@/src/components/ui/data-table";
 import { StatusType } from "@/src/types/common/common";
-import { Pencil, Trash2 } from "lucide-react";
+import { KeyRound, Pencil, Trash2 } from "lucide-react";
 import { RbacUser } from "../types";
 
 export const GetUserColumns = (
   onEdit?: (item: RbacUser) => void,
   onDelete?: (id: string) => void,
+  onPermissions?: (item: RbacUser) => void,
 ): ColumnDef<RbacUser>[] => {
   return [
     {
@@ -26,11 +27,14 @@ export const GetUserColumns = (
     {
       header: "Role",
       accessorKey: "role",
-      cell: (value) => (
-        <span className="text-[10px] font-bold bg-primary/10 text-primary px-2 py-0.5 rounded-full">
-          {String(value)}
-        </span>
-      ),
+      cell: (_value, row) => {
+        const u = row as RbacUser;
+        return (
+          <span className="text-[10px] font-bold bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+            {u.role?.name ?? "—"}
+          </span>
+        );
+      },
     },
     {
       header: "Branch",
@@ -47,7 +51,7 @@ export const GetUserColumns = (
         const u = row as RbacUser;
         return (
           <span className="text-sm text-secondary-gary">
-            {u.role === "SUPER_ADMIN" ? "All" : `${u.permissions?.length ?? 0} res`}
+            {u.role?.isSuperAdmin ? "All" : `${u.permissions?.length ?? 0} res`}
           </span>
         );
       },
@@ -68,8 +72,19 @@ export const GetUserColumns = (
       accessorKey: "actions",
       cell: (_value, row) => {
         const item = row as RbacUser;
+        const isSuper = item.role?.isSuperAdmin;
         return (
           <div className="flex items-center gap-2">
+            {!isSuper && (
+              <Button
+                className="w-9! min-h-9 border border-blue-200 flex items-center justify-center rounded-lg bg-blue-50 hover:bg-blue-100"
+                size="sm"
+                title="Permissions"
+                onClick={() => onPermissions?.(item)}
+              >
+                <KeyRound className="h-4 w-4 text-blue-500" />
+              </Button>
+            )}
             <Button
               className="w-9! min-h-9 border border-[#E6E6E6] flex items-center justify-center rounded-lg bg-light hover:bg-light"
               size="sm"

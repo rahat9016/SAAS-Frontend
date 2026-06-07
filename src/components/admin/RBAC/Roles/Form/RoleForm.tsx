@@ -5,9 +5,9 @@ import SubmitButton from "@/src/components/shared/SubmitButton";
 import { Button } from "@/src/components/ui/button";
 import { ErrorType } from "@/src/types/common/common";
 import { useFormContext } from "react-hook-form";
-import { ActionFormValues } from "../Schema/actionSchema";
+import { RoleFormValues } from "../Schema/roleSchema";
 
-export default function ActionForm({
+export default function RoleForm({
   isEditMode = false,
   onSubmit,
   onCancel,
@@ -15,40 +15,21 @@ export default function ActionForm({
   error,
 }: {
   isEditMode?: boolean;
-  onSubmit: (data: ActionFormValues) => void;
+  onSubmit: (data: RoleFormValues) => void;
   onCancel: () => void;
   isPending?: boolean;
   error?: ErrorType;
 }) {
-  const { handleSubmit, getValues } = useFormContext<ActionFormValues>();
+  const { handleSubmit } = useFormContext<RoleFormValues>();
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-5 mt-2">
       <div>
-        <InputLabel label="Key" required />
-        {isEditMode ? (
-          <>
-            <code className="block bg-light px-3 py-2 rounded-md text-sm text-secondary-foreground">
-              {getValues("key")}
-            </code>
-            <p className="text-xs text-gray-400 mt-1">Key cannot be changed.</p>
-          </>
-        ) : (
-          <ControlledInputField
-            className="bg-light"
-            name="key"
-            placeholder="e.g. APPROVE"
-          />
-        )}
-      </div>
-
-      <div>
-        <InputLabel label="Label" required />
-        <ControlledInputField
-          className="bg-light"
-          name="label"
-          placeholder="e.g. Approve"
-        />
+        <InputLabel label="Role Name (UPPERCASE)" required />
+        <ControlledInputField className="bg-light" name="name" placeholder="e.g. BRANCH_ADMIN" />
+        <p className="text-xs text-gray-400 mt-1">
+          A label/tier; route + action permissions are assigned per user.
+        </p>
       </div>
 
       <ErrorMessage error={error} />

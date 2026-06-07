@@ -13,14 +13,18 @@ export async function POST(request: Request) {
     const decoded = verifyToken(refreshToken);
     if (!decoded) return fail("Invalid or expired refresh token", 401);
 
-    const user = await prisma.user.findUnique({ where: { id: decoded.sub } });
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.sub },
+      include: { role: true },
+    });
     if (!user) return fail("User no longer exists", 401);
 
     const tokens = signTokens({
       sub: user.id,
       email: user.email,
       name: [user.firstName, user.lastName].filter(Boolean).join(" "),
-      role: user.role,
+      isSuperAdmin: user.role?.isSuperAdmin ?? false,
+      roleName: user.role?.name ?? null,
       branchId: user.branchId,
     });
 

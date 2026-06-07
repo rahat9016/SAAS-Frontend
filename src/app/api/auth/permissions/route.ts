@@ -20,7 +20,8 @@ export async function GET(request: Request) {
     return Response.json({
       user: {
         id: user.id,
-        role: user.role,
+        isSuperAdmin: user.isSuperAdmin,
+        roleName: user.roleName,
         branchId: user.branchId,
       },
       permissions,

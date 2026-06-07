@@ -1,12 +1,22 @@
 import type { Action } from "@/src/config/rbac";
 
 export type RbacStatus = "ACTIVE" | "INACTIVE";
-export type RbacRole = "SUPER_ADMIN" | "BRANCH_ADMIN" | "USER";
 
 export interface RbacScopeEntry {
   id?: string;
   resource: string;
   actions: Action[];
+}
+
+/** Dynamic role (label/tier). Only SUPER_ADMIN is built-in/constant. */
+export interface RbacRoleItem {
+  id: string;
+  name: string;
+  isSuperAdmin: boolean;
+  isBuiltIn: boolean;
+  _count?: { users: number };
+  createdAt: string;
+  actions?: string;
 }
 
 export interface RbacBranch {
@@ -29,7 +39,7 @@ export interface RbacUser {
   lastName: string | null;
   email: string;
   phone: string | null;
-  role: RbacRole;
+  role: { id: string; name: string; isSuperAdmin: boolean } | null;
   status: RbacStatus;
   gender?: string | null;
   dateOfBirth?: string | null;

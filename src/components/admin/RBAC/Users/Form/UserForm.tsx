@@ -5,16 +5,9 @@ import InputLabel from "@/src/components/shared/InputLabel";
 import SubmitButton from "@/src/components/shared/SubmitButton";
 import { Button } from "@/src/components/ui/button";
 import { ErrorType } from "@/src/types/common/common";
-import { useFormContext, useWatch } from "react-hook-form";
-import ResourcePermissionMatrix, {
-  type SelectedGrants,
-} from "../../shared/ResourcePermissionMatrix";
+import { useFormContext } from "react-hook-form";
 import { UserFormValues } from "../Schema/userSchema";
 
-const ROLE_OPTIONS = [
-  { label: "Branch Admin", value: "BRANCH_ADMIN" },
-  { label: "User", value: "USER" },
-];
 const GENDER_OPTIONS = [
   { label: "Male", value: "MALE" },
   { label: "Female", value: "FEMALE" },
@@ -24,6 +17,7 @@ const GENDER_OPTIONS = [
 export default function UserForm({
   isEditMode = false,
   isSuperAdmin,
+  roleOptions,
   branchOptions,
   onSubmit,
   onCancel,
@@ -32,14 +26,14 @@ export default function UserForm({
 }: {
   isEditMode?: boolean;
   isSuperAdmin: boolean;
+  roleOptions: { label: string; value: string }[];
   branchOptions: { label: string; value: string }[];
   onSubmit: (data: UserFormValues) => void;
   onCancel: () => void;
   isPending?: boolean;
   error?: ErrorType;
 }) {
-  const { handleSubmit, control, setValue, getValues } = useFormContext<UserFormValues>();
-  const grants = (useWatch({ control, name: "permissions" }) ?? {}) as SelectedGrants;
+  const { handleSubmit, getValues } = useFormContext<UserFormValues>();
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-5 mt-2">
@@ -62,12 +56,7 @@ export default function UserForm({
               {getValues("email")}
             </div>
           ) : (
-            <ControlledInputField
-              className="bg-light"
-              name="email"
-              type="email"
-              placeholder="user@company.com"
-            />
+            <ControlledInputField className="bg-light" name="email" type="email" placeholder="user@company.com" />
           )}
         </div>
         <div>
@@ -83,7 +72,7 @@ export default function UserForm({
         </div>
         <div>
           <InputLabel label="Role" />
-          <ControlledSelectField name="role" options={ROLE_OPTIONS} placeholder="Select role" />
+          <ControlledSelectField name="roleId" options={roleOptions} placeholder="Select role" />
         </div>
       </div>
 
@@ -100,16 +89,9 @@ export default function UserForm({
         </div>
       </div>
 
-      <div>
-        <InputLabel label="Permissions (routes & actions)" />
-        <p className="text-xs text-gray-400 mb-2 -mt-1">
-          Decide which routes this user can access and which actions they can perform.
-        </p>
-        <ResourcePermissionMatrix
-          selected={grants}
-          onChange={(next) => setValue("permissions", next)}
-        />
-      </div>
+      <p className="text-xs text-gray-400">
+        Permissions (routes &amp; actions) are assigned separately from the user list.
+      </p>
 
       <ErrorMessage error={error} />
 

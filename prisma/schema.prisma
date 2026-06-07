@@ -13,12 +13,6 @@ datasource db {
   provider = "postgresql"
 }
 
-enum Roles {
-  SUPER_ADMIN
-  BRANCH_ADMIN
-  USER
-}
-
 enum Status {
   ACTIVE
   INACTIVE
@@ -65,7 +59,8 @@ model User {
   isVerified     Boolean          @default(true) @map("is_verified")
   lastLogin      DateTime?        @map("last_login")
   status         Status           @default(ACTIVE)
-  role           Roles            @default(USER)
+  roleId         String?          @map("role_id")
+  role           Role?            @relation(fields: [roleId], references: [id], onDelete: SetNull)
   gender         Gender?
   dateOfBirth    DateTime?        @map("date_of_birth")
   branchId       String?          @map("branch_id")
@@ -78,6 +73,23 @@ model User {
   @@index([email, status])
   @@index([firstName, lastName])
   @@map("users")
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// Role (dynamic label/tier) — only SUPER_ADMIN is constant/built-in.
+// Permissions are NOT on the role; they are assigned per-user below.
+// ═══════════════════════════════════════════════════════════════════
+
+model Role {
+  id           String   @id @default(uuid())
+  name         String   @unique @db.VarChar(50)
+  isSuperAdmin Boolean  @default(false) @map("is_super_admin")
+  isBuiltIn    Boolean  @default(false) @map("is_built_in")
+  users        User[]
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("roles")
 }
 
 // ═══════════════════════════════════════════════════════════════════
