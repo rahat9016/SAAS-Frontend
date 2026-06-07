@@ -11,7 +11,6 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import UsersTable from "../UsersTable";
 import CreateUpdateUser from "../Form/CreateUpdateUser";
-import UserPermissionsModal from "../Form/UserPermissionsModal";
 import { GetUserColumns } from "../TableColumns/UserColumns";
 import { RbacUser } from "../types";
 
@@ -20,7 +19,6 @@ export default function UserList() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<RbacUser | undefined>();
-  const [permUser, setPermUser] = useState<RbacUser | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const {
@@ -61,7 +59,6 @@ export default function UserList() {
       setIsModalOpen(true);
     },
     (id) => setDeleteId(id),
-    (item) => setPermUser(item),
   );
 
   return (
@@ -94,7 +91,6 @@ export default function UserList() {
         initialValues={selectedItem}
         isSuperAdmin={isSuperAdmin}
       />
-      <UserPermissionsModal user={permUser} onClose={() => setPermUser(null)} />
       <DeleteConfirmDialog
         isOpen={!!deleteId}
         onClose={() => setDeleteId(null)}

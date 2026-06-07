@@ -96,6 +96,7 @@ export function getMenuItems(): MenuItem[] {
         { label: "Roles", href: "/admin/rbac/roles", resource: "roles" },
         { label: "Actions", href: "/admin/rbac/actions", resource: "actions" },
         { label: "Users", href: "/admin/rbac/users", resource: "users" },
+        { label: "Permissions", href: "/admin/rbac/permissions", resource: "users" },
       ],
     },
     {

@@ -1,13 +1,11 @@
-import StatusBadge from "@/src/components/shared/Status/Status";
 import { Button } from "@/src/components/ui/button";
 import { ColumnDef } from "@/src/components/ui/data-table";
-import { StatusType } from "@/src/types/common/common";
-import { Pencil, Trash2 } from "lucide-react";
-import { RbacUser } from "../types";
+import { Eye, Pencil } from "lucide-react";
+import { RbacUser } from "@/src/types/rbac/rbac";
 
-export const GetUserColumns = (
+export const GetPermissionColumns = (
+  onView?: (item: RbacUser) => void,
   onEdit?: (item: RbacUser) => void,
-  onDelete?: (id: string) => void,
 ): ColumnDef<RbacUser>[] => {
   return [
     {
@@ -50,20 +48,9 @@ export const GetUserColumns = (
         const u = row as RbacUser;
         return (
           <span className="text-sm text-secondary-gary">
-            {u.role?.isSuperAdmin ? "All" : `${u.permissions?.length ?? 0} res`}
+            {u.permissions?.length ?? 0} resource(s)
           </span>
         );
-      },
-    },
-    {
-      header: "Status",
-      accessorKey: "status",
-      cell: (value) => {
-        const normalized =
-          String(value).toUpperCase() === StatusType.ACTIVE
-            ? StatusType.ACTIVE
-            : StatusType.INACTIVE;
-        return <StatusBadge status={normalized} className="px-2 py-1" />;
       },
     },
     {
@@ -76,16 +63,18 @@ export const GetUserColumns = (
             <Button
               className="w-9! min-h-9 border border-[#E6E6E6] flex items-center justify-center rounded-lg bg-light hover:bg-light"
               size="sm"
-              onClick={() => onEdit?.(item)}
+              title="View"
+              onClick={() => onView?.(item)}
             >
-              <Pencil className="h-4 w-4 text-secondary-foreground" />
+              <Eye className="h-4 w-4 text-secondary-foreground" />
             </Button>
             <Button
-              className="w-9! min-h-9 border border-red-200 flex items-center justify-center rounded-lg bg-red-50 hover:bg-red-100"
+              className="w-9! min-h-9 border border-blue-200 flex items-center justify-center rounded-lg bg-blue-50 hover:bg-blue-100"
               size="sm"
-              onClick={() => onDelete?.(item.id)}
+              title="Edit permissions"
+              onClick={() => onEdit?.(item)}
             >
-              <Trash2 className="h-4 w-4 text-red-500" />
+              <Pencil className="h-4 w-4 text-blue-500" />
             </Button>
           </div>
         );
