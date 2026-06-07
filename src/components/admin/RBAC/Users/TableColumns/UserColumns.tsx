@@ -1,41 +1,73 @@
+import StatusBadge from "@/src/components/shared/Status/Status";
 import { Button } from "@/src/components/ui/button";
 import { ColumnDef } from "@/src/components/ui/data-table";
+import { StatusType } from "@/src/types/common/common";
 import { Pencil, Trash2 } from "lucide-react";
-import { RbacBranchUser } from "../types";
-
-const stripPrefix = (name: string) => name.replace(/^[^-]+ - /, "");
+import { RbacUser } from "../types";
 
 export const GetUserColumns = (
-  onEdit?: (item: RbacBranchUser) => void,
+  onEdit?: (item: RbacUser) => void,
   onDelete?: (id: string) => void,
-): ColumnDef<RbacBranchUser>[] => {
+): ColumnDef<RbacUser>[] => {
   return [
     {
       header: "Name",
-      accessorKey: "name",
-      cell: (value, row) => {
-        const u = row as RbacBranchUser;
-        return <span className="font-medium">{(value as string) || u.email}</span>;
+      accessorKey: "firstName",
+      cell: (_value, row) => {
+        const u = row as RbacUser;
+        return (
+          <span className="font-medium">
+            {[u.firstName, u.lastName].filter(Boolean).join(" ")}
+          </span>
+        );
       },
     },
     { header: "Email", accessorKey: "email" },
     {
       header: "Role",
       accessorKey: "role",
+      cell: (value) => (
+        <span className="text-[10px] font-bold bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+          {String(value)}
+        </span>
+      ),
+    },
+    {
+      header: "Branch",
+      accessorKey: "branch",
       cell: (_value, row) => {
-        const u = row as RbacBranchUser;
+        const u = row as RbacUser;
+        return <span className="text-sm">{u.branch?.code ?? "—"}</span>;
+      },
+    },
+    {
+      header: "Permissions",
+      accessorKey: "permissions",
+      cell: (_value, row) => {
+        const u = row as RbacUser;
         return (
-          <span className="text-[10px] font-bold bg-primary/10 text-primary px-2 py-0.5 rounded-full">
-            {u.role ? stripPrefix(u.role.name) : "No role"}
+          <span className="text-sm text-secondary-gary">
+            {u.role === "SUPER_ADMIN" ? "All" : `${u.permissions?.length ?? 0} res`}
           </span>
         );
+      },
+    },
+    {
+      header: "Status",
+      accessorKey: "status",
+      cell: (value) => {
+        const normalized =
+          String(value).toUpperCase() === StatusType.ACTIVE
+            ? StatusType.ACTIVE
+            : StatusType.INACTIVE;
+        return <StatusBadge status={normalized} className="px-2 py-1" />;
       },
     },
     {
       header: "Action",
       accessorKey: "actions",
       cell: (_value, row) => {
-        const item = row as RbacBranchUser;
+        const item = row as RbacUser;
         return (
           <div className="flex items-center gap-2">
             <Button

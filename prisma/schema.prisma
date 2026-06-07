@@ -1,5 +1,9 @@
 // ─── Branch RBAC/ABAC — Prisma Schema ────────────────────────────
-// Multi-branch dynamic Role + action-based Access Control.
+// Multi-branch access control with per-user, action-based permissions.
+//   - Super admin (role = SUPER_ADMIN) bypasses everything.
+//   - Branch admin (role = BRANCH_ADMIN) is mapped to one branch and is
+//     granted specific routes (resources) + actions by the super admin.
+//   - Actions are dynamic (the `actions` table); resources are a config list.
 
 generator client {
   provider = "prisma-client-js"
@@ -9,86 +13,90 @@ datasource db {
   provider = "postgresql"
 }
 
+enum Roles {
+  SUPER_ADMIN
+  BRANCH_ADMIN
+  USER
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
 // ═══════════════════════════════════════════════════════════════════
-// Organization & Branch
+// Branch
 // ═══════════════════════════════════════════════════════════════════
 
-model Organization {
+model Branch {
   id        String   @id @default(uuid())
-  name      String
-  code      String   @unique
-  branches  Branch[]
+  code      String?  @unique @db.VarChar(20)
+  contact   String?  @db.VarChar(255)
+  country   String?  @db.VarChar(100)
+  city      String?  @db.VarChar(100)
+  area      String?  @db.VarChar(100)
+  address   String?  @db.VarChar(255)
+  status    Status   @default(ACTIVE)
   users     User[]
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
-
-  @@map("organizations")
-}
-
-model Branch {
-  id                String             @id @default(uuid())
-  name              String
-  code              String             @unique
-  location          String             @default("")
-  isActive          Boolean            @default(true) @map("is_active")
-  organizationId    String             @map("organization_id")
-  organization      Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  users             User[]
-  roles             Role[]
-  branchPermissions BranchPermission[]
-  createdAt         DateTime           @default(now()) @map("created_at")
-  updatedAt         DateTime           @updatedAt @map("updated_at")
 
   @@map("branches")
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// Users & Roles
+// User
 // ═══════════════════════════════════════════════════════════════════
 
-enum RoleScope {
-  SUPER_ADMIN
-  BRANCH
-}
-
 model User {
-  id             String        @id @default(uuid())
-  name           String
-  email          String        @unique
-  password       String
-  avatar         String?
-  isSuperAdmin   Boolean       @default(false) @map("is_super_admin")
-  organizationId String?       @map("organization_id")
-  organization   Organization? @relation(fields: [organizationId], references: [id])
-  branchId       String?       @map("branch_id")
-  branch         Branch?       @relation(fields: [branchId], references: [id])
-  roleId         String?       @map("role_id")
-  role           Role?         @relation("UserPrimaryRole", fields: [roleId], references: [id], onDelete: SetNull)
-  createdAt      DateTime      @default(now()) @map("created_at")
-  updatedAt      DateTime      @updatedAt @map("updated_at")
+  id             String           @id @default(uuid())
+  email          String           @unique @db.VarChar(255)
+  password       String           @db.VarChar(255)
+  firstName      String           @map("first_name") @db.VarChar(100)
+  lastName       String?          @map("last_name") @db.VarChar(100)
+  phone          String?          @unique @db.VarChar(20)
+  profilePicture String?          @map("profile_picture") @db.VarChar(255)
+  isVerified     Boolean          @default(true) @map("is_verified")
+  lastLogin      DateTime?        @map("last_login")
+  status         Status           @default(ACTIVE)
+  role           Roles            @default(USER)
+  gender         Gender?
+  dateOfBirth    DateTime?        @map("date_of_birth")
+  branchId       String?          @map("branch_id")
+  branch         Branch?          @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  permissions    UserPermission[]
+  addresses      Address[]
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
 
+  @@index([email, status])
+  @@index([firstName, lastName])
   @@map("users")
 }
 
-model Role {
-  id                  String                   @id @default(uuid())
-  name                String                   @unique
-  description         String?
-  scope               RoleScope                @default(BRANCH)
-  isBuiltIn           Boolean                  @default(false) @map("is_built_in")
-  branchId            String?                  @map("branch_id")
-  branch              Branch?                  @relation(fields: [branchId], references: [id], onDelete: Cascade)
-  resourcePermissions RoleResourcePermission[]
-  directUsers         User[]                   @relation("UserPrimaryRole")
-  createdBy           String?                  @map("created_by")
-  createdAt           DateTime                 @default(now()) @map("created_at")
-  updatedAt           DateTime                 @updatedAt @map("updated_at")
+// ═══════════════════════════════════════════════════════════════════
+// Per-user permissions (resource + dynamic actions) — set by super admin
+// ═══════════════════════════════════════════════════════════════════
 
-  @@map("roles")
+model UserPermission {
+  id       String   @id @default(uuid())
+  userId   String   @map("user_id")
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resource String
+  actions  String[] @default([])
+
+  @@unique([userId, resource])
+  @@map("user_permissions")
 }
 
-// Dynamic action catalog ("attributes": create/read/update/delete/export + custom).
-// Super admin manages these; permission action arrays reference Action.key.
+// Dynamic action catalog (the "attributes"): create/read/update/delete/export
+// + any custom key the super admin creates.
 model Action {
   id        String   @id @default(uuid())
   key       String   @unique
@@ -100,31 +108,20 @@ model Action {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// Branch-scoped Dynamic RBAC/ABAC (resource + actions model)
+// Address (user)
 // ═══════════════════════════════════════════════════════════════════
-// "Attributes" are strictly CRUD-style actions on a resource
-// (route/module). Super Admin assigns a Branch its allowed scope
-// (BranchPermission). A Branch Admin grants Role permissions
-// (RoleResourcePermission) that must be a SUBSET of that scope.
 
-model BranchPermission {
-  id       String   @id @default(uuid())
-  branchId String   @map("branch_id")
-  branch   Branch   @relation(fields: [branchId], references: [id], onDelete: Cascade)
-  resource String
-  actions  String[] @default([])
+model Address {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label     String?  @db.VarChar(100)
+  address   String?  @db.VarChar(255)
+  city      String?  @db.VarChar(100)
+  country   String?  @db.VarChar(100)
+  isDefault Boolean  @default(false) @map("is_default")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@unique([branchId, resource])
-  @@map("branch_permissions")
-}
-
-model RoleResourcePermission {
-  id       String   @id @default(uuid())
-  roleId   String   @map("role_id")
-  role     Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  resource String
-  actions  String[] @default([])
-
-  @@unique([roleId, resource])
-  @@map("role_resource_permissions")
+  @@map("addresses")
 }

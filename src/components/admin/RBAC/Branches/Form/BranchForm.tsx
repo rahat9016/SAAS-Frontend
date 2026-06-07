@@ -1,70 +1,68 @@
 import ErrorMessage from "@/src/components/shared/Errors/ErrorMessage";
 import ControlledInputField from "@/src/components/shared/FromController/ControlledInputField";
-import ControlledSelectField from "@/src/components/shared/FromController/ControlledSelectField";
+import ControlledSwitchField from "@/src/components/shared/FromController/ControlledSwitchField";
 import InputLabel from "@/src/components/shared/InputLabel";
 import SubmitButton from "@/src/components/shared/SubmitButton";
 import { Button } from "@/src/components/ui/button";
 import { ErrorType } from "@/src/types/common/common";
-import { useFormContext, useWatch } from "react-hook-form";
-import ResourcePermissionMatrix, {
-  type SelectedGrants,
-} from "../../shared/ResourcePermissionMatrix";
+import { useFormContext } from "react-hook-form";
 import { BranchFormValues } from "../Schema/branchSchema";
 
 export default function BranchForm({
-  orgOptions,
+  isEditMode = false,
   onSubmit,
   onCancel,
   isPending = false,
   error,
 }: {
-  orgOptions: { label: string; value: string }[];
+  isEditMode?: boolean;
   onSubmit: (data: BranchFormValues) => void;
   onCancel: () => void;
   isPending?: boolean;
   error?: ErrorType;
 }) {
-  const { handleSubmit, control, setValue } = useFormContext<BranchFormValues>();
-  const grants = (useWatch({ control, name: "permissions" }) ?? {}) as SelectedGrants;
+  const { handleSubmit } = useFormContext<BranchFormValues>();
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-5 mt-2">
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <InputLabel label="Name" required />
-          <ControlledInputField className="bg-light" name="name" placeholder="Dhaka Main" />
+          <InputLabel label="Code" />
+          <ControlledInputField className="bg-light" name="code" placeholder="DHK-01" />
         </div>
         <div>
-          <InputLabel label="Code" required />
-          <ControlledInputField className="bg-light" name="code" placeholder="DHK-01" />
+          <InputLabel label="Contact" />
+          <ControlledInputField className="bg-light" name="contact" placeholder="+8801…" />
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <InputLabel label="Location" />
-          <ControlledInputField className="bg-light" name="location" placeholder="City, Country" />
+          <InputLabel label="Country" />
+          <ControlledInputField className="bg-light" name="country" placeholder="Bangladesh" />
         </div>
         <div>
-          <InputLabel label="Organization" required />
-          <ControlledSelectField
-            name="organizationId"
-            options={orgOptions}
-            placeholder="Select organization"
-          />
+          <InputLabel label="City" />
+          <ControlledInputField className="bg-light" name="city" placeholder="Dhaka" />
         </div>
       </div>
 
-      <div>
-        <InputLabel label="Permission Scope" />
-        <p className="text-xs text-gray-400 mb-2 -mt-1">
-          The ceiling for every role created inside this branch.
-        </p>
-        <ResourcePermissionMatrix
-          selected={grants}
-          onChange={(next) => setValue("permissions", next)}
-        />
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <InputLabel label="Area" />
+          <ControlledInputField className="bg-light" name="area" placeholder="Gulshan" />
+        </div>
+        <div>
+          <InputLabel label="Address" />
+          <ControlledInputField className="bg-light" name="address" placeholder="Street, building…" />
+        </div>
       </div>
+
+      <ControlledSwitchField
+        name="isActive"
+        label="Active"
+        description="Active branches can be assigned users"
+      />
 
       <ErrorMessage error={error} />
 
@@ -76,7 +74,7 @@ export default function BranchForm({
         >
           Cancel
         </Button>
-        <SubmitButton isLoading={isPending} label="Create" />
+        <SubmitButton isLoading={isPending} label={isEditMode ? "Update" : "Create"} />
       </div>
     </form>
   );

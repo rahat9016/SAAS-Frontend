@@ -1,11 +1,11 @@
 // /api/branches/users
-//   GET  → paginated list of branch users
-//   POST → create a user inside a branch, assign an existing BRANCH role
-//          via `roleId` (preferred) or an inline role (`roleName` + grants).
+//   GET  → paginated list of users (branch-scoped for non-super-admin)
+//   POST → create a user, map to a branch, and assign per-user permissions
+//          (resource + actions) — the super admin decides routes/actions.
 // Guard: super admin, or a user with access to the "users" resource.
 
 import bcryptjs from "bcryptjs";
-import { RoleScope } from "@prisma/client";
+import { Roles } from "@prisma/client";
 import { prisma } from "@/src/lib/prisma";
 import {
   requireManage,
@@ -14,10 +14,12 @@ import {
   rbacPaginated,
   getListParams,
   resolveTargetBranchId,
-  validateGrantsAgainstScope,
+  validateGrants,
   getActionKeys,
   type GrantInput,
 } from "@/src/lib/rbac";
+
+const ASSIGNABLE_ROLES: Roles[] = [Roles.BRANCH_ADMIN, Roles.USER];
 
 export async function GET(request: Request) {
   try {
@@ -29,11 +31,12 @@ export async function GET(request: Request) {
     const branchId = resolveTargetBranchId(admin, searchParams.get("branchId") ?? undefined);
 
     const where = {
-      ...(branchId ? { branchId } : { branchId: { not: null } }),
+      ...(branchId ? { branchId } : {}),
       ...(search
         ? {
             OR: [
-              { name: { contains: search, mode: "insensitive" as const } },
+              { firstName: { contains: search, mode: "insensitive" as const } },
+              { lastName: { contains: search, mode: "insensitive" as const } },
               { email: { contains: search, mode: "insensitive" as const } },
             ],
           }
@@ -50,11 +53,15 @@ export async function GET(request: Request) {
         take,
         select: {
           id: true,
-          name: true,
+          firstName: true,
+          lastName: true,
           email: true,
-          isSuperAdmin: true,
+          phone: true,
+          role: true,
+          status: true,
           branchId: true,
-          role: { select: { id: true, name: true } },
+          branch: { select: { id: true, code: true } },
+          permissions: { select: { resource: true, actions: true } },
           createdAt: true,
         },
         orderBy: { createdAt: "desc" },
@@ -64,7 +71,7 @@ export async function GET(request: Request) {
 
     return rbacPaginated(users, totalItems, page, limit === -1 ? totalItems : limit);
   } catch (e) {
-    console.error("list branch users error:", e);
+    console.error("list users error:", e);
     return rbacError("Internal server error", 500);
   }
 }
@@ -75,81 +82,43 @@ export async function POST(request: Request) {
     if (errorResponse) return errorResponse;
 
     const body = await request.json();
-    const { name, email, password, roleId, roleName } = body;
+    const { firstName, lastName, email, password, phone, gender, dateOfBirth } = body;
+    const role: Roles = ASSIGNABLE_ROLES.includes(body.role) ? body.role : Roles.USER;
     const requested: GrantInput[] = body.permissions ?? [];
 
-    if (!email || !password) {
-      return rbacError("email and password are required", 400);
-    }
-    if (!roleId && !roleName) {
-      return rbacError("provide roleId (existing role) or roleName (inline)", 400);
+    if (!firstName || !email || !password) {
+      return rbacError("firstName, email and password are required", 400);
     }
 
     const branchId = resolveTargetBranchId(admin, body.branchId);
-    if (!branchId) return rbacError("No branch context", 400);
 
-    const branch = await prisma.branch.findUnique({
-      where: { id: branchId },
-      include: { branchPermissions: true },
-    });
-    if (!branch) return rbacError("Branch not found", 404);
-
-    // Path A: assign an existing branch role.
-    let resolvedRoleId: string;
-    if (roleId) {
-      const role = await prisma.role.findUnique({ where: { id: roleId } });
-      if (!role || role.branchId !== branch.id) {
-        return rbacError("Role not found in this branch", 404);
-      }
-      resolvedRoleId = role.id;
-    } else {
-      // Path B: create an inline role from validated grants.
-      const actionKeys = await getActionKeys();
-      const { grants, error } = validateGrantsAgainstScope(
-        branch.branchPermissions,
-        requested,
-        actionKeys,
-      );
-      if (error) return rbacError(error, 403);
-
-      const role = await prisma.role.create({
-        data: {
-          name: `${branch.code} - ${roleName}`,
-          scope: RoleScope.BRANCH,
-          branchId: branch.id,
-          createdBy: admin.id,
-          resourcePermissions: { create: grants },
-        },
-      });
-      resolvedRoleId = role.id;
-    }
+    const actionKeys = await getActionKeys();
+    const { grants, error } = validateGrants(requested, actionKeys);
+    if (error) return rbacError(error, 400);
 
     const hashed = await bcryptjs.hash(password, 10);
     const user = await prisma.user.create({
       data: {
-        name: name ?? email,
+        firstName,
+        lastName: lastName || null,
         email,
+        phone: phone || null,
         password: hashed,
-        branchId: branch.id,
-        organizationId: branch.organizationId,
-        roleId: resolvedRoleId,
+        role,
+        gender: gender || null,
+        dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
+        branchId: branchId ?? null,
+        permissions: { create: grants },
       },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        isSuperAdmin: true,
-        branchId: true,
-        roleId: true,
-      },
+      select: { id: true, firstName: true, email: true, role: true, branchId: true },
     });
 
     return rbacSuccess(user, 201);
   } catch (e: unknown) {
     if (typeof e === "object" && e && "code" in e && (e as { code: string }).code === "P2002") {
-      return rbacError("A user with this email, or that role name, already exists", 409);
+      return rbacError("A user with this email or phone already exists", 409);
     }
-    console.error("create branch user error:", e);
+    console.error("create user error:", e);
     return rbacError("Internal server error", 500);
   }
 }

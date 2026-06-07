@@ -22,7 +22,7 @@ export default function SidebarMenu({ onNavigate }: SidebarMenuProps) {
 
   const menuItems = useMemo(() => {
     const can = (resource: string) =>
-      rbac.user.isSuperAdmin ||
+      rbac.user.role === "SUPER_ADMIN" ||
       Object.values(rbac.permissions[resource] ?? {}).some(Boolean);
     return filterMenuByAccess(getMenuItems(), can);
   }, [rbac]);

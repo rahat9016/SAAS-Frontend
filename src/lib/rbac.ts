@@ -1,18 +1,15 @@
 // ─── RBAC/ABAC Auth Layer ─────────────────────────────────────────
-// Verifies the JWT issued by /api/auth/login (shared secret in
-// src/lib/auth-tokens.ts) but ALWAYS re-derives permissions from the
-// database by token `sub` — the token is trusted only for identity,
-// never for authorization.
-//
-// Roles are dynamic with two scopes:
-//   - SUPER_ADMIN scope: grants verbatim, no branch ceiling.
-//   - BRANCH scope:      grants capped to the branch's allowed scope.
-// "Super admin" = User.isSuperAdmin (bypasses everything). Other admin
-// powers are permission-driven (e.g. CRUD on the "roles"/"users" resource).
+// Token = identity only (sub/role/branchId). Permissions are ALWAYS
+// re-derived from the DB. Model:
+//   - role SUPER_ADMIN → bypasses everything.
+//   - other roles      → permissions come from per-user `UserPermission`
+//                        rows (resource + dynamic action keys) that the
+//                        super admin assigns. Branch-scoped users are
+//                        hard-isolated to their `branchId`.
 
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
-import { RoleScope } from "@prisma/client";
+import { Roles } from "@prisma/client";
 import { prisma } from "@/src/lib/prisma";
 import {
   RESOURCES,
@@ -35,7 +32,6 @@ export function rbacSuccess<T>(data: T, status = 200) {
   return NextResponse.json({ data }, { status });
 }
 
-/** Paginated envelope matching the frontend DataTable expectation. */
 export function rbacPaginated<T>(
   data: T[],
   totalItems: number,
@@ -54,7 +50,6 @@ export function rbacPaginated<T>(
   });
 }
 
-/** Parse common list query params (page/limit/search). limit=-1 → all. */
 export function getListParams(searchParams: URLSearchParams) {
   const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
   const rawLimit = parseInt(searchParams.get("limit") || "10", 10);
@@ -65,7 +60,6 @@ export function getListParams(searchParams: URLSearchParams) {
 
 // ─── Dynamic action catalog ───────────────────────────────────────
 
-/** All valid action keys from the DB (the dynamic "attributes"). */
 export async function getActionKeys(): Promise<string[]> {
   const actions = await prisma.action.findMany({ select: { key: true } });
   return actions.map((a) => a.key);
@@ -88,20 +82,13 @@ function verifyToken(token: string): TokenPayload | null {
 export interface RbacUser {
   id: string;
   email: string;
-  name: string | null;
-  isSuperAdmin: boolean;
+  name: string;
+  role: Roles;
   branchId: string | null;
-  roleScope: RoleScope | null;
-  // Branch's allowed scope (the ceiling for BRANCH-scope roles).
-  branchScope: { resource: string; actions: Action[] }[];
-  // This user's role-level grants.
-  roleGrants: { resource: string; actions: Action[] }[];
+  // Per-user grants (resource + action keys).
+  permissions: { resource: string; actions: Action[] }[];
 }
 
-/**
- * Decode the Bearer token, then load the user with their role grants
- * and branch scope straight from the DB. Returns null if unauthenticated.
- */
 export async function getRbacUser(request: Request): Promise<RbacUser | null> {
   const authHeader = request.headers.get("Authorization");
   if (!authHeader?.startsWith("Bearer ")) return null;
@@ -112,10 +99,7 @@ export async function getRbacUser(request: Request): Promise<RbacUser | null> {
   const [user, actionKeys] = await Promise.all([
     prisma.user.findUnique({
       where: { id: decoded.sub },
-      include: {
-        role: { include: { resourcePermissions: true } },
-        branch: { include: { branchPermissions: true } },
-      },
+      include: { permissions: true },
     }),
     getActionKeys(),
   ]);
@@ -124,32 +108,22 @@ export async function getRbacUser(request: Request): Promise<RbacUser | null> {
   return {
     id: user.id,
     email: user.email,
-    name: user.name,
-    isSuperAdmin: user.isSuperAdmin,
+    name: [user.firstName, user.lastName].filter(Boolean).join(" "),
+    role: user.role,
     branchId: user.branchId,
-    roleScope: user.role?.scope ?? null,
-    branchScope: (user.branch?.branchPermissions ?? []).map((p) => ({
-      resource: p.resource,
-      actions: sanitizeActions(p.actions, actionKeys),
-    })),
-    roleGrants: (user.role?.resourcePermissions ?? []).map((p) => ({
+    permissions: user.permissions.map((p) => ({
       resource: p.resource,
       actions: sanitizeActions(p.actions, actionKeys),
     })),
   };
 }
 
+export function isSuperAdmin(user: RbacUser): boolean {
+  return user.role === Roles.SUPER_ADMIN;
+}
+
 // ─── Permission map (O(1) lookup) ─────────────────────────────────
 
-/**
- * Build the {resource: {action: bool}} map used for route access and
- * button visibility.
- *  - isSuperAdmin        → every resource × every action key true.
- *  - SUPER_ADMIN role    → role grants verbatim (no branch ceiling).
- *  - BRANCH role         → role grants INTERSECTED with the branch scope.
- *
- * `allActionKeys` is the dynamic action catalog (from getActionKeys()).
- */
 export function buildPermissionMap(
   user: RbacUser,
   allActionKeys: string[],
@@ -157,31 +131,14 @@ export function buildPermissionMap(
   const map: PermissionMap = {};
   for (const r of RESOURCES) map[r] = emptyActions(allActionKeys);
 
-  if (user.isSuperAdmin) {
+  if (user.role === Roles.SUPER_ADMIN) {
     for (const r of RESOURCES) map[r] = allActions(allActionKeys);
     return map;
   }
 
-  // SUPER_ADMIN-scope role: grants applied verbatim (no branch ceiling).
-  if (user.roleScope === RoleScope.SUPER_ADMIN) {
-    for (const { resource, actions } of user.roleGrants) {
-      map[resource] ??= emptyActions(allActionKeys);
-      for (const a of actions) map[resource][a] = true;
-    }
-    return map;
-  }
-
-  // BRANCH-scope role: grants clipped to what the branch is allowed.
-  const branchByResource = new Map(
-    user.branchScope.map((p) => [p.resource, new Set(p.actions)]),
-  );
-  for (const { resource, actions } of user.roleGrants) {
-    const allowed = branchByResource.get(resource);
-    if (!allowed) continue; // resource outside branch scope → denied
+  for (const { resource, actions } of user.permissions) {
     map[resource] ??= emptyActions(allActionKeys);
-    for (const a of actions) {
-      if (allowed.has(a)) map[resource][a] = true;
-    }
+    for (const a of actions) map[resource][a] = true;
   }
   return map;
 }
@@ -198,20 +155,15 @@ export async function requireAuth(request: Request): Promise<GuardResult> {
   return { user, errorResponse: null };
 }
 
-/** Guard: super admin only. */
 export async function requireSuperAdmin(request: Request): Promise<GuardResult> {
   const { user, errorResponse } = await requireAuth(request);
   if (errorResponse) return { user: null, errorResponse };
-  if (!user!.isSuperAdmin) {
-    return {
-      user: null,
-      errorResponse: rbacError("Access denied: super admin only", 403),
-    };
+  if (user!.role !== Roles.SUPER_ADMIN) {
+    return { user: null, errorResponse: rbacError("Access denied: super admin only", 403) };
   }
   return { user: user!, errorResponse: null };
 }
 
-/** Guard an API route by {resource, action}. Super admin bypasses. */
 export async function requireResourceAction(
   request: Request,
   resource: string,
@@ -219,37 +171,30 @@ export async function requireResourceAction(
 ): Promise<GuardResult> {
   const { user, errorResponse } = await requireAuth(request);
   if (errorResponse) return { user: null, errorResponse };
-  if (user!.isSuperAdmin) return { user: user!, errorResponse: null };
+  if (user!.role === Roles.SUPER_ADMIN) return { user: user!, errorResponse: null };
 
   const map = buildPermissionMap(user!, await getActionKeys());
   if (!map[resource]?.[action]) {
     return {
       user: null,
-      errorResponse: rbacError(
-        `Access denied: requires ${action} on ${resource}`,
-        403,
-      ),
+      errorResponse: rbacError(`Access denied: requires ${action} on ${resource}`, 403),
     };
   }
   return { user: user!, errorResponse: null };
 }
 
-/**
- * Management guard: super admin, OR a user whose role grants any CRUD on
- * the resource (create/update/delete). Used for managing roles/users.
- */
+/** Super admin, or a user with any access to the resource. */
 export async function requireManage(
   request: Request,
   resource: string,
 ): Promise<GuardResult> {
   const { user, errorResponse } = await requireAuth(request);
   if (errorResponse) return { user: null, errorResponse };
-  if (user!.isSuperAdmin) return { user: user!, errorResponse: null };
+  if (user!.role === Roles.SUPER_ADMIN) return { user: user!, errorResponse: null };
 
   const map = buildPermissionMap(user!, await getActionKeys());
   const perms = map[resource] ?? {};
-  const canManage = perms.create || perms.update || perms.delete || perms.read;
-  if (!canManage) {
+  if (!(perms.create || perms.update || perms.delete || perms.read)) {
     return {
       user: null,
       errorResponse: rbacError(`Access denied: requires access to ${resource}`, 403),
@@ -258,19 +203,16 @@ export async function requireManage(
   return { user: user!, errorResponse: null };
 }
 
-/**
- * Branch isolation: super admin sees everything; everyone else is hard
- * scoped to their own branch. Spread into a Prisma `where`.
- */
+/** Branch isolation: super admin sees all; others scoped to their branch. */
 export function branchScopeWhere<T extends Record<string, unknown>>(
   user: RbacUser,
   base: T = {} as T,
 ): T & { branchId?: string } {
-  if (user.isSuperAdmin) return base;
+  if (user.role === Roles.SUPER_ADMIN) return base;
   return { ...base, branchId: user.branchId ?? "__no_branch__" };
 }
 
-// ─── Grant validation (shared by role + user routes) ─────────────
+// ─── Grant validation ─────────────────────────────────────────────
 
 export interface GrantInput {
   resource: string;
@@ -278,59 +220,32 @@ export interface GrantInput {
 }
 
 /**
- * Validate requested {resource, actions} grants.
- *  - Resource must be a known RESOURCE.
- *  - Action keys must exist in the dynamic action catalog (`actionKeys`).
- *  - If `branchPermissions` is provided (BRANCH-scope role), grants are
- *    capped to the branch's allowed scope. Pass `null` for SUPER_ADMIN
- *    scope (no ceiling — any resource × any valid action).
+ * Validate per-user permission grants: resource must be known and action
+ * keys must exist in the dynamic catalog. No branch ceiling — the super
+ * admin decides directly.
  */
-export function validateGrantsAgainstScope(
-  branchPermissions: { resource: string; actions: string[] }[] | null,
+export function validateGrants(
   requested: GrantInput[],
   actionKeys: string[],
 ): { grants: GrantInput[]; error: string | null } {
-  const ceiling = branchPermissions
-    ? new Map(
-        branchPermissions.map((p) => [
-          p.resource,
-          new Set(sanitizeActions(p.actions, actionKeys)),
-        ]),
-      )
-    : null;
-
   const grants: GrantInput[] = [];
   for (const p of requested) {
     if (!(RESOURCES as readonly string[]).includes(p.resource)) {
       return { grants: [], error: `Unknown resource: ${p.resource}` };
     }
     const actions = sanitizeActions(p.actions ?? [], actionKeys);
-    if (ceiling) {
-      const allowed = ceiling.get(p.resource);
-      const exceeded = actions.filter((a) => !allowed?.has(a));
-      if (exceeded.length) {
-        return {
-          grants: [],
-          error: `Branch is not permitted to grant [${exceeded.join(", ")}] on ${p.resource}`,
-        };
-      }
-    }
     if (actions.length) grants.push({ resource: p.resource, actions });
   }
   return { grants, error: null };
 }
 
-/**
- * Resolve which branch a managing request targets: super admin may target
- * any branch via the body; everyone else is locked to their own branch.
- */
+/** Super admin may target any branch via body; others use their own. */
 export function resolveTargetBranchId(
   admin: RbacUser,
   bodyBranchId?: string,
 ): string | null {
-  if (admin.isSuperAdmin) return bodyBranchId ?? null;
+  if (admin.role === Roles.SUPER_ADMIN) return bodyBranchId ?? null;
   return admin.branchId;
 }
 
-// Re-export for convenience in route handlers.
 export { RESOURCES };

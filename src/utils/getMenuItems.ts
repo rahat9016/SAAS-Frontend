@@ -92,9 +92,8 @@ export function getMenuItems(): MenuItem[] {
       label: "Branch RBAC",
       icon: ShieldCheck,
       children: [
-        { label: "Branches & Scope", href: "/admin/rbac/branches", resource: "branches" },
+        { label: "Branches", href: "/admin/rbac/branches", resource: "branches" },
         { label: "Actions", href: "/admin/rbac/actions", resource: "actions" },
-        { label: "Roles", href: "/admin/rbac/roles", resource: "roles" },
         { label: "Users", href: "/admin/rbac/users", resource: "users" },
       ],
     },

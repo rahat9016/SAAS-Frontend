@@ -19,10 +19,9 @@ export async function POST(request: Request) {
     const tokens = signTokens({
       sub: user.id,
       email: user.email,
-      name: user.name,
-      isSuperAdmin: user.isSuperAdmin,
+      name: [user.firstName, user.lastName].filter(Boolean).join(" "),
+      role: user.role,
       branchId: user.branchId,
-      organizationId: user.organizationId,
     });
 
     return NextResponse.json({ data: tokens });

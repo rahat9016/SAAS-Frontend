@@ -10,32 +10,25 @@ export async function GET(
 
     const user = await prisma.user.findUnique({
       where: { id },
-      include: { branch: true, organization: true },
+      include: { branch: true },
     });
 
     if (!user) {
       return fail("User not found", 404);
     }
 
-    // Split name into first/last for IUserInformation compatibility.
-    const nameParts = user.name.split(" ");
-    const firstName = nameParts[0] || "";
-    const lastName = nameParts.slice(1).join(" ") || "";
-
     const userInformation = {
       id: user.id,
       email: user.email,
-      firstName,
-      lastName,
-      phone: null,
-      profilePicture: user.avatar || null,
-      isVerified: true,
-      status: "ACTIVE",
-      isSuperAdmin: user.isSuperAdmin,
+      firstName: user.firstName,
+      lastName: user.lastName || "",
+      phone: user.phone,
+      profilePicture: user.profilePicture || null,
+      isVerified: user.isVerified,
+      status: user.status,
+      role: user.role,
       branchId: user.branchId,
-      branchName: user.branch?.name || null,
-      organizationId: user.organizationId,
-      organizationName: user.organization?.name || null,
+      branchCode: user.branch?.code || null,
     };
 
     return ok(userInformation);

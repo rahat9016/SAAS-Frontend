@@ -24,9 +24,8 @@ export interface JwtPayload {
   sub: string;
   email: string;
   name: string;
-  isSuperAdmin: boolean;
+  role: string; // Roles enum
   branchId: string | null;
-  organizationId: string | null;
 }
 
 export function signTokens(payload: JwtPayload) {
@@ -53,19 +52,21 @@ export async function getAuthUser(request: Request) {
 
   const user = await prisma.user.findUnique({
     where: { id: decoded.sub },
-    include: { branch: true, organization: true },
+    include: { branch: true },
   });
   if (!user) return null;
 
   return {
     id: user.id,
-    name: user.name,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    name: [user.firstName, user.lastName].filter(Boolean).join(" "),
     email: user.email,
-    avatar: user.avatar,
-    isSuperAdmin: user.isSuperAdmin,
+    phone: user.phone,
+    profilePicture: user.profilePicture,
+    role: user.role,
+    status: user.status,
     branchId: user.branchId,
-    branchName: user.branch?.name || null,
-    organizationId: user.organizationId,
-    organizationName: user.organization?.name || null,
+    branchCode: user.branch?.code || null,
   };
 }

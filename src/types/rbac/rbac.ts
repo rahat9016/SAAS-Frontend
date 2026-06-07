@@ -1,56 +1,46 @@
 import type { Action } from "@/src/config/rbac";
 
+export type RbacStatus = "ACTIVE" | "INACTIVE";
+export type RbacRole = "SUPER_ADMIN" | "BRANCH_ADMIN" | "USER";
+
 export interface RbacScopeEntry {
   id?: string;
   resource: string;
   actions: Action[];
 }
 
-export interface RbacOrganization {
-  id: string;
-  name: string;
-  code: string;
-  _count?: { branches: number };
-}
-
 export interface RbacBranch {
   id: string;
-  name: string;
-  code: string;
-  location: string;
-  isActive: boolean;
-  organization?: { id: string; name: string; code: string };
-  branchPermissions: RbacScopeEntry[];
-  _count?: { users: number; roles: number };
-  createdAt: string;
-}
-
-export type RbacRoleScope = "SUPER_ADMIN" | "BRANCH";
-
-export interface RbacRole {
-  id: string;
-  name: string;
-  description: string | null;
-  scope: RbacRoleScope;
-  branchId: string | null;
-  resourcePermissions: RbacScopeEntry[];
-  _count?: { directUsers: number };
+  code: string | null;
+  contact: string | null;
+  country: string | null;
+  city: string | null;
+  area: string | null;
+  address: string | null;
+  status: RbacStatus;
+  _count?: { users: number };
   createdAt: string;
   actions?: string;
 }
 
-export interface RbacBranchUser {
+export interface RbacUser {
   id: string;
-  name: string | null;
+  firstName: string;
+  lastName: string | null;
   email: string;
-  isSuperAdmin: boolean;
+  phone: string | null;
+  role: RbacRole;
+  status: RbacStatus;
+  gender?: string | null;
+  dateOfBirth?: string | null;
   branchId: string | null;
-  role: { id: string; name: string } | null;
+  branch?: { id: string; code: string | null } | null;
+  permissions: RbacScopeEntry[];
   createdAt: string;
   actions?: string;
 }
 
-/** Convert a scope/grant array into the matrix's keyed shape. */
+/** Convert a grant array into the matrix's keyed shape. */
 export function scopeToMap(entries: RbacScopeEntry[]): Record<string, Action[]> {
   return entries.reduce(
     (acc, e) => ({ ...acc, [e.resource]: e.actions }),
