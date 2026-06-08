@@ -9,9 +9,9 @@ import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { prisma } from "@/src/lib/prisma";
 import {
-  RESOURCES,
+  RESOURCE_KEYS,
+  applicableActions,
   emptyActions,
-  allActions,
   sanitizeActions,
   type Action,
   type PermissionMap,
@@ -124,10 +124,13 @@ export function buildPermissionMap(
   allActionKeys: string[],
 ): PermissionMap {
   const map: PermissionMap = {};
-  for (const r of RESOURCES) map[r] = emptyActions(allActionKeys);
+  for (const r of RESOURCE_KEYS) map[r] = emptyActions(allActionKeys);
 
   if (user.isSuperAdmin) {
-    for (const r of RESOURCES) map[r] = allActions(allActionKeys);
+    // Super admin gets every action that APPLIES to each resource.
+    for (const r of RESOURCE_KEYS) {
+      for (const a of applicableActions(r, allActionKeys)) map[r][a] = true;
+    }
     return map;
   }
 
@@ -225,10 +228,14 @@ export function validateGrants(
 ): { grants: GrantInput[]; error: string | null } {
   const grants: GrantInput[] = [];
   for (const p of requested) {
-    if (!(RESOURCES as readonly string[]).includes(p.resource)) {
+    if (!RESOURCE_KEYS.includes(p.resource)) {
       return { grants: [], error: `Unknown resource: ${p.resource}` };
     }
-    const actions = sanitizeActions(p.actions ?? [], actionKeys);
+    // Keep only valid keys AND actions that actually apply to the resource.
+    const allowed = new Set(applicableActions(p.resource, actionKeys));
+    const actions = sanitizeActions(p.actions ?? [], actionKeys).filter((a) =>
+      allowed.has(a),
+    );
     if (actions.length) grants.push({ resource: p.resource, actions });
   }
   return { grants, error: null };
@@ -243,4 +250,4 @@ export function resolveTargetBranchId(
   return admin.branchId;
 }
 
-export { RESOURCES };
+export { RESOURCE_KEYS };

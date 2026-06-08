@@ -62,6 +62,7 @@ async function main() {
     firstName: "Branch A", lastName: "Admin", password: pw, roleId: branchAdminRole.id, branchId: branchA.id,
   }, [
     { resource: "users", actions: MANAGE },
+    { resource: "permissions", actions: MANAGE },
     { resource: "orders", actions: ALL },
   ]);
 

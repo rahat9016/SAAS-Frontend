@@ -11,7 +11,7 @@ export default function EditPermissionPage({
 }) {
   const { userId } = use(params);
   return (
-    <RbacRouteGuard resource="users">
+    <RbacRouteGuard resource="permissions">
       <PermissionForm userId={userId} />
     </RbacRouteGuard>
   );

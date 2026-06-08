@@ -26,6 +26,8 @@ export interface MenuItem {
   children?: MenuChild[];
   /** RBAC resource gating this item/group; omit = always visible. */
   resource?: string;
+  /** Only visible to super admin. */
+  superOnly?: boolean;
 }
 
 export function getMenuItems(): MenuItem[] {
@@ -96,13 +98,14 @@ export function getMenuItems(): MenuItem[] {
         { label: "Roles", href: "/admin/rbac/roles", resource: "roles" },
         { label: "Actions", href: "/admin/rbac/actions", resource: "actions" },
         { label: "Users", href: "/admin/rbac/users", resource: "users" },
-        { label: "Permissions", href: "/admin/rbac/permissions", resource: "users" },
+        { label: "Permissions", href: "/admin/rbac/permissions", resource: "permissions" },
       ],
     },
     {
       label: "Admin",
       icon: Settings,
       href: "/admin/admin",
+      superOnly: true,
     },
   ];
 
@@ -120,9 +123,11 @@ export function getMenuItems(): MenuItem[] {
 export function filterMenuByAccess(
   items: MenuItem[],
   can: (resource: string) => boolean,
+  isSuperAdmin = false,
 ): MenuItem[] {
   const out: MenuItem[] = [];
   for (const item of items) {
+    if (item.superOnly && !isSuperAdmin) continue;
     if (item.resource && !can(item.resource)) continue;
 
     if (item.children) {

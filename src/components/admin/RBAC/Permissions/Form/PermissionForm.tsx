@@ -6,8 +6,10 @@ import InputLabel from "@/src/components/shared/InputLabel";
 import { Button } from "@/src/components/ui/button";
 import { useGet } from "@/src/hooks/useGet";
 import { usePatch } from "@/src/hooks/usePatch";
+import { useAppSelector } from "@/src/lib/redux/hooks";
+import { selectRbac, selectIsSuperAdmin } from "@/src/lib/redux/features/rbac/rbacSelectors";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
 import { toast } from "react-toastify";
 import {
@@ -30,6 +32,22 @@ const LIST_PATH = "/admin/rbac/permissions";
 /** `userId` set = edit mode (fixed user); omitted = create mode (pick a user). */
 export default function PermissionForm({ userId }: { userId?: string }) {
   const router = useRouter();
+  const isSuperAdmin = useAppSelector(selectIsSuperAdmin);
+  const rbac = useAppSelector(selectRbac);
+
+  // Ceiling: a non-super-admin may only grant within their OWN permissions.
+  const ceiling: SelectedGrants | undefined = useMemo(() => {
+    if (isSuperAdmin) return undefined;
+    const out: SelectedGrants = {};
+    for (const [resource, actions] of Object.entries(rbac.permissions ?? {})) {
+      const on = Object.entries(actions)
+        .filter(([, v]) => v)
+        .map(([k]) => k);
+      if (on.length) out[resource] = on;
+    }
+    return out;
+  }, [isSuperAdmin, rbac.permissions]);
+
   const methods = useForm<{ userId: string }>({
     defaultValues: { userId: userId ?? "" },
   });
@@ -119,6 +137,7 @@ export default function PermissionForm({ userId }: { userId?: string }) {
           key={`${selectedUserId}-${loaded}`}
           userId={selectedUserId}
           initial={initial}
+          ceiling={ceiling}
           mode={userId ? "edit" : "create"}
           onSaved={() => router.push(LIST_PATH)}
         />
@@ -130,11 +149,13 @@ export default function PermissionForm({ userId }: { userId?: string }) {
 function Editor({
   userId,
   initial,
+  ceiling,
   mode,
   onSaved,
 }: {
   userId: string;
   initial: SelectedGrants;
+  ceiling?: SelectedGrants;
   mode: "create" | "edit";
   onSaved: () => void;
 }) {
@@ -175,7 +196,7 @@ function Editor({
           </p>
         </div>
         <div className="p-6">
-          <ResourcePermissionMatrix selected={grants} onChange={setGrants} />
+          <ResourcePermissionMatrix selected={grants} onChange={setGrants} scope={ceiling} />
         </div>
       </div>
 

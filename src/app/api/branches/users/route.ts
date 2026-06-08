@@ -22,10 +22,25 @@ export async function GET(request: Request) {
 
     const { searchParams } = new URL(request.url);
     const { page, limit, search } = getListParams(searchParams);
-    const branchId = resolveTargetBranchId(admin, searchParams.get("branchId") ?? undefined);
+    const platform = searchParams.get("platform") === "true";
+    const branchParam = searchParams.get("branchId");
+
+    // Branch scope:
+    //  - non-super-admin → always their own branch
+    //  - super admin + platform=true → platform users (branchId null)
+    //  - super admin + branchId=X    → that branch
+    //  - super admin (neither)       → all users
+    let branchFilter: Record<string, unknown> = {};
+    if (!admin.isSuperAdmin) {
+      branchFilter = { branchId: admin.branchId ?? "__none__" };
+    } else if (platform) {
+      branchFilter = { branchId: null };
+    } else if (branchParam) {
+      branchFilter = { branchId: branchParam };
+    }
 
     const where = {
-      ...(branchId ? { branchId } : {}),
+      ...branchFilter,
       ...(search
         ? {
             OR: [

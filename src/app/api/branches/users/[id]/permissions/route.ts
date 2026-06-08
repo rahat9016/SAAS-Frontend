@@ -7,6 +7,7 @@
 import { prisma } from "@/src/lib/prisma";
 import {
   requireManage,
+  buildPermissionMap,
   rbacError,
   rbacSuccess,
   validateGrants,
@@ -28,7 +29,7 @@ async function loadUser(admin: RbacUser, id: string) {
 
 export async function GET(request: Request, { params }: Ctx) {
   try {
-    const { user: admin, errorResponse } = await requireManage(request, "users");
+    const { user: admin, errorResponse } = await requireManage(request, "permissions");
     if (errorResponse) return errorResponse;
     const { id } = await params;
     const { user, error } = await loadUser(admin, id);
@@ -51,15 +52,30 @@ export async function GET(request: Request, { params }: Ctx) {
 
 export async function PUT(request: Request, { params }: Ctx) {
   try {
-    const { user: admin, errorResponse } = await requireManage(request, "users");
+    const { user: admin, errorResponse } = await requireManage(request, "permissions");
     if (errorResponse) return errorResponse;
     const { id } = await params;
     const { error } = await loadUser(admin, id);
     if (error) return error;
 
     const requested: GrantInput[] = (await request.json()).permissions ?? [];
-    const { grants, error: vErr } = validateGrants(requested, await getActionKeys());
+    const actionKeys = await getActionKeys();
+    const { grants, error: vErr } = validateGrants(requested, actionKeys);
     if (vErr) return rbacError(vErr, 400);
+
+    // Ceiling: a non-super-admin can only grant a SUBSET of their own access.
+    if (!admin.isSuperAdmin) {
+      const adminMap = buildPermissionMap(admin, actionKeys);
+      for (const g of grants) {
+        const exceeded = g.actions.filter((a) => !adminMap[g.resource]?.[a]);
+        if (exceeded.length) {
+          return rbacError(
+            `You cannot grant [${exceeded.join(", ")}] on ${g.resource} — beyond your own access`,
+            403,
+          );
+        }
+      }
+    }
 
     await prisma.$transaction(async (tx) => {
       await tx.userPermission.deleteMany({ where: { userId: id } });

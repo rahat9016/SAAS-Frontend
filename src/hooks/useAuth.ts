@@ -1,8 +1,10 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { toast } from "react-toastify";
 import { IUserInformation } from "../lib/redux/features/auth/authTypes";
+import { clearRbacPermissions } from "../lib/redux/features/rbac/rbacSlice";
+import { useAppDispatch } from "../lib/redux/hooks";
 import { authService } from "../services/auth";
 import { IGenericErrorResponse } from "../types/common/common";
 
@@ -25,6 +27,9 @@ export interface AuthResponse {
 export const useAuth = (
   onSuccess?: (data: AuthResponse, role: string) => void
 ) => {
+  const queryClient = useQueryClient();
+  const dispatch = useAppDispatch();
+
   return useMutation({
     mutationFn: authService.login,
     onSuccess: async (data) => {
@@ -32,6 +37,11 @@ export const useAuth = (
       Cookies.set("accessToken", data.accessToken, { expires: 1 });
       Cookies.set("refreshToken", data.refreshToken, { expires: 2 });
       window.dispatchEvent(new Event("auth-token-updated"));
+
+      // Reset any cached RBAC permissions from a previous session so the
+      // sidebar/guards re-derive for THIS user (no stale "all routes").
+      dispatch(clearRbacPermissions());
+      queryClient.removeQueries({ queryKey: ["rbac-permissions"] });
 
       // Decode identity from JWT. RBAC users (super admin or any branch
       // member) are admin-panel users → route to /admin.

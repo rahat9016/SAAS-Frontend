@@ -24,7 +24,7 @@ export default function SidebarMenu({ onNavigate }: SidebarMenuProps) {
     const can = (resource: string) =>
       rbac.user.isSuperAdmin ||
       Object.values(rbac.permissions[resource] ?? {}).some(Boolean);
-    return filterMenuByAccess(getMenuItems(), can);
+    return filterMenuByAccess(getMenuItems(), can, rbac.user.isSuperAdmin);
   }, [rbac]);
 
   // Track which menu items are expanded

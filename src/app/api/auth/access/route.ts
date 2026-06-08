@@ -14,7 +14,7 @@ import {
   getActionKeys,
   rbacError,
   rbacSuccess,
-  RESOURCES,
+  RESOURCE_KEYS,
 } from "@/src/lib/rbac";
 import { RESOURCE_ROUTES } from "@/src/config/rbac";
 
@@ -26,7 +26,7 @@ export async function GET(request: Request) {
     const actionKeys = await getActionKeys();
     const map = buildPermissionMap(user, actionKeys);
 
-    const access = RESOURCES.map((resource) => {
+    const access = RESOURCE_KEYS.map((resource) => {
       const granted = Object.entries(map[resource] ?? {})
         .filter(([, allowed]) => allowed)
         .map(([action]) => action);

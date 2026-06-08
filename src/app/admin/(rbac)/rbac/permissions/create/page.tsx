@@ -5,7 +5,7 @@ import RbacRouteGuard from "@/src/components/admin/RBAC/shared/RbacRouteGuard";
 
 export default function CreatePermissionPage() {
   return (
-    <RbacRouteGuard resource="users">
+    <RbacRouteGuard resource="permissions">
       <PermissionForm />
     </RbacRouteGuard>
   );
