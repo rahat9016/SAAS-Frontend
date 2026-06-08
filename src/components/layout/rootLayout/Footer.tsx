@@ -1,216 +1,261 @@
-import email from "@/public/icons/email.png";
-import facebook from "@/public/icons/facebook.svg";
-import linkedin from "@/public/icons/in.svg";
-import ins from "@/public/icons/ins.svg";
-import phone from "@/public/icons/phone.png";
-import phone_2 from "@/public/icons/phone_2.png";
-import Whatsapp from "@/public/icons/Whatsapp.svg";
-import logo from "@/public/logo.png";
-import { siteConfig } from "@/src/config/siteConfig";
-import Image from "next/image";
 import Link from "next/link";
-import { navLinks } from "./Header/navLinks";
+import {
+  CreditCard,
+  Gift,
+  HelpCircle,
+  Info,
+  ShoppingBag,
+  Truck,
+} from "lucide-react";
+import {
+  FaApple,
+  FaCcAmex,
+  FaCcApplePay,
+  FaCcDinersClub,
+  FaCcDiscover,
+  FaCcMastercard,
+  FaCcPaypal,
+  FaCcVisa,
+  FaFacebookF,
+  FaGooglePlay,
+  FaInstagram,
+  FaPinterest,
+  FaTiktok,
+} from "react-icons/fa6";
+import { SiDhl, SiKlarna } from "react-icons/si";
+import { siteConfig } from "@/src/config/siteConfig";
+import {
+  aboutLinks,
+  FooterLink,
+  giftCardLinks,
+  helpLinks,
+  legalLinks,
+  moreBrands,
+  moreInspiration,
+  promises,
+} from "./footerData";
+
+const PAYMENTS = [
+  { Icon: FaCcVisa, color: "#1A1F71", label: "Visa" },
+  { Icon: FaCcMastercard, color: "#EB001B", label: "Mastercard" },
+  { Icon: FaCcPaypal, color: "#003087", label: "PayPal" },
+  { Icon: FaCcAmex, color: "#2E77BC", label: "American Express" },
+  { Icon: FaCcDiscover, color: "#FF6000", label: "Discover" },
+  { Icon: FaCcDinersClub, color: "#0079BE", label: "Diners Club" },
+  { Icon: FaCcApplePay, color: "#000000", label: "Apple Pay" },
+  { Icon: SiKlarna, color: "#FFB3C7", label: "Klarna" },
+];
+
+function LinkGrid({ title, links }: { title: string; links: FooterLink[] }) {
+  return (
+    <div>
+      <h3 className="mb-5 text-2xl font-bold text-secondary">{title}</h3>
+      <div className="grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3 lg:grid-cols-4">
+        {links.map((l) => (
+          <Link
+            key={l.label}
+            href={l.href}
+            className="text-sm text-secondary hover:text-primary transition-colors"
+          >
+            {l.label}
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Chip({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inline-flex h-8 items-center rounded-md border border-gray-200 bg-white px-2.5 text-[11px] font-semibold text-gray-600">
+      {children}
+    </span>
+  );
+}
 
 const Footer = () => {
-  const sections = [
-    {
-      title: "Quick Links",
-      links: navLinks,
-    },
-  ];
-
   return (
-    <footer className="bg-[#F7F7F7] pt-8 md:pt-12.75">
-      <div className="container px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row gap-8 lg:gap-14 xl:gap-28">
-          <div className="w-full lg:w-5/12 xl:w-4/12">
-            <Link
-              href="/"
-              aria-label={siteConfig.name}
-              className="shrink-0 flex items-center"
-            >
-              <Image
-                src={logo}
-                alt={siteConfig.name}
-                width={216}
-                height={216}
-                className="w-24 h-24"
-              />
-              <h2 className="text-base text-secondary-dark font-semibold">
-                {siteConfig.name}
-              </h2>
-            </Link>
-            <p
-              className="text-sm text-secondary-foreground mb-5 lg:mb-8 leading-relaxed"
-              tabIndex={0}
-            >
-              {siteConfig.address}
-            </p>
-            <div>
-              <h2 className="text-xl text-secondary-dark font-semibold">
-                Social Media
-              </h2>
-              <div className="flex gap-3 mt-6">
-                <div className="flex items-center justify-center w-10 h-10 rounded-full border group hover:bg-primary">
-                  <Image
-                    width={40}
-                    height={40}
-                    src={facebook}
-                    alt="facebook"
-                    className="w-3 group-hover:brightness-0 group-hover:invert duration-300"
-                  />
-                </div>
+    <footer className="bg-light">
+      {/* More Brands + More Inspiration */}
+      <div className="container space-y-10 px-4 py-12">
+        <LinkGrid title="More Brands" links={moreBrands} />
+        <LinkGrid title="More Inspiration" links={moreInspiration} />
+      </div>
 
-                <div className="flex items-center justify-center w-10 h-10 rounded-full border group hover:bg-primary">
-                  <Image
-                    width={40}
-                    height={40}
-                    src={ins}
-                    alt="ins"
-                    className="w-5 group-hover:brightness-0 group-hover:invert duration-300"
-                  />
-                </div>
-
-                <div className="flex items-center justify-center w-10 h-10 rounded-full border group hover:bg-primary">
-                  <Image
-                    width={40}
-                    height={40}
-                    src={linkedin}
-                    alt="linkedin"
-                    className="w-5 group-hover:brightness-0 group-hover:invert duration-300"
-                  />
-                </div>
-
-                <div className="flex items-center justify-center w-10 h-10 rounded-full border group hover:bg-primary">
-                  <Image
-                    width={40}
-                    height={40}
-                    src={Whatsapp}
-                    alt="Whatsapp"
-                    className="w-6 group-hover:brightness-0 group-hover:invert duration-300"
-                  />
-                </div>
-              </div>
+      {/* Main footer columns */}
+      <div className="border-t border-gray-200">
+        <div className="container grid gap-10 px-4 py-12 lg:grid-cols-3">
+          {/* Help & Contact */}
+          <div>
+            <h4 className="mb-5 flex items-center gap-2 text-xl font-bold text-secondary">
+              <HelpCircle size={22} strokeWidth={1.6} /> Help &amp; Contact
+            </h4>
+            <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+              {helpLinks.map((l, i) => (
+                <Link
+                  key={l.label}
+                  href={l.href}
+                  className={`text-sm transition-colors hover:text-primary ${
+                    i === 0 ? "font-bold text-secondary" : "text-gray-600"
+                  }`}
+                >
+                  {l.label}
+                </Link>
+              ))}
             </div>
           </div>
-          <div className="w-full lg:w-7/12 xl:w-8/12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-5 lg:gap-8 xl:gap-10">
-            {sections.map((section, idx) => (
-              <div key={idx} className="mb-3">
-                <h4
-                  className="font-semibold mb-4 lg:mb-6 text-base text-secondary-dark"
-                  tabIndex={0}
+
+          {/* Gift Cards */}
+          <div>
+            <h4 className="mb-5 flex items-center gap-2 text-xl font-bold text-secondary">
+              <Gift size={22} strokeWidth={1.6} /> Gift Cards
+            </h4>
+            <ul className="space-y-3">
+              {giftCardLinks.map((l) => (
+                <li key={l.label}>
+                  <Link href={l.href} className="text-sm text-gray-600 hover:text-primary transition-colors">
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* About us */}
+          <div>
+            <h4 className="mb-5 flex items-center gap-2 text-xl font-bold text-secondary">
+              <Info size={22} strokeWidth={1.6} /> About us
+            </h4>
+            <ul className="space-y-3">
+              {aboutLinks.map((l) => (
+                <li key={l.label}>
+                  <Link href={l.href} className="text-sm text-gray-600 hover:text-primary transition-colors">
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        {/* Partners / Payments / Promises */}
+        <div className="container grid gap-10 px-4 pb-12 md:grid-cols-3">
+          <div>
+            <h4 className="mb-4 flex items-center gap-2 text-xl font-bold text-secondary">
+              <Truck size={22} strokeWidth={1.6} /> Our partners
+            </h4>
+            <div className="flex flex-wrap items-center gap-2">
+              <span
+                title="DHL"
+                className="grid h-9 w-14 place-items-center rounded-md border border-gray-200 bg-[#FFCC00]"
+              >
+                <SiDhl size={34} color="#D40511" />
+              </span>
+              <Chip>Hermes</Chip>
+            </div>
+          </div>
+          <div>
+            <h4 className="mb-4 flex items-center gap-2 text-xl font-bold text-secondary">
+              <CreditCard size={22} strokeWidth={1.6} /> Our payment methods
+            </h4>
+            <div className="flex flex-wrap gap-2">
+              {PAYMENTS.map(({ Icon, color, label }) => (
+                <span
+                  key={label}
+                  title={label}
+                  className="grid h-9 w-12 place-items-center rounded-md border border-gray-200 bg-white"
                 >
-                  {section.title}
-                </h4>
-                <ul className="space-y-2 lg:space-y-3 text-sm">
-                  {section.links.map((link, i) => (
-                    <li key={i}>
-                      <Link
-                        href={link.href}
-                        className="text-secondary-foreground font-normal text-base block group"
-                      >
-                        <span className="block pb-2">{link.label}</span>
-                        <span className="block w-0 group-hover:w-full h-px bg-secondary transition-all duration-300 mt-1"></span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-            <div className="space-y-3 text-sm">
-              <h4
-                className="font-semibold mb-4 lg:mb-6 text-base text-secondary-dark"
-                tabIndex={0}
-              >
-                Contact Info
-              </h4>
-              <div
-                className="flex items-start gap-3 text-secondary-foreground"
-                tabIndex={0}
-                aria-label="Contact Number"
-              >
-                <Image
-                  src={phone}
-                  alt=""
-                  width={48}
-                  height={48}
-                  className="w-6 h-6
-                "
-                />
-                <span className="mt-0.5">{siteConfig.phone1}</span>
-              </div>
-              <div
-                className="flex items-center gap-3 text-secondary-foreground"
-                tabIndex={0}
-                aria-label="Contact Number"
-              >
-                <Image
-                  src={phone_2}
-                  alt=""
-                  width={54}
-                  height={45}
-                  className="w-6 h-6
-                "
-                />
-                <span className="mt-0.5">{siteConfig.phone2}</span>
-              </div>
-              <div
-                className="flex items-center gap-3 text-secondary-foreground"
-                tabIndex={0}
-                aria-label="Email"
-              >
-                <Image
-                  src={email}
-                  alt=""
-                  width={60}
-                  height={48}
-                  className="w-6 
-                "
-                />
+                  <Icon size={26} color={color} />
+                </span>
+              ))}
+              <Chip>SEPA</Chip>
+              <Chip>Invoice</Chip>
+            </div>
+          </div>
+          <div>
+            <h4 className="mb-4 flex items-center gap-2 text-xl font-bold text-secondary">
+              <ShoppingBag size={22} strokeWidth={1.6} /> Our promises
+            </h4>
+            <ul className="space-y-2">
+              {promises.map((p) => (
+                <li key={p} className="text-sm text-gray-600">
+                  {p}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom bar */}
+      <div className="border-t border-gray-200">
+        <div className="container flex flex-col gap-8 px-4 py-8 lg:flex-row lg:items-start lg:justify-between">
+          {/* Legal */}
+          <div className="space-y-4">
+            <div className="flex flex-wrap gap-x-6 gap-y-2">
+              {legalLinks.map((l) => (
                 <Link
-                  href={`mailto:${siteConfig.email}`}
-                  className="mt-0.5 transition-colors"
+                  key={l.label}
+                  href={l.href}
+                  className="text-xs text-gray-600 hover:text-primary transition-colors"
                 >
-                  {siteConfig.email}
+                  {l.label}
+                </Link>
+              ))}
+            </div>
+            <p className="text-xs text-gray-500">All prices include VAT</p>
+          </div>
+
+          {/* Apps */}
+          <div>
+            <p className="mb-2 text-sm font-bold text-secondary">{siteConfig.name} Apps</p>
+            <div className="flex items-center gap-3">
+              <div className="grid h-14 w-14 place-items-center rounded-md border border-gray-200 bg-white text-[9px] text-gray-400">
+                QR
+              </div>
+              <div className="flex flex-col gap-2">
+                <Link
+                  href="#"
+                  className="flex items-center gap-2 rounded-lg bg-secondary px-3 py-2 text-white transition-transform hover:scale-105"
+                >
+                  <FaApple size={22} />
+                  <span className="flex flex-col text-left leading-none">
+                    <span className="text-[9px]">Download on the</span>
+                    <span className="text-sm font-semibold">App Store</span>
+                  </span>
+                </Link>
+                <Link
+                  href="#"
+                  className="flex items-center gap-2 rounded-lg bg-secondary px-3 py-2 text-white transition-transform hover:scale-105"
+                >
+                  <FaGooglePlay size={18} />
+                  <span className="flex flex-col text-left leading-none">
+                    <span className="text-[9px]">GET IT ON</span>
+                    <span className="text-sm font-semibold">Google Play</span>
+                  </span>
                 </Link>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-      <div className="flex flex-col sm:flex-row items-center justify-center w-full py-6 lg:py-11 gap-4 sm:gap-0 mt-4 lg:mt-6">
-        <div className="grow border-t border-text-secondary-foreground hidden sm:block"></div>
-        <span
-          className="px-4 text-center font-normal text-xs sm:text-sm text-secondary-foreground whitespace-nowrap"
-          tabIndex={0}
-        >
-          © {new Date().getFullYear()} {siteConfig.name}
-        </span>
-        <div className="grow border-t border-text-secondary-foreground hidden sm:block"></div>
-      </div>
 
-      {/* Developer Credit */}
-      {/* <div className="container px-4 sm:px-6 lg:px-8 text-xs text-[#B3B3B3] flex justify-center sm:justify-end pb-4 lg:pb-3">
-        <div className="flex items-center gap-3 flex-wrap justify-center">
-          <span>|</span>
-          <span>Developed by</span>
-          <Link
-            className="text-white"
-            tabIndex={0}
-            aria-label="Developed By A T I Limited"
-            href={"https://atilimited.net/"}
-            target="_blank"
-          >
-            <Image
-              width={67}
-              height={24}
-              src="/images/common/ATI_Logo.png"
-              alt="ATI_Logo"
-              className="h-5 w-auto lg:h-6"
-            />
-          </Link>
+          {/* Social */}
+          <div>
+            <p className="mb-2 text-sm font-bold text-secondary">You can also find us on</p>
+            <div className="flex items-center gap-2">
+              {[FaFacebookF, FaInstagram, FaPinterest, FaTiktok].map((Icon, i) => (
+                <Link
+                  key={i}
+                  href="#"
+                  aria-label="social"
+                  className="grid h-9 w-9 place-items-center rounded-md bg-secondary text-white transition-transform hover:scale-110"
+                >
+                  <Icon size={16} />
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
-      </div> */}
+      </div>
     </footer>
   );
 };

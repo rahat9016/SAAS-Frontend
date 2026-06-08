@@ -1,10 +1,10 @@
 export const siteConfig = {
   name:
     process.env.NEXT_PUBLIC_SITE_NAME ||
-    "X-Plaza",
+    "XPlaza",
   description:
     process.env.NEXT_PUBLIC_SITE_DESCRIPTION ||
-    "X-Plaza",
+    "XPlaza",
   address:
     process.env.NEXT_PUBLIC_ADDRESS ||
     "House 12, Road 12, Sector 11, Uttara, Dhaka-1230, Bangladesh",
