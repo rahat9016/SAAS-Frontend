@@ -1,11 +1,12 @@
 import "dotenv/config";
 import path from "node:path";
-import { defineConfig, env } from "prisma/config";
+import { defineConfig } from "prisma/config";
 
 export default defineConfig({
   schema: path.join(__dirname, "prisma", "schema.prisma"),
   datasource: {
-    url: env("DATABASE_URL"),
+    // generate does not connect; placeholder keeps CI install working when DATABASE_URL is unset
+    url: process.env.DATABASE_URL ?? "postgresql://user:pass@localhost:5432/placeholder",
   },
 });
 
