@@ -1,7 +1,7 @@
 export const siteConfig = {
   name:
     process.env.NEXT_PUBLIC_SITE_NAME ||
-    "XPlaza",
+    "Familie Munshi",
   description:
     process.env.NEXT_PUBLIC_SITE_DESCRIPTION ||
     "XPlaza",

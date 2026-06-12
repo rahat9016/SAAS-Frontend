@@ -3,8 +3,9 @@
 import { openLoginModal } from "@/src/lib/redux/features/auth/authSlice";
 import { IUserInformation } from "@/src/lib/redux/features/auth/authTypes";
 import { useAppDispatch } from "@/src/lib/redux/hooks";
-import { Heart, ShoppingCart, User } from "lucide-react";
+import { Heart, ShoppingBag, User } from "lucide-react";
 import Link from "next/link";
+import LanguageDropdown from "./LanguageDropdown";
 import { ProfileDropdown } from "./ProfileDropdown";
 
 interface HeaderTopBarActionsProps {
@@ -24,6 +25,8 @@ export default function HeaderTopBarActions({
 
   return (
     <div className="flex items-center gap-1 lg:gap-2 shrink-0">
+      <LanguageDropdown />
+
       <Link
         href="/wishlist"
         className="relative flex flex-col items-center gap-0.5 px-3 py-1.5 text-gray-600 hover:text-primary transition-colors group"
@@ -44,11 +47,11 @@ export default function HeaderTopBarActions({
         href="/cart"
         className="relative flex flex-col items-center gap-0.5 px-3 py-1.5 text-gray-600 hover:text-primary transition-colors group"
       >
-        <ShoppingCart
+        <ShoppingBag
           size={20}
           className="group-hover:scale-110 transition-transform"
         />
-        <span className="text-xs">Cart</span>
+        <span className="text-xs">My Bag</span>
         {cartCount > 0 && (
           <span className="absolute -top-0.5 right-1 min-w-4.5 h-4.5 flex items-center justify-center rounded-full bg-primary text-white text-[10px] font-bold px-1">
             {cartCount > 99 ? "99+" : cartCount}

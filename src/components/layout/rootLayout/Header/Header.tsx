@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { GenderProvider } from "./GenderContext";
 import HeaderTopBar from "./HeaderTopBar";
 import MobileNav from "./MobileNav";
 import NavItems from "./NavItems";
@@ -20,23 +21,25 @@ const Header = () => {
 
   return (
     <header className="relative">
-      <div
-        className={`fixed top-0 left-0 w-full z-50 transition-shadow duration-300 ${
-          scrolled ? "shadow-md" : ""
-        }`}
-      >
-        {/* Top Row: Logo + Search + Actions */}
-        <HeaderTopBar menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
+      <GenderProvider>
+        <div
+          className={`fixed top-0 left-0 w-full z-50 transition-shadow duration-300 ${
+            scrolled ? "shadow-md" : ""
+          }`}
+        >
+          {/* Top Row: Logo + Search + Actions */}
+          <HeaderTopBar menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
 
-        {/* Bottom Row: Category Navigation (desktop only) */}
-        <NavItems />
-      </div>
+          {/* Bottom Row: Category Navigation (desktop only) */}
+          <NavItems />
+        </div>
+      </GenderProvider>
 
       {/* Mobile category drawer + bottom bar */}
       <MobileNav open={menuOpen} setOpen={setMenuOpen} />
 
       {/* Spacer to push content below the fixed header */}
-      <div className="h-[100px] lg:h-[112px]" />
+      <div className="h-[100px] lg:h-[212px]" />
     </header>
   );
 };

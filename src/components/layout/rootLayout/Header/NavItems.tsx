@@ -4,15 +4,15 @@ import { AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRef, useState } from "react";
+import { useGender } from "./GenderContext";
 import MegaMenu from "./MegaMenu";
 import { getMegaMenu } from "./megaMenuData";
-import { navLinks } from "./navLinks";
-
-const GENDER_TABS = ["Women", "Men", "Kids"] as const;
+import { navByGender } from "./navLinks";
 
 export default function NavItems() {
   const pathname = usePathname();
-  const [activeTab, setActiveTab] = useState<(typeof GENDER_TABS)[number]>("Women");
+  const { gender } = useGender();
+  const navLinks = navByGender[gender];
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -36,26 +36,7 @@ export default function NavItems() {
       onMouseLeave={scheduleClose}
       onMouseEnter={() => closeTimer.current && clearTimeout(closeTimer.current)}
     >
-      <div className="container flex items-center gap-5 h-12">
-        {/* Women / Men / Kids pill tabs */}
-        <div className="flex items-center gap-1.5 pr-5 mr-1 border-r border-gray-200">
-          {GENDER_TABS.map((tab) => {
-            const active = activeTab === tab;
-            return (
-              <button
-                key={tab}
-                type="button"
-                onClick={() => setActiveTab(tab)}
-                className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors cursor-pointer ${
-                  active ? "bg-secondary text-white" : "text-secondary hover:bg-gray-100"
-                }`}
-              >
-                {tab}
-              </button>
-            );
-          })}
-        </div>
-
+      <div className="container flex items-center justify-center gap-5 h-12">
         {/* Category links */}
         <div className="flex items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {navLinks.map(({ label, href, isHighlighted }) => {

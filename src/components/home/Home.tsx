@@ -4,15 +4,13 @@ import AppPromo from "./sections/AppPromo";
 import BoardRow from "./sections/BoardRow";
 import BrandPromoRow from "./sections/BrandPromoRow";
 import BrandStoryRow from "./sections/BrandStoryRow";
+import ColorBanner from "./sections/ColorBanner";
 import FeatureGridSection from "./sections/FeatureGridSection";
-import HeroFeature from "./sections/HeroFeature";
 import OutfitInspiration from "./sections/OutfitInspiration";
-import PromoStrip from "./sections/PromoStrip";
 import {
   boards,
   brandPromos,
   brandStories,
-  heroBanner,
   makeProducts,
   nikeBanner,
   outfitLooks,
@@ -23,16 +21,9 @@ import {
 export default function Home() {
   return (
     <div className="bg-white">
-      <PromoStrip
-        text="Up to 60% off & 15% EXTRA"
-        highlight="Get ready for summer days"
-        ctaLabel="Use code SUMMER15"
-      />
-
-      {/* Hero — full width (banner is edge-to-edge) */}
-      <div>
-        <HeroFeature banner={heroBanner} products={makeProducts("hero", 5)} />
-      </div>
+      {/* Hero — stacked full-width color banners */}
+      <ColorBanner title="Especial Summer Offer" ctaLabel="Save Now" href="/products" bg="bg-sky-300" />
+      <ColorBanner title="Monthly Inspiration" ctaLabel="Read Now" href="/products" bg="bg-orange-200" />
 
       {/* Stores that inspire */}
       <Section bg="bg-white">

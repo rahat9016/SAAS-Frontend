@@ -1,17 +1,16 @@
 "use client";
 
-import logo from "@/public/logo.png";
-import { siteConfig } from "@/src/config/siteConfig";
 import { dummyProducts } from "@/src/data/dummyProducts";
 import { useDebounce } from "@/src/hooks/useDebounce";
 import { useAppSelector } from "@/src/lib/redux/hooks";
 import { MapPin } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
+import BrandLogo from "./BrandLogo";
+import GenderTabs from "./GenderTabs";
 import HeaderTopBarActions from "./HeaderTopBarActions";
 import HeaderTopBarSearch from "./HeaderTopBarSearch";
+import UtilityBar from "./UtilityBar";
 
 interface HeaderTopBarProps {
   menuOpen: boolean;
@@ -88,44 +87,46 @@ export default function HeaderTopBar({
   };
 
   return (
-    <div className="bg-white border-b border-gray-100">
+    <>
+      <UtilityBar />
+      <div className="bg-white border-b border-gray-100">
       {/* ═══════ DESKTOP HEADER ═══════ */}
-      <div className="hidden lg:flex container items-center justify-between gap-8 h-18">
-        {/* Logo */}
-        <Link href="/" className="shrink-0 flex items-center gap-2">
-          <Image
-            src={logo}
-            alt={siteConfig.name}
-            width={40}
-            height={40}
-            className="w-10 h-10 object-contain"
+      <div className="hidden lg:block">
+        {/* Row: gender tabs · centered logo · actions */}
+        <div className="container grid grid-cols-[1fr_auto_1fr] items-center gap-4 h-20">
+          <div className="justify-self-start">
+            <GenderTabs />
+          </div>
+
+          <BrandLogo className="justify-self-center" />
+
+          <div className="justify-self-end">
+            <HeaderTopBarActions
+              cartCount={cartCount}
+              wishlistCount={wishlistIds.length}
+              userInformation={userInformation}
+              authLoading={authLoading}
+            />
+          </div>
+        </div>
+
+        {/* Centered search row */}
+        <div className="container flex justify-center pb-3">
+          <HeaderTopBarSearch
+            searchRef={searchRef}
+            inputRef={inputRef}
+            searchQuery={searchQuery}
+            showResults={showResults}
+            isSearching={isSearching}
+            searchResults={searchResults}
+            setSearchQuery={setSearchQuery}
+            setShowResults={setShowResults}
+            handleSearch={handleSearch}
+            clearSearch={clearSearch}
+            handleProductClick={handleProductClick}
+            onViewAllResults={handleViewAllResults}
           />
-          <span className="text-2xl font-bold text-gray-900 tracking-tight">
-            {siteConfig.name}
-          </span>
-        </Link>
-
-        <HeaderTopBarSearch
-          searchRef={searchRef}
-          inputRef={inputRef}
-          searchQuery={searchQuery}
-          showResults={showResults}
-          isSearching={isSearching}
-          searchResults={searchResults}
-          setSearchQuery={setSearchQuery}
-          setShowResults={setShowResults}
-          handleSearch={handleSearch}
-          clearSearch={clearSearch}
-          handleProductClick={handleProductClick}
-          onViewAllResults={handleViewAllResults}
-        />
-
-        <HeaderTopBarActions
-          cartCount={cartCount}
-          wishlistCount={wishlistIds.length}
-          userInformation={userInformation}
-          authLoading={authLoading}
-        />
+        </div>
       </div>
 
       {/* ═══════ MOBILE HEADER (AliExpress-style) ═══════ */}
@@ -153,18 +154,7 @@ export default function HeaderTopBar({
                 <line x1="3" y1="18" x2="21" y2="18" />
               </svg>
             </button>
-            <Link href="/" className="flex items-center gap-1.5">
-              <Image
-                src={logo}
-                alt={siteConfig.name}
-                width={32}
-                height={32}
-                className="w-8 h-8 object-contain"
-              />
-              <span className="text-xl font-bold text-gray-900 tracking-tight">
-                {siteConfig.name}
-              </span>
-            </Link>
+            <BrandLogo size="sm" />
           </div>
           <div className="flex items-center gap-1 text-xs text-gray-500">
             <MapPin size={14} className="text-gray-400" />
@@ -189,6 +179,7 @@ export default function HeaderTopBar({
           onViewAllResults={handleViewAllResults}
         />
       </div>
-    </div>
+      </div>
+    </>
   );
 }
