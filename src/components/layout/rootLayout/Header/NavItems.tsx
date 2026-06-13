@@ -32,11 +32,11 @@ export default function NavItems() {
 
   return (
     <nav
-      className="relative hidden lg:block bg-white border-b border-gray-100"
+      className="relative hidden lg:block bg-green-200 border-b border-green-300"
       onMouseLeave={scheduleClose}
       onMouseEnter={() => closeTimer.current && clearTimeout(closeTimer.current)}
     >
-      <div className="container flex items-center justify-center gap-5 h-12">
+      <div className="container flex items-center justify-start gap-5 h-12">
         {/* Category links */}
         <div className="flex items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {navLinks.map(({ label, href, isHighlighted }) => {

@@ -49,13 +49,13 @@ export default function Gallery({ images, alt }: GalleryProps) {
         </button>
       </div>
 
-      {/* Main image (capped under 500px) */}
-      <div className="relative aspect-[4/5] w-full max-w-[390px] overflow-hidden rounded-xl bg-light">
+      {/* Main image — fills the gallery column */}
+      <div className="relative aspect-[4/5] flex-1 overflow-hidden rounded-xl bg-light">
         <Image
           src={list[active]}
           alt={alt}
           fill
-          sizes="390px"
+          sizes="(max-width:1024px) 90vw, 40vw"
           className="object-cover"
           priority
         />

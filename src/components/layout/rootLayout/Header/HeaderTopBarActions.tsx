@@ -59,8 +59,6 @@ export default function HeaderTopBarActions({
         )}
       </Link>
 
-      <div className="hidden lg:block w-px h-8 bg-gray-200 mx-1" />
-
       {authLoading ? (
         <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-gray-200">
           <div className="w-4 h-4 rounded-full bg-gray-200 animate-pulse" />
@@ -71,10 +69,10 @@ export default function HeaderTopBarActions({
       ) : (
         <button
           onClick={() => dispatch(openLoginModal())}
-          className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors cursor-pointer"
+          className="flex flex-col items-center gap-0.5 px-3 py-1.5 text-gray-600 hover:text-primary transition-colors cursor-pointer group"
         >
-          <User size={16} />
-          <span className="whitespace-nowrap">Sign In</span>
+          <User size={20} className="group-hover:scale-110 transition-transform" />
+          <span className="text-xs">Sign In</span>
         </button>
       )}
     </div>

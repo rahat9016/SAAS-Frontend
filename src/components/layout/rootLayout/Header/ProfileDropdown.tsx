@@ -48,30 +48,21 @@ export function ProfileDropdown() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
-          className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-gray-50 transition-colors focus:outline-none cursor-pointer"
+          className="flex flex-col items-center gap-0.5 px-3 py-1.5 text-gray-600 hover:text-primary transition-colors focus:outline-none cursor-pointer group"
           aria-label="Open profile menu"
         >
           {userInformation.profilePicture ? (
             <Image
               src={userInformation.profilePicture}
               alt={userInformation.firstName}
-              width={32}
-              height={32}
-              className="w-8 h-8 rounded-full object-cover ring-2 ring-primary/20"
+              width={20}
+              height={20}
+              className="w-5 h-5 rounded-full object-cover ring-1 ring-primary/30"
             />
           ) : (
-            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-              <User size={16} className="text-primary" />
-            </div>
+            <User size={20} className="group-hover:scale-110 transition-transform" />
           )}
-          <div className="hidden xl:flex flex-col items-start">
-            <span className="text-xs font-semibold text-gray-800 leading-tight">
-              {userInformation.firstName}
-            </span>
-            <span className="text-[10px] text-gray-400 leading-tight">
-              My Account
-            </span>
-          </div>
+          <span className="text-xs">My Account</span>
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent

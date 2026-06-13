@@ -3,13 +3,13 @@
 import { dummyProducts } from "@/src/data/dummyProducts";
 import { useDebounce } from "@/src/hooks/useDebounce";
 import { useAppSelector } from "@/src/lib/redux/hooks";
-import { MapPin } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import BrandLogo from "./BrandLogo";
 import GenderTabs from "./GenderTabs";
 import HeaderTopBarActions from "./HeaderTopBarActions";
 import HeaderTopBarSearch from "./HeaderTopBarSearch";
+import LanguageDropdown from "./LanguageDropdown";
 import UtilityBar from "./UtilityBar";
 
 interface HeaderTopBarProps {
@@ -131,36 +131,32 @@ export default function HeaderTopBar({
 
       {/* ═══════ MOBILE HEADER (AliExpress-style) ═══════ */}
       <div className="lg:hidden">
-        {/* Row 1: Hamburger + Logo + Deliver to */}
-        <div className="flex items-center justify-between px-4 h-12">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="flex items-center justify-center w-8 h-8 text-gray-700 hover:text-primary transition-colors -ml-1"
-              aria-label="Open menu"
+        {/* Row 1: Hamburger (left) + centered Logo */}
+        <div className="relative flex items-center justify-center px-4 h-12">
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="absolute left-3 flex items-center justify-center w-8 h-8 text-gray-700 hover:text-primary transition-colors"
+            aria-label="Open menu"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             >
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <line x1="3" y1="6" x2="21" y2="6" />
-                <line x1="3" y1="12" x2="21" y2="12" />
-                <line x1="3" y1="18" x2="21" y2="18" />
-              </svg>
-            </button>
-            <BrandLogo size="sm" />
-          </div>
-          <div className="flex items-center gap-1 text-xs text-gray-500">
-            <MapPin size={14} className="text-gray-400" />
-            <span>
-              Deliver to <strong className="text-gray-700">Bangladesh</strong>
-            </span>
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          </button>
+          <BrandLogo size="sm" />
+
+          <div className="absolute right-1">
+            <LanguageDropdown />
           </div>
         </div>
 

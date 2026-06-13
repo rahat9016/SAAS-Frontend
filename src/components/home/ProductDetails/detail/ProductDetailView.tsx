@@ -1,9 +1,11 @@
 "use client";
 
-import { Bell, Heart, Plus, ShoppingBag } from "lucide-react";
+import { Bell, Heart, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "react-toastify";
+import ProductCarousel from "../../common/ProductCarousel";
+import { makeProducts } from "../../data/homeData";
 import Accordion, { SpecList } from "./Accordion";
 import ColorSwatches from "./ColorSwatches";
 import DeliveryInfo from "./DeliveryInfo";
@@ -18,9 +20,13 @@ export default function ProductDetailView({ product }: { product: ProductDetail 
   const [size, setSize] = useState<string | null>(null);
   const [sizeError, setSizeError] = useState(false);
   const [wished, setWished] = useState(false);
-  const [following, setFollowing] = useState(false);
 
   const discounted = !!product.lastLowest && product.lastLowest > product.price;
+
+  // Gallery images follow the selected colour (fallback to the product set).
+  const selected = product.colors.find((c) => c.id === activeColor);
+  const galleryImages =
+    selected?.images && selected.images.length ? selected.images : product.images;
 
   const handleAddToBag = () => {
     if (!size) {
@@ -33,29 +39,22 @@ export default function ProductDetailView({ product }: { product: ProductDetail 
 
   return (
     <div className="container px-4 sm:px-6 lg:px-8 py-6 md:py-10">
-      <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-center">
-        {/* Gallery */}
-        <div className="lg:shrink-0">
-          <Gallery images={product.images} alt={product.title} />
+      <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
+        {/* Gallery — 43% width on desktop; swaps with the selected colour */}
+        <div className="w-full lg:w-[43%] lg:shrink-0">
+          <Gallery key={activeColor} images={galleryImages} alt={product.title} />
         </div>
 
-        {/* Info */}
-        <div className="w-full lg:max-w-md">
-          {/* Brand + follow */}
-          <div className="mb-2 flex items-center justify-between">
+        {/* Info — fills the remaining width after the 43% gallery */}
+        <div className="w-full lg:flex-1">
+          {/* Brand */}
+          <div className="mb-2">
             <Link
               href={product.brandHref ?? "#"}
               className="text-base font-bold text-secondary underline underline-offset-2"
             >
               {product.brand}
             </Link>
-            <button
-              type="button"
-              onClick={() => setFollowing((f) => !f)}
-              className="inline-flex items-center gap-1.5 rounded-full border border-gray-300 px-3 py-1 text-xs font-semibold text-secondary hover:bg-light"
-            >
-              <Plus size={14} /> {following ? "Following" : "Follow"}
-            </button>
           </div>
 
           <h1 className="text-xl font-bold leading-snug text-secondary">{product.title}</h1>
@@ -165,6 +164,18 @@ export default function ProductDetailView({ product }: { product: ProductDetail 
 
           <p className="mt-4 text-xs text-gray-400">⚐ Report a legal concern</p>
         </div>
+      </div>
+
+      {/* Related products */}
+      <div className="mt-14">
+        <ProductCarousel
+          title="You may also like"
+          subtitle="Related products"
+          ctaLabel="View all"
+          ctaHref="/products"
+          products={makeProducts(`related-${product.id}`, 12)}
+          compact
+        />
       </div>
     </div>
   );

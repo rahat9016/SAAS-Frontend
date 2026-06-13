@@ -4,7 +4,10 @@
 export interface DetailColor {
   id: string;
   label: string;
+  /** swatch thumbnail */
   image: string;
+  /** gallery images shown when this colour is selected */
+  images?: string[];
   href?: string;
 }
 
