@@ -25,8 +25,6 @@ const CATEGORIES: NavLink[] = [
   cat("Accessories"),
   cat("Baggage"),
   cat("Shoes"),
-  { label: "Sale %", href: "/products?filter=sale", isHighlighted: true },
-  { label: "Pre-owned & Sell", href: "/products?filter=pre-owned" },
 ];
 
 /** Same category set shown under every parent (Women / Men / Kids). */

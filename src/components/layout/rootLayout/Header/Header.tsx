@@ -39,7 +39,7 @@ const Header = () => {
       </GenderProvider>
 
       {/* Spacer to push content below the fixed header */}
-      <div className="h-[100px] lg:h-[212px]" />
+      <div className="h-[100px] lg:h-37" />
     </header>
   );
 };

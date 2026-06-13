@@ -42,7 +42,7 @@ export default function MegaMenu({ data, menuKey, onNavigate }: MegaMenuProps) {
                     className={`group/i flex items-center gap-3 rounded-md px-2 py-1.5 -mx-2 text-sm transition-colors duration-150 ${
                       highlight
                         ? "font-semibold text-red-500 hover:bg-red-50"
-                        : "text-secondary hover:bg-light hover:text-primary"
+                        : "text-foreground hover:bg-light hover:text-primary"
                     }`}
                   >
                     <Icon

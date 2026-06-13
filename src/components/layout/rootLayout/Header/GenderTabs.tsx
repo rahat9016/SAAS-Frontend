@@ -14,8 +14,10 @@ export default function GenderTabs() {
             key={tab}
             type="button"
             onClick={() => setGender(tab)}
-            className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors cursor-pointer ${
-              on ? "bg-secondary text-white" : "text-secondary hover:bg-gray-100"
+            className={`rounded-md px-4 py-1.5 text-sm font-semibold transition-all duration-200 ease-out cursor-pointer hover:-translate-y-0.5 active:scale-95 ${
+              on
+                ? "bg-secondary text-white shadow-sm"
+                : "text-foreground hover:bg-gray-100"
             }`}
           >
             {tab}

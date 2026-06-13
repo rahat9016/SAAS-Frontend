@@ -7,7 +7,9 @@ import { useRef, useState } from "react";
 import { useGender } from "./GenderContext";
 import MegaMenu from "./MegaMenu";
 import { getMegaMenu } from "./megaMenuData";
+import NavSearch from "./NavSearch";
 import { navByGender } from "./navLinks";
+import { useHeaderSearch } from "./useHeaderSearch";
 
 export default function NavItems() {
   const pathname = usePathname();
@@ -15,6 +17,8 @@ export default function NavItems() {
   const navLinks = navByGender[gender];
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const search = useHeaderSearch();
 
   const open = (label: string) => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
@@ -32,13 +36,13 @@ export default function NavItems() {
 
   return (
     <nav
-      className="relative hidden lg:block bg-green-200 border-b border-green-300"
+      className="relative hidden lg:block bg-white border-b border-gray-200"
       onMouseLeave={scheduleClose}
       onMouseEnter={() => closeTimer.current && clearTimeout(closeTimer.current)}
     >
-      <div className="container flex items-center justify-start gap-5 h-12">
+      <div className="container flex items-center gap-5 h-14">
         {/* Category links */}
-        <div className="flex items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex flex-1 items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {navLinks.map(({ label, href, isHighlighted }) => {
             const isActive =
               pathname === href || pathname.startsWith(href.split("?")[0] + "/");
@@ -56,7 +60,7 @@ export default function NavItems() {
                     ? "font-bold text-red-500 hover:text-red-600"
                     : isActive || isOpen
                       ? "text-primary font-semibold"
-                      : "text-secondary hover:text-primary"
+                      : "text-foreground hover:text-primary"
                 }`}
               >
                 {label}
@@ -64,6 +68,22 @@ export default function NavItems() {
             );
           })}
         </div>
+
+        {/* Search on the right — fixed width */}
+        <NavSearch
+          searchRef={search.searchRef}
+          inputRef={search.inputRef}
+          searchQuery={search.searchQuery}
+          showResults={search.showResults}
+          isSearching={search.isSearching}
+          searchResults={search.searchResults}
+          setSearchQuery={search.setSearchQuery}
+          setShowResults={search.setShowResults}
+          handleSearch={search.handleSearch}
+          clearSearch={search.clearSearch}
+          handleProductClick={search.handleProductClick}
+          onViewAllResults={search.handleViewAllResults}
+        />
       </div>
 
       {/* Animated mega-menu panel on hover */}

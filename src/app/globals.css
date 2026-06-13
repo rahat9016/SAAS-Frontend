@@ -8,6 +8,8 @@
    THEME TOKENS (shadcn)
 ========================= */
 @theme inline {
+  --font-brand: var(--font-brand);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
