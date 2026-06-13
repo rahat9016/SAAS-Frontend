@@ -16,7 +16,11 @@ export default function FeatureGridSection({
 }: FeatureGridSectionProps) {
   return (
     <section className="space-y-4">
-      <FeatureBanner {...banner} ratio="aspect-[16/6]" align="center" />
+      <FeatureBanner
+        {...banner}
+        ratio="aspect-[4/3] sm:aspect-[16/7] lg:aspect-[16/6]"
+        align="center"
+      />
       <ProductGrid products={products} cols={cols} />
     </section>
   );

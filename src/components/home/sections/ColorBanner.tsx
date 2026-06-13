@@ -20,15 +20,15 @@ export default function ColorBanner({
   href = "#",
   bg,
   text = "text-white",
-  height = "min-h-[260px] md:min-h-[340px]",
+  height = "min-h-[180px] sm:min-h-[260px] md:min-h-[340px]",
 }: ColorBannerProps) {
   return (
     <Link href={href} className={`group block w-full ${bg}`}>
       <div className={`container flex flex-col items-center justify-center px-4 text-center ${height} ${text}`}>
-        <h2 className="text-4xl font-bold md:text-6xl">{title}</h2>
-        <span className="mt-3 inline-flex items-center gap-2 text-lg font-medium">
+        <h2 className="text-2xl font-bold sm:text-4xl md:text-6xl">{title}</h2>
+        <span className="mt-2 inline-flex items-center gap-2 text-base font-medium sm:mt-3 sm:text-lg">
           {ctaLabel}
-          <ArrowRight size={22} className="transition-transform group-hover:translate-x-1.5" />
+          <ArrowRight size={20} className="transition-transform group-hover:translate-x-1.5" />
         </span>
       </div>
     </Link>

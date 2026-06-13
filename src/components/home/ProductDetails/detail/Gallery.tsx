@@ -15,9 +15,9 @@ export default function Gallery({ images, alt }: GalleryProps) {
   const list = images.length ? images : [""];
 
   return (
-    <div className="flex gap-3">
+    <div className="flex gap-2 sm:gap-3">
       {/* Thumbnails */}
-      <div className="flex w-16 flex-col items-center gap-2">
+      <div className="flex w-14 flex-col items-center gap-2 sm:w-16">
         <button
           type="button"
           aria-label="scroll up"
@@ -32,7 +32,7 @@ export default function Gallery({ images, alt }: GalleryProps) {
               type="button"
               onMouseEnter={() => setActive(i)}
               onClick={() => setActive(i)}
-              className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-light ${
+              className={`relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-light sm:h-16 sm:w-16 ${
                 active === i ? "ring-2 ring-secondary" : "ring-1 ring-gray-200"
               }`}
             >

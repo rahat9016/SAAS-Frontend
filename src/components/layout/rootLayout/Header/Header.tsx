@@ -33,10 +33,10 @@ const Header = () => {
           {/* Bottom Row: Category Navigation (desktop only) */}
           <NavItems />
         </div>
-      </GenderProvider>
 
-      {/* Mobile category drawer + bottom bar */}
-      <MobileNav open={menuOpen} setOpen={setMenuOpen} />
+        {/* Mobile category drawer + bottom bar */}
+        <MobileNav open={menuOpen} setOpen={setMenuOpen} />
+      </GenderProvider>
 
       {/* Spacer to push content below the fixed header */}
       <div className="h-[100px] lg:h-[212px]" />
