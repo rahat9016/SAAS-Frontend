@@ -122,19 +122,21 @@ export default function ProductDetailView({ product }: { product: ProductDetail 
             </div>
           )}
 
-          {/* Size */}
-          <div className="mt-5">
-            <p className="mb-1.5 text-sm text-gray-600">Size</p>
-            <SizeSelect
-              sizes={product.sizes}
-              value={size}
-              onChange={(s) => {
-                setSize(s);
-                setSizeError(false);
-              }}
-              error={sizeError}
-            />
-          </div>
+          {/* Size — only when the product has sizes */}
+          {product.sizes.length > 0 && (
+            <div className="mt-5">
+              <p className="mb-1.5 text-sm text-gray-600">Size</p>
+              <SizeSelect
+                sizes={product.sizes}
+                value={size}
+                onChange={(s) => {
+                  setSize(s);
+                  setSizeError(false);
+                }}
+                error={sizeError}
+              />
+            </div>
+          )}
 
           {/* CTA */}
           <div className="mt-4 flex items-center gap-3">

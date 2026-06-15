@@ -17,11 +17,17 @@ export enum PaymentStatus {
 }
 
 export enum PaymentMethod {
+  CARD = "CARD",
+  PAYPAL = "PAYPAL",
+  APPLE_PAY = "APPLE_PAY",
+  GOOGLE_PAY = "GOOGLE_PAY",
+  KLARNA = "KLARNA",
+  STRIPE = "STRIPE",
   COD = "COD",
+  // legacy / regional
   SSLCOMMERZ = "SSLCOMMERZ",
   BKASH = "BKASH",
   NAGAD = "NAGAD",
-  STRIPE = "STRIPE",
 }
 
 export interface IShippingAddress {
