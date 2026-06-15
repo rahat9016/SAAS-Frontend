@@ -63,13 +63,13 @@
   --light-silver: #e0e0e0;
 
   --background: #ffffff;
-  --foreground: oklch(0.18 0 0);
+  --foreground: #181818;
 
-  --primary: #53af45;
-  --primary-light: #47a33a;
+  --primary: #F07A1C;
+  --primary-light: #D85C00;
   --primary-foreground: oklch(0.985 0 0);
 
-  --secondary: #05185a;
+  --secondary: #181818;
   --secondary-dark: #0f0e40;
   --secondary-gray: #545454;
   --secondary-foreground: #5c5c5c;

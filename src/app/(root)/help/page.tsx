@@ -14,7 +14,7 @@ import Link from "next/link";
 const topics = [
   { icon: Truck, label: "Track your parcel", text: "See where your order is.", href: "/orders" },
   { icon: Package, label: "Delivery information", text: "Times, costs & options.", href: "/help" },
-  { icon: RotateCcw, label: "Returns & refunds", text: "30-day free returns.", href: "/help/returns" },
+  { icon: RotateCcw, label: "Returns & refunds", text: "14-day free returns.", href: "/help/returns" },
   { icon: Ruler, label: "Find the right size", text: "Size guides & fit tips.", href: "/help" },
   { icon: CreditCard, label: "Payment & invoices", text: "Methods & billing.", href: "/help" },
   { icon: ShieldCheck, label: "Report an issue", text: "Damaged or wrong item.", href: "/help" },

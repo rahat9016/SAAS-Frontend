@@ -10,15 +10,6 @@ interface Msg {
 
 const QUICK = ["Track my order", "Return policy", "Find my size"];
 
-/** Hover tooltip shown to the left of a floating button. */
-function Tooltip({ text }: { text: string }) {
-  return (
-    <span className="pointer-events-none absolute right-full top-1/2 mr-3 -translate-y-1/2 whitespace-nowrap rounded-md bg-secondary px-2.5 py-1 text-xs font-medium text-white opacity-0 shadow-md transition-opacity duration-150 group-hover:opacity-100">
-      {text}
-    </span>
-  );
-}
-
 /** Fixed bottom-right: chatbot assistant + scroll-to-top. */
 export default function FloatingActions() {
   const [chatOpen, setChatOpen] = useState(false);
@@ -53,9 +44,14 @@ export default function FloatingActions() {
 
   return (
     <>
-      {/* Chat panel */}
-      {chatOpen && (
-        <div className="fixed bottom-36 right-4 z-50 flex h-[440px] w-[330px] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl lg:bottom-24">
+      {/* Chat panel — smooth open/close */}
+      <div
+        className={`fixed bottom-36 right-4 z-50 flex h-[440px] w-[330px] max-w-[calc(100vw-2rem)] origin-bottom-right flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl transition-all duration-300 ease-out lg:bottom-24 ${
+          chatOpen
+            ? "scale-100 opacity-100 translate-y-0"
+            : "pointer-events-none scale-95 opacity-0 translate-y-3"
+        }`}
+      >
           <div className="flex items-center justify-between bg-primary px-4 py-3 text-white">
             <div className="flex items-center gap-2">
               <Bot size={20} />
@@ -117,39 +113,34 @@ export default function FloatingActions() {
               <Send size={16} />
             </button>
           </form>
-        </div>
+      </div>
+
+      {/* Assistant — placed 20% up, hidden while chat is open (panel has its own close) */}
+      {!chatOpen && (
+        <button
+          onClick={() => setChatOpen(true)}
+          aria-label="Open shopping consultant"
+          className="fixed bottom-[30%] right-4 z-50 cursor-pointer rounded-full border border-primary bg-transparent px-5 py-2.5 text-sm font-semibold text-primary whitespace-nowrap transition-transform hover:scale-105"
+        >
+          Shopping consultant
+        </button>
       )}
 
-      {/* Floating buttons */}
-      <div className="fixed bottom-20 right-4 z-50 flex flex-col items-center gap-3 lg:bottom-6">
-        {/* Go to top — above the assistant; always mounted so the assistant
-            never shifts, fades/scales in smoothly on scroll. */}
-        <div
-          className={`group relative transition-all duration-300 ${
-            showTop ? "opacity-100 translate-y-0" : "pointer-events-none translate-y-2 opacity-0"
-          }`}
+      {/* Go to top — bottom-right; fades in on scroll */}
+      <div
+        className={`fixed bottom-12.5 right-4 z-50 transition-all duration-300 ${
+          showTop && !chatOpen
+            ? "opacity-100 translate-y-0"
+            : "pointer-events-none translate-y-2 opacity-0"
+        }`}
+      >
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          aria-label="Go to top"
+          className="flex cursor-pointer items-center gap-1.5 rounded-full border border-primary bg-transparent px-5 py-2.5 text-sm font-semibold text-primary whitespace-nowrap transition-transform hover:scale-105"
         >
-          <button
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            aria-label="Go to top"
-            className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full bg-secondary text-white shadow-lg transition-transform hover:scale-110"
-          >
-            <ArrowUp size={20} />
-          </button>
-          <Tooltip text="Back to top" />
-        </div>
-
-        {/* Assistant — anchored at the bottom */}
-        <div className="group relative">
-          <button
-            onClick={() => setChatOpen((o) => !o)}
-            aria-label="Open assistant"
-            className="flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-primary text-white shadow-lg transition-transform hover:scale-110"
-          >
-            {chatOpen ? <X size={22} /> : <Bot size={24} />}
-          </button>
-          <Tooltip text="Chat with assistant" />
-        </div>
+          <ArrowUp size={16} /> Back to top
+        </button>
       </div>
     </>
   );

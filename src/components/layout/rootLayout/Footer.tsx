@@ -78,7 +78,7 @@ const Footer = () => {
     <footer className="bg-light">
       {/* More Brands + More Inspiration */}
       <div className="container space-y-10 px-4 py-12">
-        <LinkGrid title="More Brands" links={moreBrands} />
+        <LinkGrid title="Shop Categories" links={moreBrands} />
         <LinkGrid title="More Inspiration" links={moreInspiration} />
       </div>
 

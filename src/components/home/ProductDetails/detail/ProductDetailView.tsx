@@ -1,5 +1,8 @@
 "use client";
 
+import { addToCart } from "@/src/lib/redux/features/cart/cartSlice";
+import { toggleWishlist } from "@/src/lib/redux/features/wishlist/wishlistSlice";
+import { useAppDispatch, useAppSelector } from "@/src/lib/redux/hooks";
 import { Bell, Heart, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -16,10 +19,13 @@ import { ProductDetail } from "./detailTypes";
 const fmt = (n: number) => `€${n.toFixed(2)}`;
 
 export default function ProductDetailView({ product }: { product: ProductDetail }) {
+  const dispatch = useAppDispatch();
+  const wishlistIds = useAppSelector((state) => state.wishlist.productIds);
+  const wished = wishlistIds.includes(product.id);
+
   const [activeColor, setActiveColor] = useState(product.colors[0]?.id ?? "");
   const [size, setSize] = useState<string | null>(null);
   const [sizeError, setSizeError] = useState(false);
-  const [wished, setWished] = useState(false);
 
   const discounted = !!product.lastLowest && product.lastLowest > product.price;
 
@@ -29,11 +35,31 @@ export default function ProductDetailView({ product }: { product: ProductDetail 
     selected?.images && selected.images.length ? selected.images : product.images;
 
   const handleAddToBag = () => {
-    if (!size) {
+    if (product.sizes.length && !size) {
       setSizeError(true);
       toast.error("Please choose your size");
       return;
     }
+
+    const selectedAttributes: Record<string, string> = {};
+    if (selected) selectedAttributes.Color = selected.label;
+    if (size) selectedAttributes.Size = size;
+
+    dispatch(
+      addToCart({
+        productId: product.id,
+        name: product.title,
+        slug: product.slug,
+        image: galleryImages[0] ?? product.images[0],
+        price: product.price,
+        compareAtPrice: product.lastLowest,
+        quantity: 1,
+        stock: product.inStock ? 99 : 0,
+        variantName: selected?.label,
+        selectedAttributes,
+        freeShipping: product.delivery.cost === "free",
+      })
+    );
     toast.success("Added to bag");
   };
 
@@ -131,7 +157,7 @@ export default function ProductDetailView({ product }: { product: ProductDetail 
             )}
             <button
               type="button"
-              onClick={() => setWished((w) => !w)}
+              onClick={() => dispatch(toggleWishlist(product.id))}
               aria-label="wishlist"
               className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-gray-300 hover:bg-light"
             >

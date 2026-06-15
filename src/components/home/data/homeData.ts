@@ -1,7 +1,11 @@
 // Mock data for the home page sections. Swap with real API data later —
 // every section component is props-driven, so only this file changes.
 
+import { dummyProducts } from "@/src/data/dummyProducts";
 import { BannerContent, BoardItem, BrandStory, HomeProduct } from "../common/homeTypes";
+
+/** Real catalog slugs so product tiles open an actual detail page. */
+const PRODUCT_SLUGS = dummyProducts.map((p) => p.slug);
 
 // Curated Unsplash clothing/fashion photo IDs (apparel, models, shoes, bags).
 const FASHION_IDS = [
@@ -63,7 +67,7 @@ export function makeProducts(prefix: string, n = 10): HomeProduct[] {
       lastLowestLabel: `-${off}%`,
       extraLabel: i % 2 === 0 ? "15% EXTRA" : undefined,
       deal: i % 3 === 0,
-      href: "/products",
+      href: `/products/${PRODUCT_SLUGS[(offset + i) % PRODUCT_SLUGS.length]}`,
     };
   });
 }

@@ -30,7 +30,7 @@ export default function DeliveryInfo({ soldBy, range, cost }: DeliveryInfoProps)
 
       <div className="flex items-center gap-3 px-4 py-3">
         <RotateCcw size={20} className="shrink-0 text-secondary" />
-        <span className="text-sm font-semibold text-secondary">30 day return policy</span>
+        <span className="text-sm font-semibold text-secondary">14 day return policy</span>
       </div>
     </div>
   );

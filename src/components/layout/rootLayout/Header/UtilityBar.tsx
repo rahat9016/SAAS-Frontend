@@ -12,7 +12,7 @@ export default function UtilityBar() {
           Free standard delivery over €34,90 &amp; free returns*
         </span>
         <Link href="/help/returns" className="hover:text-primary transition-colors">
-          30-day return policy
+          14-day return policy
         </Link>
         <Link href="/gift-cards" className="hover:text-primary transition-colors">
           Gift Cards

@@ -3,12 +3,17 @@ export interface FooterLink {
   href: string;
 }
 
+const catSlug = (s: string) =>
+  s.toLowerCase().replace(/&/g, "and").replace(/\//g, "-").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
 export const moreBrands: FooterLink[] = [
-  "adidas", "Adidas Terrex", "ASICS", "Banana Republic", "Calvin Klein Underwear", "Clarks", "Coach", "Converse",
-  "Diesel", "Dr Martens", "Fossil", "French Connection", "G-Star", "GAP", "Helly Hansen", "Lacoste",
-  "Levi's ®", "Michael Kors", "New Balance", "Nike", "Puma", "Ralph Lauren", "Ray Ban", "Skechers",
-  "Ted Baker", "The North Face", "Timberland", "Tommy Hilfiger", "Vans",
-].map((b) => ({ label: b, href: "/brands" }));
+  "Blouses", "Shirts", "T-shirts", "Polo shirts", "Sweatshirts", "Sweatshirt Jacke", "Indoor jackets",
+  "Indoor Blazer", "Indoor-Sakko", "Indoor-Weste", "Outdoor jackets", "Outdoor-Coat", "Outdoor-Weste",
+  "Outdoor-Poncho", "Outdoor-Umhang", "Knitwear", "Knitted sweater", "Knitted Vest", "Knitted cardigan",
+  "Knitted twinset", "Pants", "Jeans pants", "Skirts", "One-pieces/dresses", "Underwear", "Swimwear",
+  "Accessories", "Socks/Hosiery", "Daywear", "Hats", "Curtains", "Home Cloths", "Shoes", "Fine Jewelry",
+  "Fashion Jewelry", "Bags", "Fragrances", "Flags", "Religious", "Traditionals",
+].map((c) => ({ label: c, href: `/categories?c=${catSlug(c)}` }));
 
 export const moreInspiration: FooterLink[] = [
   "Backpacks", "Bomber Jackets", "Dirndl Dresses", "Dresses", "Football Boots", "Handbags", "Jeans",
@@ -60,6 +65,6 @@ export const paymentMethods = [
 ];
 export const promises = [
   "Free delivery for orders over $34.90",
-  "30-day return policy",
+  "14-day return policy",
   "Flexible payment options",
 ];

@@ -1,3 +1,5 @@
+import { dummyProducts } from "@/src/data/dummyProducts";
+import { IProduct } from "@/src/types/ecommerce/product";
 import { ProductDetail } from "./detailTypes";
 
 const u = (id: string, w = 800, h = 1000) =>
@@ -120,8 +122,81 @@ export const shortsDetail: ProductDetail = {
   articleNumber: "UH998X011-K11",
 };
 
-/** Resolve a product detail by slug (falls back to the sample). */
+/** Unique attribute values for a given attribute name across variants. */
+const uniqueAttr = (p: IProduct, name: string): string[] => {
+  const seen = new Set<string>();
+  p.variants.forEach((v) =>
+    v.attributes.forEach((a) => {
+      if (a.name.toLowerCase() === name.toLowerCase()) seen.add(a.value);
+    })
+  );
+  return [...seen];
+};
+
+/** Map a catalog product (IProduct) into the detail-page view model. */
+export function mapProductToDetail(p: IProduct): ProductDetail {
+  const imgs = p.images.map((i) => i.url);
+  const gallery = imgs.length ? imgs : [sampleDetail.images[0]];
+
+  const colourValues = uniqueAttr(p, "Color");
+  const colors = colourValues.map((label, i) => ({
+    id: `c-${i}`,
+    label,
+    image: imgs[i] ?? imgs[0] ?? gallery[0],
+    images: gallery,
+  }));
+
+  const sizeValues = uniqueAttr(p, "Size");
+  const sizes = sizeValues.map((label) => {
+    const variants = p.variants.filter((v) =>
+      v.attributes.some(
+        (a) => a.name.toLowerCase() === "size" && a.value === label
+      )
+    );
+    const totalStock = variants.reduce((s, v) => s + v.stock, 0);
+    return {
+      label,
+      soldOut: totalStock === 0,
+      note: totalStock > 0 && totalStock <= 2 ? "Only 1 left" : undefined,
+    };
+  });
+
+  const hasDiscount = p.compareAtPrice && p.compareAtPrice > p.price;
+  const specEntries = Object.entries(p.specifications ?? {}).map(
+    ([label, value]) => ({ label, value })
+  );
+
+  return {
+    id: p.id,
+    slug: p.slug,
+    brand: p.brand?.name ?? "Familie Munshi",
+    brandHref: p.brand ? `/brands/${p.brand.slug}` : "/brands",
+    title: p.name,
+    price: p.price,
+    lastLowest: hasDiscount ? p.compareAtPrice : undefined,
+    discountLabel: hasDiscount
+      ? `-${Math.round(
+          ((p.compareAtPrice! - p.price) / p.compareAtPrice!) * 100
+        )}%`
+      : undefined,
+    colourName: colourValues[0] ?? p.category.name,
+    images: gallery,
+    colors,
+    sizes,
+    inStock: p.stock > 0,
+    soldBy: p.brand?.name ?? "Familie Munshi",
+    delivery: { range: "3 – 5 working days", cost: p.freeShipping ? "free" : "" },
+    material: specEntries.slice(0, 5),
+    details: specEntries.slice(5),
+    sizeFit: [{ label: "Fit", value: p.specifications?.Fit ?? "Regular" }],
+    articleNumber: p.sku,
+  };
+}
+
+/** Resolve a product detail by slug (real catalog → mock fallbacks). */
 export function getProductDetail(slug: string): ProductDetail {
+  const product = dummyProducts.find((p) => p.slug === slug);
+  if (product) return mapProductToDetail(product);
   if (slug === shortsDetail.slug) return shortsDetail;
   return { ...sampleDetail, slug };
 }

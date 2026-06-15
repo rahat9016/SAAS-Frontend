@@ -1,7 +1,8 @@
 import { siteConfig } from "@/src/config/siteConfig";
+import Image from "next/image";
 import Link from "next/link";
 
-/** Brand logo: "FM" monogram badge + two-tone wordmark. */
+/** Brand logo: squirrel icon + two-tone wordmark + slogan. */
 export default function BrandLogo({
   size = "md",
   className = "",
@@ -9,9 +10,9 @@ export default function BrandLogo({
   size?: "sm" | "md";
   className?: string;
 }) {
-  const badge = size === "sm" ? 30 : 40;
+  const badge = size === "sm" ? 34 : 46;
   const text = size === "sm" ? "text-base" : "text-2xl";
-  const sub = size === "sm" ? "text-[9px]" : "text-[11px]";
+  const sub = size === "sm" ? "text-[8px]" : "text-[10px]";
 
   // Split the site name into two words for the two-tone wordmark.
   const [first, ...rest] = siteConfig.name.split(" ");
@@ -23,42 +24,15 @@ export default function BrandLogo({
       aria-label={siteConfig.name}
       className={`group flex items-center gap-2.5 ${className}`}
     >
-      {/* Monogram badge */}
-      <svg
+      {/* Logo icon */}
+      <Image
+        src="/logo.png"
+        alt={siteConfig.name}
         width={badge}
         height={badge}
-        viewBox="0 0 48 48"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className="shrink-0 transition-transform duration-200 group-hover:scale-105"
-        aria-hidden="true"
-      >
-        <rect
-          x="2"
-          y="2"
-          width="44"
-          height="44"
-          rx="12"
-          className="fill-primary"
-        />
-        <rect
-          x="2"
-          y="2"
-          width="44"
-          height="44"
-          rx="12"
-          className="stroke-secondary/10"
-          strokeWidth="1"
-        />
-        <path
-          d="M14 34V14h12.5v3.6H18.2v4.7h7.4V26h-7.4v8H14Z"
-          className="fill-white"
-        />
-        <path
-          d="M27.4 34V14h3.9l3.1 9.6L37.4 14H41v20h-3.6V22.3L34.7 31h-1.9l-2.7-8.7V34h-2.7Z"
-          className="fill-white"
-        />
-      </svg>
+        priority
+        className="shrink-0 object-contain transition-transform duration-200 group-hover:scale-105"
+      />
 
       {/* Wordmark */}
       <span className="flex flex-col leading-none">
@@ -67,9 +41,9 @@ export default function BrandLogo({
           {second && <span className="text-primary"> {second}</span>}
         </span>
         <span
-          className={`mt-0.5 font-medium uppercase tracking-[0.25em] text-gray-400 ${sub}`}
+          className={`mt-1 font-medium uppercase tracking-[0.18em] text-gray-400 ${sub}`}
         >
-          Fashion House
+          Try Virtually. Wear Perfectly
         </span>
       </span>
     </Link>
