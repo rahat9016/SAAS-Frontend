@@ -10,8 +10,8 @@ export default function BrandLogo({
   size?: "sm" | "md";
   className?: string;
 }) {
-  const badge = size === "sm" ? 34 : 46;
-  const text = size === "sm" ? "text-base" : "text-2xl";
+  const badge = size === "sm" ? 44 : 64;
+  const text = size === "sm" ? "text-lg" : "text-3xl";
   const sub = size === "sm" ? "text-[8px]" : "text-[10px]";
 
   // Split the site name into two words for the two-tone wordmark.

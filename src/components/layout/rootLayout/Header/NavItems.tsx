@@ -42,7 +42,7 @@ export default function NavItems() {
     >
       <div className="container flex items-center gap-5 h-14">
         {/* Category links */}
-        <div className="flex flex-1 items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex flex-1 items-center gap-1 -ml-2.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {navLinks.map(({ label, href, isHighlighted }) => {
             const isActive =
               pathname === href || pathname.startsWith(href.split("?")[0] + "/");

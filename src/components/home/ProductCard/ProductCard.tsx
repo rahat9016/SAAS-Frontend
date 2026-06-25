@@ -3,7 +3,7 @@
 import { useAppDispatch, useAppSelector } from "@/src/lib/redux/hooks";
 import { toggleWishlist } from "@/src/lib/redux/features/wishlist/wishlistSlice";
 import { IProduct } from "@/src/types/ecommerce/product";
-import { Heart, Truck } from "lucide-react";
+import { Heart, Leaf } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -56,17 +56,17 @@ export default function ProductCard({ product }: ProductCardProps) {
           <Heart size={16} fill={isWishlisted ? "currentColor" : "none"} />
         </button>
 
-        {/* Badges on image – New + Free Delivery only */}
+        {/* Badges on image – New + Sustainable only */}
         <div className="absolute bottom-2 left-2 flex items-center gap-1 z-2 flex-wrap">
           {product.isNewArrival && (
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-sm bg-linear-to-br from-violet-600 to-blue-600 text-white uppercase tracking-wider">
               New
             </span>
           )}
-          {product.freeShipping && (
-            <span className="flex items-center gap-1 text-[10px] font-extrabold px-2 py-[3px] rounded-sm bg-emerald-600 text-white uppercase tracking-wider">
-              <Truck size={12} strokeWidth={2.5} />
-              Free Delivery
+          {(product.isSustainable ?? product.freeShipping) && (
+            <span className="flex items-center gap-1 text-[10px] font-extrabold px-2 py-[3px] rounded-sm bg-emerald-100 text-emerald-700 uppercase tracking-wider">
+              <Leaf size={12} strokeWidth={2.5} />
+              Sustainable
             </span>
           )}
         </div>

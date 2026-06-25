@@ -1,4 +1,4 @@
-import { ChevronRight, Info } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import ProductGrid from "../common/ProductGrid";
 import { makeProducts } from "../data/homeData";
@@ -70,11 +70,6 @@ export default function CatalogPage({ gender, category = "Clothing" }: CatalogPa
         {/* Main */}
         <div className="min-w-0 flex-1">
           <FilterBar />
-
-          <p className="mt-5 flex items-center gap-1.5 text-sm text-gray-500">
-            164,050 items
-            <Info size={14} className="text-gray-400" />
-          </p>
 
           <div className="mt-4">
             <ProductGrid products={makeProducts(`catalog-${category}`, 12)} cols={3} />

@@ -65,6 +65,7 @@ export interface IProduct {
   isNewArrival?: boolean;
   tags?: string[];
   freeShipping?: boolean;
+  isSustainable?: boolean;
   specifications?: Record<string, string>;
   reviews?: IReview[];
   questions?: IQuestion[];
