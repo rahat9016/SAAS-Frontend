@@ -3,9 +3,10 @@
 import { useAppDispatch, useAppSelector } from "@/src/lib/redux/hooks";
 import { toggleWishlist } from "@/src/lib/redux/features/wishlist/wishlistSlice";
 import { IProduct } from "@/src/types/ecommerce/product";
-import { Heart, Leaf } from "lucide-react";
+import { Camera, Heart, Leaf } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface ProductCardProps {
   product: IProduct;
@@ -13,6 +14,7 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const wishlistIds = useAppSelector((state) => state.wishlist.productIds);
   const isWishlisted = wishlistIds.includes(product.id);
 
@@ -54,6 +56,19 @@ export default function ProductCard({ product }: ProductCardProps) {
           aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
         >
           <Heart size={16} fill={isWishlisted ? "currentColor" : "none"} />
+        </button>
+
+        {/* Virtual trial – below wishlist heart */}
+        <button
+          className="absolute top-12 right-2.5 flex items-center justify-center w-8 h-8 rounded-full bg-white shadow-sm border-none cursor-pointer z-3 text-gray-500 transition-all hover:scale-110 hover:text-primary"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            router.push(`/trial-room?product=${product.slug}`);
+          }}
+          aria-label="Try on with virtual camera"
+        >
+          <Camera size={16} />
         </button>
 
         {/* Badges on image – New + Sustainable only */}

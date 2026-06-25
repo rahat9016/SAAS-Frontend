@@ -34,24 +34,31 @@ export default function CatalogPage({ gender, category = "Clothing" }: CatalogPa
   const cat = cap(category);
   const title = gender ? `${cap(gender)}'s ${cat}` : cat;
 
+  const breadcrumb = (
+    <nav className="flex items-center gap-1 text-sm text-gray-500">
+      {gender && (
+        <>
+          <Link href="/categories" className="hover:text-primary">{cap(gender)}</Link>
+          <ChevronRight size={14} className="text-gray-400" />
+        </>
+      )}
+      <span className="font-medium text-secondary">{cat}</span>
+    </nav>
+  );
+
   return (
     <div className="container px-4 sm:px-6 lg:px-8 py-6 md:py-8">
-      {/* Breadcrumb */}
-      <nav className="flex items-center gap-1 text-sm text-gray-500">
-        {gender && (
-          <>
-            <Link href="/categories" className="hover:text-primary">{cap(gender)}</Link>
-            <ChevronRight size={14} className="text-gray-400" />
-          </>
-        )}
-        <span className="font-medium text-secondary">{cat}</span>
-      </nav>
+      {/* Mobile title */}
+      <div className="lg:hidden mb-6">
+        {breadcrumb}
+        <h1 className="mt-2 text-3xl font-bold text-secondary md:text-4xl">{title}</h1>
+      </div>
 
-      <h1 className="mt-2 text-3xl font-bold text-secondary md:text-4xl">{title}</h1>
-
-      <div className="mt-6 flex gap-8">
+      <div className="flex gap-8">
         {/* Sidebar */}
         <aside className="hidden w-56 shrink-0 lg:block">
+          {breadcrumb}
+          <h1 className="mt-2 mb-6 text-3xl font-bold text-secondary md:text-4xl">{title}</h1>
           <p className="mb-3 text-sm font-bold text-secondary">{cat}</p>
           <ul className="space-y-2.5">
             {SUBCATEGORIES.map((s) => (

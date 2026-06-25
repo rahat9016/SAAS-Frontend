@@ -1,7 +1,6 @@
 "use client";
 
 import { dummyProducts } from "@/src/data/dummyProducts";
-import { Info } from "lucide-react";
 import { useMemo, useState } from "react";
 import FilterBar from "../Catalog/FilterBar";
 import ProductCard from "../ProductCard/ProductCard";
@@ -24,14 +23,17 @@ export default function ShopPage() {
 
   return (
     <div className="container px-4 sm:px-6 lg:px-8 py-6 md:py-8">
-      {/* Title */}
-      <h1 className="text-3xl font-bold text-secondary md:text-4xl">
+      {/* Mobile title */}
+      <h1 className="mb-6 text-3xl font-bold text-secondary md:text-4xl lg:hidden">
         {activeCat ?? "All Products"}
       </h1>
 
-      <div className="mt-6 flex gap-8">
-        {/* Sidebar — subcategory links */}
+      <div className="flex gap-8">
+        {/* Sidebar — title + subcategory links */}
         <aside className="hidden w-56 shrink-0 lg:block">
+          <h1 className="mb-6 text-3xl font-bold text-secondary md:text-4xl">
+            {activeCat ?? "All Products"}
+          </h1>
           <p className="mb-3 text-sm font-bold text-secondary">Categories</p>
           <ul className="space-y-2.5">
             <li>
@@ -63,12 +65,7 @@ export default function ShopPage() {
         <div className="min-w-0 flex-1">
           <FilterBar />
 
-          <p className="mt-5 flex items-center gap-1.5 text-sm text-gray-500">
-            {filtered.length} item{filtered.length !== 1 ? "s" : ""}
-            <Info size={14} className="text-gray-400" />
-          </p>
-
-          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:gap-4 xl:grid-cols-4">
+          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:gap-4">
             {filtered.map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}

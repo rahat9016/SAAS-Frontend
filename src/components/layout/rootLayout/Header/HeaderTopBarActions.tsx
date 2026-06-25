@@ -3,7 +3,7 @@
 import { openLoginModal } from "@/src/lib/redux/features/auth/authSlice";
 import { IUserInformation } from "@/src/lib/redux/features/auth/authTypes";
 import { useAppDispatch } from "@/src/lib/redux/hooks";
-import { Heart, ShoppingBag, User } from "lucide-react";
+import { Camera, Heart, ShoppingBag, User } from "lucide-react";
 import Link from "next/link";
 import LanguageDropdown from "./LanguageDropdown";
 import { ProfileDropdown } from "./ProfileDropdown";
@@ -41,6 +41,17 @@ export default function HeaderTopBarActions({
             {wishlistCount}
           </span>
         )}
+      </Link>
+
+      <Link
+        href="/trial-room"
+        className="relative flex flex-col items-center gap-0.5 px-3 py-1.5 text-gray-600 hover:text-primary transition-colors group"
+      >
+        <Camera
+          size={20}
+          className="group-hover:scale-110 transition-transform"
+        />
+        <span className="text-xs">Trial Room</span>
       </Link>
 
       <Link
