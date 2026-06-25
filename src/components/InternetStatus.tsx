@@ -73,10 +73,6 @@ export default function InternetStatus() {
       }
     }
 
-    if (typeof window !== "undefined" && !navigator.onLine) {
-      goOffline();
-    }
-
     window.addEventListener("offline", goOffline);
     window.addEventListener("online", goOnline);
 

@@ -3,11 +3,11 @@ import Link from "next/link";
 
 const cards = [
   { amount: 25, theme: "from-rose-400 to-pink-600" },
-  { amount: 50, theme: "from-sky-400 to-indigo-600" },
+  { amount: 50, theme: "from-cyan-400 to-blue-700" },
+  { amount: 75, theme: "from-fuchsia-500 to-purple-700" },
   { amount: 100, theme: "from-amber-400 to-orange-600" },
   { amount: 150, theme: "from-emerald-400 to-teal-600" },
-  { amount: 200, theme: "from-fuchsia-500 to-purple-700" },
-  { amount: 250, theme: "from-cyan-400 to-blue-700" },
+  { amount: 200, theme: "from-[#ffd1dc] to-[#ffd1dc]" },
 ];
 
 const steps = [
