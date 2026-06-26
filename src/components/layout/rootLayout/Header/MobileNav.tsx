@@ -15,8 +15,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import { GENDERS, type Gender } from "./GenderContext";
-import { navByGender, type NavLink } from "./navLinks";
+import { type Gender, type NavLink } from "./navLinks";
+import { useGender } from "./useGender";
 
 const slug = (s: string) =>
   s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
@@ -46,8 +46,11 @@ export default function MobileNav({ open, setOpen }: MobileNavProps) {
   const cartItems = useAppSelector((state) => state.cart.items);
   const { userInformation } = useAppSelector((state) => state.auth);
   const isLoggedIn = !!userInformation?.firstName;
+  const { gender, genders, navByGender } = useGender();
 
-  const [openGender, setOpenGender] = useState<Gender | null>("Women");
+  // null = follow the active gender; "" = explicitly collapsed; else a gender.
+  const [openGender, setOpenGender] = useState<Gender | null>(null);
+  const shownGender = openGender === null ? gender : openGender;
   const [openCat, setOpenCat] = useState<string | null>(null);
 
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
@@ -60,7 +63,7 @@ export default function MobileNav({ open, setOpen }: MobileNavProps) {
         <div className="flex items-center justify-around h-14">
           <Link
             href="/"
-            className={`flex flex-col items-center justify-center gap-0.5 min-w-[60px] py-1 ${
+            className={`flex flex-col items-center justify-center gap-0.5 min-w-15 py-1 ${
               pathname === "/" ? "text-primary" : "text-gray-500"
             }`}
           >
@@ -70,7 +73,7 @@ export default function MobileNav({ open, setOpen }: MobileNavProps) {
 
           <button
             onClick={() => setOpen(true)}
-            className={`flex flex-col items-center justify-center gap-0.5 min-w-[60px] py-1 ${
+            className={`flex flex-col items-center justify-center gap-0.5 min-w-15 py-1 ${
               open ? "text-primary" : "text-gray-500"
             }`}
           >
@@ -144,14 +147,14 @@ export default function MobileNav({ open, setOpen }: MobileNavProps) {
 
         {/* Nested accordion: gender → category → subcategory */}
         <nav className="flex-1 overflow-y-auto p-2">
-          {GENDERS.map((g) => {
-            const genderOpen = openGender === g;
+          {genders.map((g) => {
+            const genderOpen = shownGender === g;
             return (
               <div key={g} className="border-b border-gray-100 last:border-0">
                 <button
                   type="button"
                   onClick={() => {
-                    setOpenGender(genderOpen ? null : g);
+                    setOpenGender(genderOpen ? "" : g);
                     setOpenCat(null);
                   }}
                   className="flex w-full items-center justify-between px-3 py-3 text-base font-bold text-secondary"
@@ -165,7 +168,7 @@ export default function MobileNav({ open, setOpen }: MobileNavProps) {
 
                 {genderOpen && (
                   <div className="pb-2">
-                    {navByGender[g].map((cat) => {
+                    {(navByGender[g] ?? []).map((cat) => {
                       const key = `${g}-${cat.label}`;
                       const catOpen = openCat === key;
                       const expandable = isExpandable(cat);

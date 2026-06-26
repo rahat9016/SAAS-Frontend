@@ -1,45 +1,10 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { GenderProvider } from "./GenderContext";
-import HeaderTopBar from "./HeaderTopBar";
-import MobileNav from "./MobileNav";
-import NavItems from "./NavItems";
+import HeaderBars from "./HeaderBars";
 
 const Header = () => {
-  const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 10);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
   return (
     <header className="relative">
-      <GenderProvider>
-        <div
-          className={`fixed top-0 left-0 w-full z-50 transition-shadow duration-300 ${
-            scrolled ? "shadow-md" : ""
-          }`}
-        >
-          {/* Top Row: Logo + Search + Actions */}
-          <HeaderTopBar menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
-
-          {/* Bottom Row: Category Navigation (desktop only) */}
-          <NavItems />
-        </div>
-
-        {/* Mobile category drawer + bottom bar */}
-        <MobileNav open={menuOpen} setOpen={setMenuOpen} />
-      </GenderProvider>
-
-      {/* Spacer to push content below the fixed header */}
-      <div className="h-[100px] lg:h-37" />
+      <HeaderBars />
+      <div className="h-25 lg:h-37" />
     </header>
   );
 };

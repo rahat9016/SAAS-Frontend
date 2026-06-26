@@ -47,16 +47,16 @@ export default function CatalogPage({ gender, category = "Clothing" }: CatalogPa
   );
 
   return (
-    <div className="container px-4 sm:px-6 lg:px-8 py-6 md:py-8">
+    <div className="container px-4 sm:px-6 lg:px-8 py-6 md:py-4">
       {/* Mobile title */}
       <div className="lg:hidden mb-6">
         {breadcrumb}
         <h1 className="mt-2 text-3xl font-bold text-secondary md:text-4xl">{title}</h1>
       </div>
 
-      <div className="flex gap-8">
+      <div className="flex gap-4 lg:gap-6">
         {/* Sidebar */}
-        <aside className="hidden w-56 shrink-0 lg:block">
+        <aside className="hidden w-48 shrink-0 lg:block">
           {breadcrumb}
           <h1 className="mt-2 mb-6 text-3xl font-bold text-secondary md:text-4xl">{title}</h1>
           <p className="mb-3 text-sm font-bold text-secondary">{cat}</p>

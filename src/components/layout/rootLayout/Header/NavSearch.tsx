@@ -37,7 +37,7 @@ export default function NavSearch({
   onViewAllResults,
 }: NavSearchProps) {
   return (
-    <div ref={searchRef} className="relative w-86 shrink-0">
+    <div ref={searchRef} className="relative w-64 shrink-0 xl:w-86">
       <form onSubmit={handleSearch} className="flex w-full">
         <div className="relative flex w-full">
           <button

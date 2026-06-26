@@ -29,13 +29,13 @@ export default function HeaderTopBarActions({
 
       <Link
         href="/wishlist"
-        className="relative flex flex-col items-center gap-0.5 px-3 py-1.5 text-gray-600 hover:text-primary transition-colors group"
+        className="relative flex flex-col items-center gap-0.5 px-2 py-1.5 xl:px-3 text-gray-600 hover:text-primary transition-colors group"
       >
         <Heart
           size={20}
           className="group-hover:scale-110 transition-transform"
         />
-        <span className="text-xs">Wishlist</span>
+        <span className="hidden text-xs xl:block">Wishlist</span>
         {wishlistCount > 0 && (
           <span className="absolute -top-0.5 right-1 min-w-4.5 h-4.5 flex items-center justify-center rounded-full bg-primary text-white text-[10px] font-bold px-1">
             {wishlistCount}
@@ -45,24 +45,24 @@ export default function HeaderTopBarActions({
 
       <Link
         href="/trial-room"
-        className="relative flex flex-col items-center gap-0.5 px-3 py-1.5 text-gray-600 hover:text-primary transition-colors group"
+        className="relative flex flex-col items-center gap-0.5 px-2 py-1.5 xl:px-3 text-gray-600 hover:text-primary transition-colors group"
       >
         <Camera
           size={20}
           className="group-hover:scale-110 transition-transform"
         />
-        <span className="text-xs">Trial Room</span>
+        <span className="hidden text-xs xl:block">Trial Room</span>
       </Link>
 
       <Link
         href="/cart"
-        className="relative flex flex-col items-center gap-0.5 px-3 py-1.5 text-gray-600 hover:text-primary transition-colors group"
+        className="relative flex flex-col items-center gap-0.5 px-2 py-1.5 xl:px-3 text-gray-600 hover:text-primary transition-colors group"
       >
         <ShoppingBag
           size={20}
           className="group-hover:scale-110 transition-transform"
         />
-        <span className="text-xs">My Bag</span>
+        <span className="hidden text-xs xl:block">My Bag</span>
         {cartCount > 0 && (
           <span className="absolute -top-0.5 right-1 min-w-4.5 h-4.5 flex items-center justify-center rounded-full bg-primary text-white text-[10px] font-bold px-1">
             {cartCount > 99 ? "99+" : cartCount}
@@ -80,10 +80,10 @@ export default function HeaderTopBarActions({
       ) : (
         <button
           onClick={() => dispatch(openLoginModal())}
-          className="flex flex-col items-center gap-0.5 px-3 py-1.5 text-gray-600 hover:text-primary transition-colors cursor-pointer group"
+          className="flex flex-col items-center gap-0.5 px-2 py-1.5 xl:px-3 text-gray-600 hover:text-primary transition-colors cursor-pointer group"
         >
           <User size={20} className="group-hover:scale-110 transition-transform" />
-          <span className="text-xs">Sign In</span>
+          <span className="hidden text-xs xl:block">Sign In</span>
         </button>
       )}
     </div>

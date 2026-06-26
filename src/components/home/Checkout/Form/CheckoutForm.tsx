@@ -69,24 +69,32 @@ export default function CheckoutForm({
               <ControlledInputField name="email" type="email" placeholder="your@email.com (optional)" className="bg-light" />
             </div>
             <div className="sm:col-span-2">
-              <InputLabel label="Address Line 1" required />
-              <ControlledInputField name="addressLine1" placeholder="House no, street, area" className="bg-light" />
+              <InputLabel label="Country" required />
+              <ControlledInputField name="addressLine1" placeholder="e.g. Bangladesh" className="bg-light" />
             </div>
-            <div className="sm:col-span-2">
-              <InputLabel label="Address Line 2" />
-              <ControlledInputField name="addressLine2" placeholder="Apartment, suite, unit (optional)" className="bg-light" />
+
+            {/* Receiver's info */}
+            <div className="sm:col-span-2 mt-1">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Receiver&apos;s info
+              </p>
+            </div>
+            <div>
+              <InputLabel label="Receiver's Name" required />
+              <ControlledInputField name="addressLine2" placeholder="Enter receiver's name" className="bg-light" />
+            </div>
+            <div>
+              <InputLabel label="Receiver's Address" required />
+              <ControlledInputField name="city" placeholder="Street, area" className="bg-light" />
+            </div>
+
+            <div>
+              <InputLabel label="House Number" required />
+              <ControlledInputField name="district" placeholder="e.g. House 12" className="bg-light" />
             </div>
             <div>
               <InputLabel label="City" required />
-              <ControlledInputField name="city" placeholder="e.g. Dhaka" className="bg-light" />
-            </div>
-            <div>
-              <InputLabel label="District" required />
-              <ControlledInputField name="district" placeholder="e.g. Dhaka" className="bg-light" />
-            </div>
-            <div>
-              <InputLabel label="Division" required />
-              <ControlledSelectField name="division" options={DIVISIONS} placeholder="Select division" className="bg-light" />
+              <ControlledSelectField name="division" options={DIVISIONS} placeholder="Select city" className="bg-light" />
             </div>
             <div>
               <InputLabel label="Postal Code" />

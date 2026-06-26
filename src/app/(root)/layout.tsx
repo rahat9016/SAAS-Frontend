@@ -10,7 +10,6 @@ export default function layout({ children }: { children: React.ReactNode }) {
       <Header />
       {children}
       <Footer />
-      <FloatingActions />
-    </div>
-  );
+      {/* <FloatingActions /> */}
+    </div>  );
 }

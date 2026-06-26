@@ -144,18 +144,25 @@
 }
 
 /* =========================
-   CONTAINER (1535px)
+   CONTAINER (max 1280px, 1536px on xl screens)
 ========================= */
 @utility container {
   width: 100%;
   margin-inline: auto;
+  max-width: 1280px;
   padding-inline: 1rem;
+}
+
+/* Wider side gutters (px-24 = 6rem) on large screens */
+@media (min-width: 1440px) {
+  .container {
+    padding-inline: 0rem;
+  }
 }
 
 @media (min-width: 1536px) {
   .container {
-    max-width: 1635px;
-    padding-inline: 0;
+    max-width: 1536px;
   }
 }
 

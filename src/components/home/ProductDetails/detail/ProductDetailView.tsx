@@ -3,7 +3,7 @@
 import { addToCart } from "@/src/lib/redux/features/cart/cartSlice";
 import { toggleWishlist } from "@/src/lib/redux/features/wishlist/wishlistSlice";
 import { useAppDispatch, useAppSelector } from "@/src/lib/redux/hooks";
-import { Bell, Heart, ShoppingBag } from "lucide-react";
+import { Bell, Camera, Heart, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "react-toastify";
@@ -64,7 +64,7 @@ export default function ProductDetailView({ product }: { product: ProductDetail 
   };
 
   return (
-    <div className="container px-4 sm:px-6 lg:px-8 py-6 md:py-10">
+    <div className="container px-4 sm:px-6 lg:px-8 py-6 md:py-4">
       <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
         {/* Gallery — 43% width on desktop; swaps with the selected colour */}
         <div className="w-full lg:w-[43%] lg:shrink-0">
@@ -83,7 +83,7 @@ export default function ProductDetailView({ product }: { product: ProductDetail 
             </Link>
           </div>
 
-          <h1 className="text-xl font-bold leading-snug text-secondary">{product.title}</h1>
+          <h1 className="text-xl lg:text-3xl font-bold leading-snug text-secondary">{product.title}</h1>
 
           {/* Price */}
           <div className="mt-3">
@@ -122,19 +122,43 @@ export default function ProductDetailView({ product }: { product: ProductDetail 
             </div>
           )}
 
-          {/* Size — only when the product has sizes */}
+          {/* Size + Recommended size (virtual try-on) */}
           {product.sizes.length > 0 && (
-            <div className="mt-5">
-              <p className="mb-1.5 text-sm text-gray-600">Size</p>
-              <SizeSelect
-                sizes={product.sizes}
-                value={size}
-                onChange={(s) => {
-                  setSize(s);
-                  setSizeError(false);
-                }}
-                error={sizeError}
-              />
+            <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-end">
+              {/* Size selector */}
+              <div className="flex-1">
+                <p className="mb-1.5 text-sm text-gray-600">Size</p>
+                <SizeSelect
+                  sizes={product.sizes}
+                  value={size}
+                  onChange={(s) => {
+                    setSize(s);
+                    setSizeError(false);
+                  }}
+                  error={sizeError}
+                />
+              </div>
+
+              {/* Recommended size + camera */}
+              <div className="flex-1">
+                <p className="mb-1.5 text-sm text-gray-600">Recommended Size</p>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    readOnly
+                    value={size ?? ""}
+                    placeholder="Measure with camera"
+                    className="h-11 w-full rounded-lg border border-gray-300 bg-light px-3 text-sm text-secondary placeholder:text-gray-400 focus:outline-none"
+                  />
+                  <Link
+                    href={`/trial-room?product=${product.slug}`}
+                    aria-label="Find your size with camera"
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-gray-300 text-secondary transition-colors hover:bg-light hover:text-primary"
+                  >
+                    <Camera size={20} />
+                  </Link>
+                </div>
+              </div>
             </div>
           )}
 
@@ -144,7 +168,7 @@ export default function ProductDetailView({ product }: { product: ProductDetail 
               <button
                 type="button"
                 onClick={handleAddToBag}
-                className="flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-secondary text-sm font-semibold text-white transition-transform hover:scale-[1.01]"
+                className="flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-primary text-sm font-semibold text-white transition-transform hover:scale-[1.01]"
               >
                 <ShoppingBag size={18} /> Add to bag
               </button>

@@ -22,15 +22,15 @@ export default function ShopPage() {
   );
 
   return (
-    <div className="container px-4 sm:px-6 lg:px-8 py-6 md:py-8">
+    <div className="container px-4 sm:px-6 lg:px-8 py-6 md:py-4">
       {/* Mobile title */}
       <h1 className="mb-6 text-3xl font-bold text-secondary md:text-4xl lg:hidden">
         {activeCat ?? "All Products"}
       </h1>
 
-      <div className="flex gap-8">
+      <div className="flex gap-4 lg:gap-6">
         {/* Sidebar — title + subcategory links */}
-        <aside className="hidden w-56 shrink-0 lg:block">
+        <aside className="hidden w-48 shrink-0 lg:block">
           <h1 className="mb-6 text-3xl font-bold text-secondary md:text-4xl">
             {activeCat ?? "All Products"}
           </h1>
@@ -65,7 +65,7 @@ export default function ShopPage() {
         <div className="min-w-0 flex-1">
           <FilterBar />
 
-          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:gap-4">
+          <div className="mt-4 grid sm:grid-cols-2 gap-3 md:grid-cols-3 lg:gap-4">
             {filtered.map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}
