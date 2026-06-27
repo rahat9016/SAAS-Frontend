@@ -23,11 +23,11 @@ export default function BrandPromoRow({
   rows = 2,
 }: BrandPromoRowProps) {
   return (
-    <section className="grid gap-4 lg:grid-cols-3">
-      <div className={bannerSide === "right" ? "lg:order-2" : ""}>
+    <section className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <div className={`min-w-0 ${bannerSide === "right" ? "lg:order-2" : ""}`}>
         <FeatureBanner {...banner} ratio="aspect-[4/5] lg:h-full" />
       </div>
-      <div className="lg:col-span-2 lg:self-center">
+      <div className="min-w-0 lg:col-span-2 lg:self-center">
         <ProductCarousel
           title={banner.eyebrow ?? banner.title}
           subtitle={banner.eyebrow ? banner.title : banner.subtitle}

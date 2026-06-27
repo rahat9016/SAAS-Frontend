@@ -1,18 +1,16 @@
 import FeatureBanner from "../common/FeatureBanner";
-import ProductGrid from "../common/ProductGrid";
+import ProductCarousel from "../common/ProductCarousel";
 import { BannerContent, HomeProduct } from "../common/homeTypes";
 
 interface FeatureGridSectionProps {
   banner: BannerContent;
   products: HomeProduct[];
-  cols?: 3 | 4;
 }
 
-/** Wide feature banner above a product grid (e.g. "Nike Style By Moon Shoe"). */
+/** Wide feature banner above a horizontal product slider (e.g. "Nike Style"). */
 export default function FeatureGridSection({
   banner,
   products,
-  cols = 4,
 }: FeatureGridSectionProps) {
   return (
     <section className="space-y-4">
@@ -21,7 +19,7 @@ export default function FeatureGridSection({
         ratio="aspect-[4/3] sm:aspect-[16/7] lg:aspect-[16/6]"
         align="center"
       />
-      <ProductGrid products={products} cols={cols} />
+      <ProductCarousel products={products} />
     </section>
   );
 }

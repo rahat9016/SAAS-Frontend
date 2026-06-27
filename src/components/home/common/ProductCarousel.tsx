@@ -38,12 +38,12 @@ export default function ProductCarousel({
   };
 
   return (
-    <div>
+    <div className="min-w-0">
       {title && (
         <SectionHeader title={title} subtitle={subtitle} ctaLabel={ctaLabel} ctaHref={ctaHref} />
       )}
 
-      <div className="relative">
+      <div className="relative min-w-0">
         <div
           ref={ref}
           className={`grid grid-flow-col gap-3 overflow-x-auto scroll-smooth pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden snap-x ${tileWidth} ${
