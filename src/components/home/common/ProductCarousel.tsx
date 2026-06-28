@@ -47,12 +47,12 @@ export default function ProductCarousel({
         <div
           ref={ref}
           className={`grid grid-flow-col gap-3 overflow-x-auto scroll-smooth pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden snap-x ${tileWidth} ${
-            rows === 2 ? "grid-rows-2" : "grid-rows-1"
+            rows === 2 ? "grid-rows-2 auto-rows-[16rem]" : "grid-rows-1 auto-rows-[26rem]"
           }`}
         >
           {products.map((p) => (
-            <div key={p.id} className="snap-start">
-              <ProductTile product={p} compact={compact} />
+            <div key={p.id} className="snap-start h-full">
+              <ProductTile product={p} compact={compact} fill />
             </div>
           ))}
         </div>

@@ -11,6 +11,8 @@ interface ProductTileProps {
   className?: string;
   /** hide the extra price info (Originally / Last lowest) */
   compact?: boolean;
+  /** stretch the image to fill the card height instead of a fixed 3/4 ratio */
+  fill?: boolean;
 }
 
 const fmt = (n: number) => `€${n.toFixed(2)}`;
@@ -20,13 +22,21 @@ export default function ProductTile({
   product,
   className = "",
   compact = false,
+  fill = false,
 }: ProductTileProps) {
   const [wished, setWished] = useState(false);
 
   return (
-    <Link href={product.href ?? "#"} className={`group block ${className}`}>
+    <Link
+      href={product.href ?? "#"}
+      className={`group flex h-full flex-col ${className}`}
+    >
       {/* Image */}
-      <div className="relative aspect-[3/4] w-full overflow-hidden rounded-lg bg-light">
+      <div
+        className={`relative w-full overflow-hidden rounded-lg bg-light ${
+          fill ? "flex-1 min-h-0" : "aspect-[3/4]"
+        }`}
+      >
         <Image
           src={product.image}
           alt={product.name}
