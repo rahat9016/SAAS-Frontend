@@ -47,7 +47,7 @@ export default function CatalogPage({ gender, category = "Clothing" }: CatalogPa
   );
 
   return (
-    <div className="container px-4 sm:px-6 lg:px-8 py-6 md:py-4">
+    <div className="container  py-2 2xl:py-4">
       {/* Mobile title */}
       <div className="lg:hidden mb-6">
         {breadcrumb}
@@ -78,7 +78,7 @@ export default function CatalogPage({ gender, category = "Clothing" }: CatalogPa
         <div className="min-w-0 flex-1">
           <FilterBar />
 
-          <div className="mt-4">
+          <div className="mt-2">
             <ProductGrid products={makeProducts(`catalog-${category}`, 12)} cols={3} />
           </div>
         </div>
