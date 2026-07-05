@@ -3,7 +3,8 @@
 import { dummyProducts } from "@/src/data/dummyProducts";
 import { useMemo, useState } from "react";
 import FilterBar from "../Catalog/FilterBar";
-import ProductCard from "../ProductCard/ProductCard";
+import ProductCard from "../common/ProductCard";
+import { toHomeProduct } from "../common/productAdapter";
 
 export default function ShopPage() {
   const allProducts = useMemo(() => dummyProducts.filter((p) => p.isActive), []);
@@ -67,7 +68,7 @@ export default function ShopPage() {
 
           <div className="mt-4 grid sm:grid-cols-2 gap-3 md:grid-cols-3 lg:gap-4">
             {filtered.map((p) => (
-              <ProductCard key={p.id} product={p} />
+              <ProductCard key={p.id} product={toHomeProduct(p)} />
             ))}
           </div>
         </div>

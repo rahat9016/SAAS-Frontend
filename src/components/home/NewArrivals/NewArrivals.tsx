@@ -4,7 +4,8 @@ import { dummyProducts } from "@/src/data/dummyProducts";
 import { ArrowRight, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useRef, useState, useEffect, useCallback } from "react";
-import ProductCard from "../ProductCard/ProductCard";
+import ProductCard from "../common/ProductCard";
+import { toHomeProduct } from "../common/productAdapter";
 
 export default function NewArrivals() {
   const products = dummyProducts.filter((p) => p.isActive && p.isNewArrival);
@@ -99,7 +100,7 @@ export default function NewArrivals() {
               className="shrink-0"
               style={{ width: "clamp(170px, 18vw, 230px)" }}
             >
-              <ProductCard product={product} />
+              <ProductCard product={toHomeProduct(product)} />
             </div>
           ))}
         </div>

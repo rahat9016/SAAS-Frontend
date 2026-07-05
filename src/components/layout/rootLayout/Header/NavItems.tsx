@@ -91,7 +91,7 @@ export default function NavItems() {
                 key={label}
                 href={href}
                 onMouseEnter={() => (expandable ? open(label) : close())}
-                className={`relative px-1.5 py-1.5 text-xs transition-colors whitespace-nowrap xl:text-sm after:absolute after:left-1.5 after:right-1.5 after:-bottom-[1px] after:h-0.5 after:rounded-full after:bg-primary after:transition-transform after:duration-200 ${
+                className={`relative px-1.5 py-3 text-xs transition-colors whitespace-nowrap xl:text-sm after:absolute after:left-1.5 after:right-1.5 after:-bottom-[1px] after:h-0.5 after:rounded-full after:bg-primary after:transition-transform after:duration-200 ${
                   isOpen ? "after:scale-x-100" : "after:scale-x-0"
                 } ${
                   isHighlighted

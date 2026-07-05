@@ -1,9 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import { MegaMenuData } from "./megaMenuData";
 
 interface MegaMenuProps {
@@ -28,18 +26,21 @@ export default function MegaMenu({ data, menuKey, onNavigate }: MegaMenuProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.15 }}
-        className="container grid grid-cols-[repeat(4,1fr)_300px] gap-6 py-8"
+        className="container grid grid-cols-4 gap-6 py-8 min-[1024px]:max-[1480px]:pt-3"
       >
         {data.columns.map((col) => (
           <div key={col.heading}>
-            <h4 className="mb-4 text-base font-bold text-gray-400">{col.heading}</h4>
-            <ul className="space-y-1">
+            <h4 className="mb-4 text-base font-bold text-gray-400 min-[1024px]:max-[1480px]:mb-2">
+              {col.heading}
+            </h4>
+            {/* 1024–1480px: 2 sub-columns, 7 items in first (grid, column-wise fill) */}
+            <ul className="space-y-1 min-[1024px]:max-[1480px]:grid min-[1024px]:max-[1480px]:grid-flow-col min-[1024px]:max-[1480px]:grid-rows-[repeat(11,auto)] min-[1024px]:max-[1480px]:gap-x-3 min-[1024px]:max-[1480px]:space-y-0">
               {col.items.map(({ label, href, icon: Icon, highlight }) => (
-                <li key={label}>
+                <li key={label} className="min-[1024px]:max-[1480px]:py-0.5">
                   <Link
                     href={href}
                     onClick={onNavigate}
-                    className={`group/i flex items-center gap-3 rounded-md px-2 py-1.5 -mx-2 text-sm transition-colors duration-150 ${
+                    className={`group/i flex items-center gap-3 rounded-md px-2 py-1.5 -mx-2 text-sm transition-colors duration-150 min-[1024px]:max-[1480px]:gap-2 min-[1024px]:max-[1480px]:py-1 ${
                       highlight
                         ? "font-semibold text-red-500 hover:bg-red-50"
                         : "text-foreground hover:bg-light hover:text-primary"
@@ -57,23 +58,6 @@ export default function MegaMenu({ data, menuKey, onNavigate }: MegaMenuProps) {
             </ul>
           </div>
         ))}
-
-        {/* Promo card */}
-        <Link href={data.promo.href} onClick={onNavigate} className="group block">
-          <div className="relative aspect-[16/11] w-full overflow-hidden rounded-xl bg-light">
-            <Image
-              src={data.promo.image}
-              alt={data.promo.label}
-              fill
-              sizes="320px"
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
-            />
-          </div>
-          <p className="mt-3 inline-flex items-center gap-2 text-sm font-bold text-secondary">
-            {data.promo.label}
-            <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
-          </p>
-        </Link>
       </motion.div>
     </motion.div>
   );

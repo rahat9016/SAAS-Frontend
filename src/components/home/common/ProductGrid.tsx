@@ -1,4 +1,4 @@
-import ProductTile from "./ProductTile";
+import ProductCard from "./ProductCard";
 import SectionHeader from "./SectionHeader";
 import { HomeProduct } from "./homeTypes";
 
@@ -40,7 +40,7 @@ export default function ProductGrid({
       )}
       <div className={`grid gap-3 md:gap-4 ${colClass[cols]}`}>
         {products.map((p) => (
-          <ProductTile key={p.id} product={p} />
+          <ProductCard key={p.id} product={p} />
         ))}
       </div>
     </div>

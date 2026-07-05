@@ -20,6 +20,8 @@ export interface HomeProduct {
   /** red "Deal" pill over the image */
   deal?: boolean;
   href?: string;
+  /** product slug — enables the virtual trial-room shortcut when present */
+  slug?: string;
 }
 
 export interface BannerContent {

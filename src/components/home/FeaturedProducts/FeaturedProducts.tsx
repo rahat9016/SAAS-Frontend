@@ -4,7 +4,8 @@ import { dummyProducts } from "@/src/data/dummyProducts";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useRef, useState, useEffect, useCallback } from "react";
-import ProductCard from "../ProductCard/ProductCard";
+import ProductCard from "../common/ProductCard";
+import { toHomeProduct } from "../common/productAdapter";
 
 export default function FeaturedProducts() {
   const products = dummyProducts.filter((p) => p.isActive);
@@ -99,7 +100,7 @@ export default function FeaturedProducts() {
               className="flex-shrink-0"
               style={{ width: "clamp(170px, 18vw, 230px)" }}
             >
-              <ProductCard product={product} />
+              <ProductCard product={toHomeProduct(product)} />
             </div>
           ))}
         </div>

@@ -1,5 +1,5 @@
 import FeatureBanner from "../common/FeatureBanner";
-import ProductTile from "../common/ProductTile";
+import ProductCard from "../common/ProductCard";
 import { BannerContent, HomeProduct } from "../common/homeTypes";
 
 interface HeroFeatureProps {
@@ -24,7 +24,7 @@ export default function HeroFeature({ banner, products }: HeroFeatureProps) {
       <div className="container px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
           {products.slice(0, 5).map((p) => (
-            <ProductTile key={p.id} product={p} />
+            <ProductCard key={p.id} product={p} />
           ))}
         </div>
       </div>
