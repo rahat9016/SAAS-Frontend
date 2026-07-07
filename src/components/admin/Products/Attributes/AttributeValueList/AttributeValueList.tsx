@@ -9,16 +9,17 @@ import { useAppSelector } from "@/src/lib/redux/hooks";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import AttributesTable from "../AttributesTable";
-import CreateUpdateAttributeValue from "../Form/CreateUpdateAttributeValue";
 import { GetAttributeValueColumns } from "../TableColumns/AttributeValueColumns";
 import { IAttributeValue } from "../types";
 
 export default function AttributeValueList() {
+  const [selectedAttributeId, setSelectedAttributeId] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<
     IAttributeValue | undefined
   >();
   const [deleteId, setDeleteId] = useState<string | null>(null);
+
   const {
     setCurrentPage,
     itemsPerPage,
@@ -30,10 +31,17 @@ export default function AttributeValueList() {
   const { search, handleSearchChange, debouncedSearch } =
     useSearchDebounce(300);
   const { sortBy } = useAppSelector((state) => state.filter);
+
+  // const { data: attributesData } = useGet<IAttribute[]>(
+  //   "/product-attribute/values/all",
+  //   ["product-attributes-for-values"]
+  // );
+
   const { data, isLoading } = useGet<IAttributeValue[]>(
     "/product-attribute/values/list",
     [
-      "product-values",
+      "productvalues-list",
+      selectedAttributeId,
       currentPage.toString(),
       itemsPerPage.toString(),
       debouncedSearch,
@@ -48,9 +56,15 @@ export default function AttributeValueList() {
       ...(sortBy && { status: sortBy }),
     }
   );
+
+  useEffect(() => {
+    setCurrentPage(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedAttributeId]);
+
   const { mutate: deleteMutate } = useDelete(() => {
     toast.success("Attribute value deleted successfully!");
-  }, [["product-values"]]);
+  }, [["product-attribute-values", selectedAttributeId]]);
 
   useEffect(() => {
     if (data) {
@@ -69,9 +83,9 @@ export default function AttributeValueList() {
   };
 
   const handleConfirmDelete = () => {
-    if (!deleteId) return;
+    if (!deleteId || !selectedAttributeId) return;
     deleteMutate({
-      url: `/product-attribute/values/${deleteId}`,
+      url: `/product-attribute/${selectedAttributeId}/values/${deleteId}`,
     });
     setDeleteId(null);
   };
@@ -113,11 +127,12 @@ export default function AttributeValueList() {
         ]}
       />
 
-      <CreateUpdateAttributeValue
+      {/* <CreateUpdateAttributeValue
         isOpen={isModalOpen}
         onClose={handleModalClose}
+        attributeId={selectedAttributeId}
         initialValues={selectedItem}
-      />
+      /> */}
 
       <DeleteConfirmDialog
         isOpen={!!deleteId}
