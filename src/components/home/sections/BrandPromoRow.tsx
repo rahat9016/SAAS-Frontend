@@ -32,29 +32,30 @@ export default function BrandPromoRow({
         )}
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:items-start">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:items-stretch">
         <div
           className={`min-w-0 ${bannerSide === "right" ? "lg:order-2" : ""}`}
         >
           <FeatureBanner {...banner} ratio="aspect-[4/5] lg:aspect-[4/5]" />
         </div>
-        <div className="relative min-w-0 lg:col-span-2">
+        <div className="relative flex min-w-0 flex-col lg:col-span-2">
           {banner.ctaHref && (
-            <div className="absolute right-0 top-0 z-10 flex justify-end">
+            <div className="absolute right-4 top-4 z-20 flex justify-end">
               <Link
                 href={banner.ctaHref}
-                className="text-sm font-semibold text-secondary underline underline-offset-4 transition-colors hover:text-primary"
+                className="rounded-full bg-white/90 px-3 py-1 text-sm font-semibold text-secondary shadow-sm backdrop-blur transition-colors hover:text-primary"
               >
                 View all
               </Link>
             </div>
           )}
-          <div className="pt-0">
+          <div className="min-h-0 flex-1">
             <ProductCarousel
               products={products}
               rows={rows}
               compact
-              tileWidth="auto-cols-[80%] sm:auto-cols-[45%] lg:auto-cols-[calc((100%-1.5rem)/3)]"
+              fill
+              tileWidth="auto-cols-[80%] sm:auto-cols-[45%] lg:auto-cols-[40%]"
               productRatio="aspect-[4/5]"
             />
           </div>

@@ -10,7 +10,6 @@ import {
     philipsBanner,
     weightlessBanner,
 } from "./data/homeData";
-import AppPromo from "./sections/AppPromo";
 import BoardRow from "./sections/BoardRow";
 import BrandPromoRow from "./sections/BrandPromoRow";
 import BrandStoryRow from "./sections/BrandStoryRow";
@@ -68,15 +67,6 @@ export default function Home() {
           banner={philipsBanner}
           products={makeProducts("philips", 12)}
           rows={1}
-        />
-      </Section>
-
-      {/* App promo */}
-      <Section bg="bg-white">
-        <AppPromo
-          title="Try our app yet?"
-          subtitle="Shop faster, track orders, and get app-only deals"
-          ctaLabel="Get the app"
         />
       </Section>
 

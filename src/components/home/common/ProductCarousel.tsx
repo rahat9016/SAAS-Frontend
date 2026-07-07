@@ -20,6 +20,8 @@ interface ProductCarouselProps {
   compact?: boolean;
   /** override the product image aspect ratio used by ProductCard */
   productRatio?: string;
+  /** stretch tiles to fill the carousel height (image grows to fit) */
+  fill?: boolean;
 }
 
 /** Horizontal, snap-scrolling product slider (1 or 2 rows). */
@@ -33,6 +35,7 @@ export default function ProductCarousel({
   rows = 1,
   compact = false,
   productRatio,
+  fill = false,
 }: ProductCarouselProps) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -41,7 +44,7 @@ export default function ProductCarousel({
   };
 
   return (
-    <div className="min-w-0">
+    <div className={`min-w-0 ${fill ? "flex h-full flex-col" : ""}`}>
       {title && (
         <SectionHeader
           title={title}
@@ -51,16 +54,21 @@ export default function ProductCarousel({
         />
       )}
 
-      <div className="relative min-w-0">
+      <div className={`relative min-w-0 ${fill ? "flex-1 min-h-0" : ""}`}>
         <div
           ref={ref}
-          className={`grid grid-flow-col items-start gap-3 overflow-x-auto scroll-smooth pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden snap-x ${tileWidth} ${
-            rows === 2 ? "grid-rows-2" : "grid-rows-1"
-          }`}
+          className={`grid grid-flow-col gap-3 overflow-x-auto scroll-smooth pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden snap-x ${
+            fill ? "h-full items-stretch" : "items-start"
+          } ${tileWidth} ${rows === 2 ? "grid-rows-2" : "grid-rows-1"}`}
         >
           {products.map((p) => (
-            <div key={p.id} className="snap-start">
-              <ProductCard product={p} compact={compact} ratio={productRatio} />
+            <div key={p.id} className={`snap-start ${fill ? "h-full" : ""}`}>
+              <ProductCard
+                product={p}
+                compact={compact}
+                ratio={productRatio}
+                fill={fill}
+              />
             </div>
           ))}
         </div>

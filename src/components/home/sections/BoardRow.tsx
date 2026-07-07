@@ -32,16 +32,16 @@ export default function BoardRow({ title, subtitle, boards }: BoardRowProps) {
               href={b.href ?? "#"}
               className="group shrink-0 snap-start text-center"
             >
-              <div className="relative h-28 w-28 overflow-hidden rounded-full bg-light sm:h-32 sm:w-32">
+              <div className="relative h-52 w-40 overflow-hidden rounded-3xl bg-light sm:h-64 sm:w-52">
                 <Image
                   src={b.image}
                   alt={b.title}
                   fill
-                  sizes="128px"
+                  sizes="208px"
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
                 />
               </div>
-              <p className="mt-2 w-28 truncate text-xs font-semibold text-secondary sm:w-32">
+              <p className="mt-2 w-40 truncate text-sm font-semibold text-secondary sm:w-52">
                 {b.title}
               </p>
             </Link>
@@ -52,7 +52,7 @@ export default function BoardRow({ title, subtitle, boards }: BoardRowProps) {
           type="button"
           onClick={() => scrollBy(-1)}
           aria-label="previous"
-          className="absolute -left-3 top-[30%] hidden h-9 w-9 items-center justify-center rounded-full bg-white shadow-md hover:bg-light md:flex"
+          className="absolute -left-3 top-26 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-md hover:bg-light sm:top-32 md:flex"
         >
           <ChevronLeft size={18} />
         </button>
@@ -60,7 +60,7 @@ export default function BoardRow({ title, subtitle, boards }: BoardRowProps) {
           type="button"
           onClick={() => scrollBy(1)}
           aria-label="next"
-          className="absolute -right-3 top-[30%] hidden h-9 w-9 items-center justify-center rounded-full bg-white shadow-md hover:bg-light md:flex"
+          className="absolute -right-3 top-26 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-md hover:bg-light sm:top-32 md:flex"
         >
           <ChevronRight size={18} />
         </button>

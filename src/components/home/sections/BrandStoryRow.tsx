@@ -52,7 +52,7 @@ export default function BrandStoryRow({ title, subtitle, stories }: BrandStoryRo
           type="button"
           onClick={() => scrollBy(-1)}
           aria-label="previous"
-          className="absolute -left-3 top-[40%] hidden h-9 w-9 items-center justify-center rounded-full bg-white shadow-md hover:bg-light md:flex"
+          className="absolute -left-3 top-1/2 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-md hover:bg-light md:flex"
         >
           <ChevronLeft size={18} />
         </button>
@@ -60,7 +60,7 @@ export default function BrandStoryRow({ title, subtitle, stories }: BrandStoryRo
           type="button"
           onClick={() => scrollBy(1)}
           aria-label="next"
-          className="absolute -right-3 top-[40%] hidden h-9 w-9 items-center justify-center rounded-full bg-white shadow-md hover:bg-light md:flex"
+          className="absolute -right-3 top-1/2 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-md hover:bg-light md:flex"
         >
           <ChevronRight size={18} />
         </button>
