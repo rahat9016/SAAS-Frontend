@@ -1,19 +1,28 @@
 import {
+  Baby,
   Backpack,
+  Briefcase,
+  Church,
   Crown,
   Droplet,
+  Dumbbell,
   Flag,
   Footprints,
   Gem,
+  Heart,
   Home,
   Layers,
   Mountain,
   Package,
+  Palmtree,
   Shirt,
   ShoppingBag,
   Snowflake,
   Sparkles,
+  Sun,
   Tag,
+  Trophy,
+  Users,
   Watch,
   Wind,
   type LucideIcon,
@@ -105,6 +114,48 @@ const SPECIALS: Pair[] = [
   ["Traditionals", Backpack],
 ];
 
+const ESSENTIAL_CLOSET: Pair[] = [
+  ["Everyday", Shirt],
+  ["Formal Wear", Crown],
+  ["Office Wear", Briefcase],
+  ["Matching Sets", Layers],
+];
+
+const OCCASION_WARDROBE: Pair[] = [
+  ["Vacations", Palmtree],
+  ["Weddings", Heart],
+  ["Traditional", Backpack],
+  ["Summer/Winter Outfitting", Sun],
+];
+
+const LIFESTYLE_EDIT: Pair[] = [
+  ["Exercise Time", Dumbbell],
+  ["Sports Day", Trophy],
+  ["Maternity Cloths", Baby],
+  ["Religionals", Church],
+];
+
+const FAMILY_VAULT: Pair[] = [
+  ["Kids", Users],
+  ["Boys", Users],
+  ["Girls", Users],
+  ["Ornaments", Gem],
+];
+
+const RENT_A_DRESS_MENU: MegaMenuData = {
+  columns: [
+    { heading: "The Essential Closet", items: ESSENTIAL_CLOSET.map(item) },
+    { heading: "The Occasion Wardrobe", items: OCCASION_WARDROBE.map(item) },
+    { heading: "The Lifestyle Edit", items: LIFESTYLE_EDIT.map(item) },
+    { heading: "The Family Vault", items: FAMILY_VAULT.map(item) },
+  ],
+  promo: {
+    image: "https://picsum.photos/seed/rent-a-dress/520/360",
+    label: "RENT THE LOOK",
+    href: "/categories?c=rent-a-dress",
+  },
+};
+
 const SHARED_MENU: MegaMenuData = {
   columns: [
     { heading: "Tops", items: TOPS.map(item) },
@@ -121,8 +172,11 @@ const SHARED_MENU: MegaMenuData = {
 
 export const defaultMegaMenu: MegaMenuData = SHARED_MENU;
 
-/** Every nav label shares the same subcategory menu. */
+/** Per-label menus; anything not listed falls back to the shared subcategory menu. */
+const MENU_BY_LABEL: Record<string, MegaMenuData> = {
+  "rent-a-dress": RENT_A_DRESS_MENU,
+};
+
 export function getMegaMenu(label: string): MegaMenuData {
-  void label;
-  return SHARED_MENU;
+  return MENU_BY_LABEL[slug(label)] ?? SHARED_MENU;
 }

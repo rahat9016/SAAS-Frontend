@@ -26,7 +26,7 @@ export default function MegaMenu({ data, menuKey, onNavigate }: MegaMenuProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.15 }}
-        className="container grid grid-cols-4 gap-6 py-8 min-[1024px]:max-[1480px]:pt-3"
+        className="container grid grid-cols-4 gap-6 pt-2 pb-4 min-[1024px]:max-[1480px]:pt-3"
       >
         {data.columns.map((col) => (
           <div key={col.heading}>
