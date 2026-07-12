@@ -1,4 +1,5 @@
 import ProductCard from "./ProductCard";
+import SectionCta from "./SectionCta";
 import SectionHeader from "./SectionHeader";
 import { HomeProduct } from "./homeTypes";
 
@@ -30,14 +31,8 @@ export default function ProductGrid({
 }: ProductGridProps) {
   return (
     <div>
-      {title && (
-        <SectionHeader
-          title={title}
-          subtitle={subtitle}
-          ctaLabel={ctaLabel}
-          ctaHref={ctaHref}
-        />
-      )}
+      {title && <SectionHeader title={title} subtitle={subtitle} />}
+      {ctaLabel && <SectionCta label={ctaLabel} href={ctaHref} />}
       <div className={`grid gap-3 md:gap-4 ${colClass[cols]}`}>
         {products.map((p) => (
           <ProductCard key={p.id} product={p} />

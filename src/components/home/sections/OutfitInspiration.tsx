@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import SectionCta from "../common/SectionCta";
 import SectionHeader from "../common/SectionHeader";
 import { BoardItem } from "../common/homeTypes";
 
@@ -13,7 +14,8 @@ interface OutfitInspirationProps {
 export default function OutfitInspiration({ title, subtitle, looks }: OutfitInspirationProps) {
   return (
     <section>
-      <SectionHeader title={title} subtitle={subtitle} ctaLabel="View all" />
+      <SectionHeader title={title} subtitle={subtitle} />
+      <SectionCta label="View all" />
       <div className="flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden snap-x">
         {looks.map((l) => (
           <Link

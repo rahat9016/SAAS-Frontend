@@ -23,7 +23,7 @@ const cat = (label: string): NavLink => ({
 });
 
 /** Lead "NEW IN" link shown first under every gender. */
-const NEW_IN: NavLink = { label: "NEW IN", href: "/products?filter=new" };
+const NEW_IN: NavLink = { label: "NEW IN", href: "/categories?filter=new" };
 
 // ── Static fallback (used until the API responds) ──────────────────────────
 const CATEGORIES: NavLink[] = [

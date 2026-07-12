@@ -3,6 +3,7 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRef } from "react";
 import ProductCard from "./ProductCard";
+import SectionCta from "./SectionCta";
 import SectionHeader from "./SectionHeader";
 import { HomeProduct } from "./homeTypes";
 
@@ -45,14 +46,8 @@ export default function ProductCarousel({
 
   return (
     <div className={`min-w-0 ${fill ? "flex h-full flex-col" : ""}`}>
-      {title && (
-        <SectionHeader
-          title={title}
-          subtitle={subtitle}
-          ctaLabel={ctaLabel}
-          ctaHref={ctaHref}
-        />
-      )}
+      {title && <SectionHeader title={title} subtitle={subtitle} />}
+      {ctaLabel && <SectionCta label={ctaLabel} href={ctaHref} />}
 
       <div className={`relative min-w-0 ${fill ? "flex-1 min-h-0" : ""}`}>
         <div

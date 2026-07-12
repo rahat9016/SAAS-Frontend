@@ -72,7 +72,7 @@ export default function NewArrivals() {
             </p>
           </div>
           <Link
-            href="/products?sort=newest"
+            href="/categories?sort=newest"
             className="group flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
           >
             View All

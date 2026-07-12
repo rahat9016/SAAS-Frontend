@@ -1,4 +1,5 @@
 import ProductCarousel from "../common/ProductCarousel";
+import SectionCta from "../common/SectionCta";
 import SectionHeader from "../common/SectionHeader";
 import { HomeProduct } from "../common/homeTypes";
 
@@ -23,12 +24,8 @@ export default function ProductCarouselSection({
 }: ProductCarouselSectionProps) {
   return (
     <section>
-      <SectionHeader
-        title={title}
-        subtitle={subtitle}
-        ctaLabel={ctaLabel}
-        ctaHref={ctaHref}
-      />
+      <SectionHeader title={title} subtitle={subtitle} />
+      {ctaLabel && <SectionCta label={ctaLabel} href={ctaHref} />}
       <ProductCarousel
         products={products}
         rows={rows}

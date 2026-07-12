@@ -224,7 +224,7 @@ export default function ProductDetailView({ product }: { product: ProductDetail 
           title="You may also like"
           subtitle="Related products"
           ctaLabel="View all"
-          ctaHref="/products"
+          ctaHref="/categories"
           products={makeProducts(`related-${product.id}`, 12)}
           compact
         />

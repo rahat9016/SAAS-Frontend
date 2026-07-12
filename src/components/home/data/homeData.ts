@@ -79,7 +79,7 @@ export const heroBanner: BannerContent = {
   title: "Step into summer style",
   subtitle: "Dresses, denim and more — ready for warmer days",
   ctaLabel: "Shop now",
-  ctaHref: "/products",
+  ctaHref: "/categories",
   theme: "light",
 };
 
@@ -109,7 +109,7 @@ export const productSections: ProductCarouselSectionData[] = [
     title: "Nike Style",
     subtitle: "One shoe, endless looks",
     ctaLabel: "Discover",
-    ctaHref: "/products",
+    ctaHref: "/categories",
     products: makeProducts("nike", 12),
   },
   {
@@ -117,7 +117,7 @@ export const productSections: ProductCarouselSectionData[] = [
     title: "Summer Deals",
     subtitle: "Your Summer Glow-Up Starts Here",
     ctaLabel: "Shop now",
-    ctaHref: "/products",
+    ctaHref: "/categories",
     products: makeProducts("philips", 12),
   },
   {
@@ -125,7 +125,7 @@ export const productSections: ProductCarouselSectionData[] = [
     title: "Weightless icons",
     subtitle: "Fresh summer sneakers",
     ctaLabel: "Shop now",
-    ctaHref: "/products",
+    ctaHref: "/categories",
     products: makeProducts("weightless", 12),
   },
   {
@@ -133,7 +133,7 @@ export const productSections: ProductCarouselSectionData[] = [
     title: "Tommy Jeans",
     subtitle: "Festival season",
     ctaLabel: "Shop now",
-    ctaHref: "/products",
+    ctaHref: "/categories",
     products: makeProducts("tommy", 12),
   },
   {
@@ -141,7 +141,7 @@ export const productSections: ProductCarouselSectionData[] = [
     title: "COACH",
     subtitle: "A Tabby for everyone",
     ctaLabel: "Explore",
-    ctaHref: "/products",
+    ctaHref: "/categories",
     products: makeProducts("coach", 12),
   },
   {
@@ -149,7 +149,7 @@ export const productSections: ProductCarouselSectionData[] = [
     title: "Seasalt Cornwall",
     subtitle: "Effortless UK coast style",
     ctaLabel: "Shop now",
-    ctaHref: "/products",
+    ctaHref: "/categories",
     products: makeProducts("seasalt", 12),
   },
   {
@@ -157,7 +157,7 @@ export const productSections: ProductCarouselSectionData[] = [
     title: "Columbia",
     subtitle: "One Trail. Two Tales.",
     ctaLabel: "Explore",
-    ctaHref: "/products",
+    ctaHref: "/categories",
     products: makeProducts("columbia", 12),
   },
   {
@@ -165,7 +165,7 @@ export const productSections: ProductCarouselSectionData[] = [
     title: "Tezenis",
     subtitle: "Swimwear",
     ctaLabel: "Shop now",
-    ctaHref: "/products",
+    ctaHref: "/categories",
     products: makeProducts("tezenis", 12),
   },
   {
@@ -173,7 +173,7 @@ export const productSections: ProductCarouselSectionData[] = [
     title: "Calvin Klein",
     subtitle: "Feels Like Summer",
     ctaLabel: "Shop now",
-    ctaHref: "/products",
+    ctaHref: "/categories",
     products: makeProducts("ck", 12),
   },
   {
@@ -181,7 +181,7 @@ export const productSections: ProductCarouselSectionData[] = [
     title: "Just in: designer",
     subtitle: "Curated new arrivals",
     ctaLabel: "View all",
-    ctaHref: "/products",
+    ctaHref: "/categories",
     products: makeProducts("justin", 12),
   },
 ];
@@ -190,5 +190,5 @@ export const outfitLooks: BoardItem[] = Array.from({ length: 8 }, (_, i) => ({
   id: `look-${i}`,
   image: fashion(i, 540, 960),
   title: "Snap their style",
-  href: "/products",
+  href: "/categories",
 }));

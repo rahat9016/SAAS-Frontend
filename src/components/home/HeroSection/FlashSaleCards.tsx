@@ -10,7 +10,7 @@ const flashSales = [
     title: "FLASH SALE",
     discount: "DISCOUNT UPTO 60%",
     image: "https://picsum.photos/seed/flashshoe/300/200",
-    href: "/products?filter=flash-sale",
+    href: "/categories?filter=flash-sale",
     gradient: "from-red-500 to-red-700",
   },
   {
@@ -18,7 +18,7 @@ const flashSales = [
     title: "FLASH SALE",
     discount: "DISCOUNT UPTO 60%",
     image: "https://picsum.photos/seed/flashbag/300/200",
-    href: "/products?filter=flash-sale",
+    href: "/categories?filter=flash-sale",
     gradient: "from-teal-500 to-teal-700",
   },
 ];

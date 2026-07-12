@@ -25,10 +25,10 @@ const slug = (s: string) =>
 function subsFor(label: string): { label: string; href: string }[] {
   const c = slug(label);
   return [
-    { label: `Shop all ${label}`, href: `/products?c=${c}` },
-    { label: "New in", href: `/products?c=${c}&filter=new` },
-    { label: "Best sellers", href: `/products?c=${c}&filter=best` },
-    { label: "Sale", href: `/products?c=${c}&filter=sale` },
+    { label: `Shop all ${label}`, href: `/categories?c=${c}` },
+    { label: "New in", href: `/categories?c=${c}&filter=new` },
+    { label: "Best sellers", href: `/categories?c=${c}&filter=best` },
+    { label: "Sale", href: `/categories?c=${c}&filter=sale` },
   ];
 }
 

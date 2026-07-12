@@ -20,7 +20,7 @@ export const moreInspiration: FooterLink[] = [
   "Kids' Clothing", "Kids' Shoes", "Men's Chinos", "Men's Clothing", "Men's Coats", "Men's Shoes", "Necklaces",
   "Purses", "Shirt Dresses", "Snow Boots", "Thigh High Boots", "Trainers", "Ugg", "Wellies",
   "Women's Ankle Boots", "Women's Boots", "Women's Clothing", "Women's Coats", "Women's Shirts", "Women's Shoes",
-].map((b) => ({ label: b, href: "/products" }));
+].map((b) => ({ label: b, href: "/categories" }));
 
 export const helpLinks: FooterLink[] = [
   { label: "See all help topics", href: "/help" },

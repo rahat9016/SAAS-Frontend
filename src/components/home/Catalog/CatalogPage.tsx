@@ -54,9 +54,9 @@ export default function CatalogPage({ gender, category = "Clothing" }: CatalogPa
         <h1 className="mt-2 text-3xl font-bold text-secondary md:text-4xl">{title}</h1>
       </div>
 
-      <div className="flex gap-4 lg:gap-6">
+      <div className="flex gap-6 lg:gap-8 xl:gap-10">
         {/* Sidebar */}
-        <aside className="hidden w-48 shrink-0 lg:block">
+        <aside className="hidden w-60 shrink-0 lg:block xl:w-72">
           {breadcrumb}
           <h1 className="mt-2 mb-6 text-3xl font-bold text-secondary md:text-4xl">{title}</h1>
           <p className="mb-3 text-sm font-bold text-secondary">{cat}</p>

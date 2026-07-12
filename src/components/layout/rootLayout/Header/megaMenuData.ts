@@ -115,7 +115,7 @@ const SHARED_MENU: MegaMenuData = {
   promo: {
     image: "https://picsum.photos/seed/familie-munshi/520/360",
     label: "NEW SEASON EDIT",
-    href: "/products?h=new-season",
+    href: "/categories?h=new-season",
   },
 };
 
