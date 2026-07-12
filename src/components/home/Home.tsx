@@ -7,7 +7,7 @@ import {
 import BrandStoryRow from "./sections/BrandStoryRow";
 import HeroBanner from "./sections/HeroBanner";
 import OutfitInspiration from "./sections/OutfitInspiration";
-import ProductSection from "./sections/ProductSection";
+import ProductCarouselSection from "./sections/ProductCarouselSection";
 
 export default function Home() {
   return (
@@ -39,7 +39,7 @@ export default function Home() {
       {/* Product carousels — alternating bands */}
       {productSections.map((s, i) => (
         <Section key={s.id} bg={i % 2 === 0 ? "bg-light" : "bg-white"}>
-          <ProductSection
+          <ProductCarouselSection
             title={s.title}
             subtitle={s.subtitle}
             ctaLabel={s.ctaLabel}

@@ -2,7 +2,7 @@ import ProductCarousel from "../common/ProductCarousel";
 import SectionHeader from "../common/SectionHeader";
 import { HomeProduct } from "../common/homeTypes";
 
-interface ProductSectionProps {
+interface ProductCarouselSectionProps {
   title: string;
   subtitle?: string;
   ctaLabel?: string;
@@ -13,14 +13,14 @@ interface ProductSectionProps {
 }
 
 /** Centered header + horizontal product carousel. The only product section on home. */
-export default function ProductSection({
+export default function ProductCarouselSection({
   title,
   subtitle,
   ctaLabel,
   ctaHref,
   products,
   rows = 1,
-}: ProductSectionProps) {
+}: ProductCarouselSectionProps) {
   return (
     <section>
       <SectionHeader

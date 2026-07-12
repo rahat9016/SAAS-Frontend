@@ -93,7 +93,7 @@ export const brandStories: BrandStory[] = [
   href: "/brands",
 }));
 
-export interface ProductSectionData {
+export interface ProductCarouselSectionData {
   id: string;
   title: string;
   subtitle?: string;
@@ -103,7 +103,7 @@ export interface ProductSectionData {
 }
 
 /** Every product block on the home page — one carousel section each. */
-export const productSections: ProductSectionData[] = [
+export const productSections: ProductCarouselSectionData[] = [
   {
     id: "nike",
     title: "Nike Style",

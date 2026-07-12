@@ -11,5 +11,6 @@ export default function layout({ children }: { children: React.ReactNode }) {
       {children}
       <Footer />
       <FloatingActions />
-    </div>  );
+    </div>
+  );
 }
