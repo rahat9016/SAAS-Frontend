@@ -1,21 +1,13 @@
-import ProductCarousel from "./common/ProductCarousel";
 import Section from "./common/Section";
 import {
-    boards,
-    brandPromos,
     brandStories,
-    makeProducts,
-    nikeBanner,
     outfitLooks,
-    philipsBanner,
-    weightlessBanner,
+    productSections,
 } from "./data/homeData";
-import BoardRow from "./sections/BoardRow";
-import BrandPromoRow from "./sections/BrandPromoRow";
 import BrandStoryRow from "./sections/BrandStoryRow";
-import FeatureGridSection from "./sections/FeatureGridSection";
 import HeroBanner from "./sections/HeroBanner";
 import OutfitInspiration from "./sections/OutfitInspiration";
+import ProductSection from "./sections/ProductSection";
 
 export default function Home() {
   return (
@@ -44,61 +36,18 @@ export default function Home() {
         />
       </Section>
 
-      {/* Nike feature + grid */}
-      <Section bg="bg-light">
-        <FeatureGridSection
-          banner={nikeBanner}
-          products={makeProducts("nike", 10)}
-        />
-      </Section>
-
-      {/* Explore boards */}
-      <Section bg="bg-white">
-        <BoardRow
-          title="Explore boards"
-          subtitle="Find inspiration for any moment"
-          boards={boards}
-        />
-      </Section>
-
-      {/* Summer deals (Philips) */}
-      <Section bg="bg-light">
-        <BrandPromoRow
-          banner={philipsBanner}
-          products={makeProducts("philips", 12)}
-          rows={1}
-        />
-      </Section>
-
-      {/* Weightless icons + grid */}
-      <Section bg="bg-light">
-        <FeatureGridSection
-          banner={weightlessBanner}
-          products={makeProducts("weightless", 10)}
-        />
-      </Section>
-
-      {/* Repeating brand promo blocks — alternating bands */}
-      {brandPromos.map((b, i) => (
-        <Section key={i} bg={i % 2 === 0 ? "bg-white" : "bg-light"}>
-          <BrandPromoRow
-            banner={b.banner}
-            products={b.products}
-            bannerSide={b.bannerSide}
+      {/* Product carousels — alternating bands */}
+      {productSections.map((s, i) => (
+        <Section key={s.id} bg={i % 2 === 0 ? "bg-light" : "bg-white"}>
+          <ProductSection
+            title={s.title}
+            subtitle={s.subtitle}
+            ctaLabel={s.ctaLabel}
+            ctaHref={s.ctaHref}
+            products={s.products}
           />
         </Section>
       ))}
-
-      {/* New arrivals carousel */}
-      <Section bg="bg-white">
-        <ProductCarousel
-          title="Just in: designer"
-          subtitle="Curated new arrivals"
-          ctaLabel="View all"
-          ctaHref="/products"
-          products={makeProducts("justin", 12)}
-        />
-      </Section>
 
       {/* Outfit inspiration */}
       <Section bg="bg-light">

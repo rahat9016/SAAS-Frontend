@@ -93,70 +93,96 @@ export const brandStories: BrandStory[] = [
   href: "/brands",
 }));
 
-export const nikeBanner: BannerContent = {
-  image:
-    "https://images.unsplash.com/photo-1552346154-21d32810aba3?auto=format&fit=crop&w=1600&h=600&q=80",
-  eyebrow: "Nike Style",
-  title: "One shoe, endless looks",
-  subtitle: "Iconic silhouettes reimagined for summer",
-  ctaLabel: "Discover",
-  ctaHref: "/products",
-  theme: "light",
-};
+export interface ProductSectionData {
+  id: string;
+  title: string;
+  subtitle?: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+  products: HomeProduct[];
+}
 
-export const boards: BoardItem[] = [
-  "Beach days", "City breaks", "Festival", "Workwear", "Date night",
-  "Weekend", "Gym", "Holiday", "Office", "Night out",
-].map((t, i) => ({ id: `board-${i}`, image: fashion(i + 5), title: t, href: "/products" }));
-
-export const philipsBanner: BannerContent = {
-  image: fashion(7, 800, 1000),
-  eyebrow: "Summer Deals",
-  title: "Your Summer Glow-Up Starts Here",
-  ctaLabel: "Shop now",
-  ctaHref: "/products",
-  theme: "light",
-};
-
-export const weightlessBanner: BannerContent = {
-  image:
-    "https://images.unsplash.com/photo-1460353581641-37baddab0fa2?auto=format&fit=crop&w=1600&h=600&q=80",
-  eyebrow: "Weightless icons",
-  title: "Fresh summer sneakers",
-  subtitle: "Featherlight styles built for warm days",
-  ctaLabel: "Shop now",
-  ctaHref: "/products",
-  theme: "light",
-};
-
-/** The repeating brand promo blocks. */
-export const brandPromos: { banner: BannerContent; products: HomeProduct[]; bannerSide?: "left" | "right" }[] = [
+/** Every product block on the home page — one carousel section each. */
+export const productSections: ProductSectionData[] = [
   {
-    banner: { image: fashion(1, 800, 1000), eyebrow: "Tommy Jeans", title: "Festival season", ctaLabel: "Shop now", ctaHref: "/products" },
-    products: makeProducts("tommy"),
+    id: "nike",
+    title: "Nike Style",
+    subtitle: "One shoe, endless looks",
+    ctaLabel: "Discover",
+    ctaHref: "/products",
+    products: makeProducts("nike", 12),
   },
   {
-    banner: { image: fashion(6, 800, 1000), eyebrow: "COACH", title: "A Tabby for everyone", ctaLabel: "Explore", ctaHref: "/products" },
-    products: makeProducts("coach"),
-    bannerSide: "right",
+    id: "philips",
+    title: "Summer Deals",
+    subtitle: "Your Summer Glow-Up Starts Here",
+    ctaLabel: "Shop now",
+    ctaHref: "/products",
+    products: makeProducts("philips", 12),
   },
   {
-    banner: { image: fashion(9, 800, 1000), eyebrow: "Seasalt Cornwall", title: "Effortless UK coast style", ctaLabel: "Shop now", ctaHref: "/products" },
-    products: makeProducts("seasalt"),
+    id: "weightless",
+    title: "Weightless icons",
+    subtitle: "Fresh summer sneakers",
+    ctaLabel: "Shop now",
+    ctaHref: "/products",
+    products: makeProducts("weightless", 12),
   },
   {
-    banner: { image: fashion(13, 800, 1000), eyebrow: "Columbia", title: "One Trail. Two Tales.", ctaLabel: "Explore", ctaHref: "/products" },
-    products: makeProducts("columbia"),
-    bannerSide: "right",
+    id: "tommy",
+    title: "Tommy Jeans",
+    subtitle: "Festival season",
+    ctaLabel: "Shop now",
+    ctaHref: "/products",
+    products: makeProducts("tommy", 12),
   },
   {
-    banner: { image: fashion(16, 800, 1000), eyebrow: "Tezenis", title: "Swimwear", ctaLabel: "Shop now", ctaHref: "/products" },
-    products: makeProducts("tezenis"),
+    id: "coach",
+    title: "COACH",
+    subtitle: "A Tabby for everyone",
+    ctaLabel: "Explore",
+    ctaHref: "/products",
+    products: makeProducts("coach", 12),
   },
   {
-    banner: { image: fashion(18, 800, 1000), eyebrow: "Calvin Klein", title: "Feels Like Summer", ctaLabel: "Shop now", ctaHref: "/products" },
-    products: makeProducts("ck"),
-    bannerSide: "right",
+    id: "seasalt",
+    title: "Seasalt Cornwall",
+    subtitle: "Effortless UK coast style",
+    ctaLabel: "Shop now",
+    ctaHref: "/products",
+    products: makeProducts("seasalt", 12),
+  },
+  {
+    id: "columbia",
+    title: "Columbia",
+    subtitle: "One Trail. Two Tales.",
+    ctaLabel: "Explore",
+    ctaHref: "/products",
+    products: makeProducts("columbia", 12),
+  },
+  {
+    id: "tezenis",
+    title: "Tezenis",
+    subtitle: "Swimwear",
+    ctaLabel: "Shop now",
+    ctaHref: "/products",
+    products: makeProducts("tezenis", 12),
+  },
+  {
+    id: "ck",
+    title: "Calvin Klein",
+    subtitle: "Feels Like Summer",
+    ctaLabel: "Shop now",
+    ctaHref: "/products",
+    products: makeProducts("ck", 12),
+  },
+  {
+    id: "justin",
+    title: "Just in: designer",
+    subtitle: "Curated new arrivals",
+    ctaLabel: "View all",
+    ctaHref: "/products",
+    products: makeProducts("justin", 12),
   },
 ];
 
