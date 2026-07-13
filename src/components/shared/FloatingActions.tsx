@@ -137,7 +137,7 @@ export default function FloatingActions() {
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           aria-label="Go to top"
-          className="flex cursor-pointer items-center gap-1.5 rounded-full bg-primary/20 px-3.5 py-1.5 text-sm font-semibold text-primary whitespace-nowrap backdrop-blur-md transition-transform hover:scale-105 hover:bg-primary/30"
+          className="flex cursor-pointer items-center gap-1.5 rounded-full bg-primary/20 px-2.5 py-1 text-sm font-semibold text-primary whitespace-nowrap backdrop-blur-md transition-transform hover:scale-105 hover:bg-primary/30"
         >
           <ArrowUp size={16} /> Back to top
         </button>
