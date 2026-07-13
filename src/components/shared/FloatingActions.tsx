@@ -120,9 +120,9 @@ export default function FloatingActions() {
         <button
           onClick={() => setChatOpen(true)}
           aria-label="Open shopping consultant"
-          className="fixed bottom-[30%] right-4 z-50 cursor-pointer rounded-full border border-primary bg-transparent px-5 py-2.5 text-sm font-semibold text-primary whitespace-nowrap transition-transform hover:scale-105"
+          className="fixed bottom-[30%] right-4 z-50 cursor-pointer rounded-2xl bg-primary/20 px-3.5 py-1.5 text-center text-sm font-semibold leading-tight text-primary backdrop-blur-md transition-transform hover:scale-105 hover:bg-primary/30"
         >
-          Shopping consultant
+          Shopping <br /> Consultant
         </button>
       )}
 
@@ -137,7 +137,7 @@ export default function FloatingActions() {
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           aria-label="Go to top"
-          className="flex cursor-pointer items-center gap-1.5 rounded-full border border-primary bg-transparent px-5 py-2.5 text-sm font-semibold text-primary whitespace-nowrap transition-transform hover:scale-105"
+          className="flex cursor-pointer items-center gap-1.5 rounded-full bg-primary/20 px-3.5 py-1.5 text-sm font-semibold text-primary whitespace-nowrap backdrop-blur-md transition-transform hover:scale-105 hover:bg-primary/30"
         >
           <ArrowUp size={16} /> Back to top
         </button>

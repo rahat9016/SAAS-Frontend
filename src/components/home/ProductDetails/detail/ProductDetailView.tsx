@@ -226,6 +226,7 @@ export default function ProductDetailView({ product }: { product: ProductDetail 
           ctaLabel="View all"
           ctaHref="/categories"
           products={makeProducts(`related-${product.id}`, 12)}
+          tileWidth="auto-cols-[70%] sm:auto-cols-[45%] lg:auto-cols-[calc((100%-2.25rem)/4)]"
           compact
         />
       </div>
