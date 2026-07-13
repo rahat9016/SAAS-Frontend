@@ -120,7 +120,7 @@ export default function FloatingActions() {
         <button
           onClick={() => setChatOpen(true)}
           aria-label="Open shopping consultant"
-          className="fixed bottom-[30%] right-4 z-50 cursor-pointer rounded-2xl bg-primary/20 px-3.5 py-1.5 text-center text-sm font-semibold leading-tight text-primary backdrop-blur-md transition-transform hover:scale-105 hover:bg-primary/30"
+          className="fixed bottom-24 right-4 z-50 cursor-pointer rounded-2xl bg-primary/20 px-2.5 py-1 text-center text-sm font-semibold leading-tight text-primary backdrop-blur-md transition-transform hover:scale-105 hover:bg-primary/30"
         >
           Shopping <br /> Consultant
         </button>
