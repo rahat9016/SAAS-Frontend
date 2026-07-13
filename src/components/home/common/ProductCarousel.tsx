@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import ProductCard from "./ProductCard";
 import SectionCta from "./SectionCta";
 import SectionHeader from "./SectionHeader";
@@ -39,10 +39,24 @@ export default function ProductCarousel({
   fill = false,
 }: ProductCarouselProps) {
   const ref = useRef<HTMLDivElement>(null);
+  const [imageHeight, setImageHeight] = useState(0);
 
   const scrollBy = (dir: 1 | -1) => {
     ref.current?.scrollBy({ left: dir * 600, behavior: "smooth" });
   };
+
+  // Arrows sit at the middle of the product image, not the whole card.
+  useEffect(() => {
+    const image = ref.current?.querySelector<HTMLElement>("[data-card-image]");
+    if (!image) return;
+    const observer = new ResizeObserver(() =>
+      setImageHeight(image.offsetHeight)
+    );
+    observer.observe(image);
+    return () => observer.disconnect();
+  }, [products]);
+
+  const arrowStyle = imageHeight ? { top: imageHeight / 2 } : undefined;
 
   return (
     <div className={`min-w-0 ${fill ? "flex h-full flex-col" : ""}`}>
@@ -73,6 +87,7 @@ export default function ProductCarousel({
           type="button"
           onClick={() => scrollBy(-1)}
           aria-label="previous"
+          style={arrowStyle}
           className="absolute left-1 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/90 shadow-md backdrop-blur hover:bg-light md:-left-3 md:bg-white"
         >
           <ChevronLeft size={18} />
@@ -81,6 +96,7 @@ export default function ProductCarousel({
           type="button"
           onClick={() => scrollBy(1)}
           aria-label="next"
+          style={arrowStyle}
           className="absolute right-1 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/90 shadow-md backdrop-blur hover:bg-light md:-right-3 md:bg-white"
         >
           <ChevronRight size={18} />

@@ -6,7 +6,6 @@ import GenderTabs from "./GenderTabs";
 import HeaderTopBarActions from "./HeaderTopBarActions";
 import HeaderTopBarSearch from "./HeaderTopBarSearch";
 import LanguageDropdown from "./LanguageDropdown";
-import UtilityBar from "./UtilityBar";
 import { useHeaderSearch } from "./useHeaderSearch";
 
 interface HeaderTopBarProps {
@@ -29,7 +28,6 @@ export default function HeaderTopBar({
 
   return (
     <>
-      <UtilityBar />
       <div className="bg-white border-b border-gray-100">
       {/* ═══════ DESKTOP HEADER ═══════ */}
       <div className="hidden lg:block">

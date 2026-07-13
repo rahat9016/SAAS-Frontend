@@ -66,12 +66,12 @@ export default function ProductDetailView({ product }: { product: ProductDetail 
   return (
     <div className="container px-4 sm:px-6 lg:px-8 py-6 md:py-4">
       <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
-        {/* Gallery — 43% width on desktop; swaps with the selected colour */}
-        <div className="w-full lg:w-[43%] lg:shrink-0">
+        {/* Gallery — 65% width on desktop; swaps with the selected colour */}
+        <div className="w-full lg:w-[65%] lg:shrink-0">
           <Gallery key={activeColor} images={galleryImages} alt={product.title} />
         </div>
 
-        {/* Info — fills the remaining width after the 43% gallery */}
+        {/* Info — fills the remaining ~35% after the gallery */}
         <div className="w-full lg:flex-1">
           {/* Brand */}
           <div className="mb-2">

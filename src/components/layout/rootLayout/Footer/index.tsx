@@ -3,7 +3,7 @@ import {
   aboutLinks,
   giftCardLinks,
   helpLinks,
-  moreBrands,
+  productCategories,
   moreInspiration,
 } from "../footerData";
 import AppDownload from "./AppDownload";
@@ -20,7 +20,7 @@ export default function Footer() {
   return (
     <footer className="bg-light">
       <div className="container space-y-10 py-12">
-        <FooterLinkGrid title="Shop Categories" links={moreBrands} />
+        <FooterLinkGrid title="Product Categories" links={productCategories} />
         <FooterLinkGrid title="More Inspiration" links={moreInspiration} />
       </div>
 

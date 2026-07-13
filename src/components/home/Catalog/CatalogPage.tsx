@@ -34,17 +34,13 @@ export default function CatalogPage({ gender, category = "Clothing" }: CatalogPa
   const cat = cap(category);
   const title = gender ? `${cap(gender)}'s ${cat}` : cat;
 
-  const breadcrumb = (
+  const breadcrumb = gender ? (
     <nav className="flex items-center gap-1 text-sm text-gray-500">
-      {gender && (
-        <>
-          <Link href="/categories" className="hover:text-primary">{cap(gender)}</Link>
-          <ChevronRight size={14} className="text-gray-400" />
-        </>
-      )}
+      <Link href="/categories" className="hover:text-primary">{cap(gender)}</Link>
+      <ChevronRight size={14} className="text-gray-400" />
       <span className="font-medium text-secondary">{cat}</span>
     </nav>
-  );
+  ) : null;
 
   return (
     <div className="container  py-2 2xl:py-4">
@@ -56,10 +52,9 @@ export default function CatalogPage({ gender, category = "Clothing" }: CatalogPa
 
       <div className="flex gap-6 lg:gap-8 xl:gap-10">
         {/* Sidebar */}
-        <aside className="hidden w-60 shrink-0 lg:block xl:w-72">
+        <aside className="hidden shrink-0 lg:block lg:w-[15%]">
           {breadcrumb}
           <h1 className="mt-2 mb-6 text-3xl font-bold text-secondary md:text-4xl">{title}</h1>
-          <p className="mb-3 text-sm font-bold text-secondary">{cat}</p>
           <ul className="space-y-2.5">
             {SUBCATEGORIES.map((s) => (
               <li key={s}>

@@ -42,6 +42,7 @@ export default function ProductCard({
     >
       {/* Image */}
       <div
+        data-card-image
         className={`relative w-full overflow-hidden rounded-lg bg-light ${
           fill ? "flex-1 min-h-0" : ratio
         }`}

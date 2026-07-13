@@ -6,7 +6,7 @@ export interface FooterLink {
 const catSlug = (s: string) =>
   s.toLowerCase().replace(/&/g, "and").replace(/\//g, "-").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
-export const moreBrands: FooterLink[] = [
+export const productCategories: FooterLink[] = [
   "Blouses", "Shirts", "T-shirts", "Polo shirts", "Sweatshirts", "Sweatshirt Jacke", "Indoor jackets",
   "Indoor Blazer", "Indoor-Sakko", "Indoor-Weste", "Outdoor jackets", "Outdoor-Coat", "Outdoor-Weste",
   "Outdoor-Poncho", "Outdoor-Umhang", "Knitwear", "Knitted sweater", "Knitted Vest", "Knitted cardigan",

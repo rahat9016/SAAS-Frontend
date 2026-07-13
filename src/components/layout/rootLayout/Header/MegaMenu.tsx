@@ -30,11 +30,11 @@ export default function MegaMenu({ data, menuKey, onNavigate }: MegaMenuProps) {
       >
         {data.columns.map((col) => (
           <div key={col.heading}>
-            <h4 className="mb-4 text-base font-bold text-gray-400 min-[1024px]:max-[1480px]:mb-2">
+            <h4 className="mb-4 text-center text-base font-bold text-gray-400 min-[1024px]:max-[1480px]:mb-2">
               {col.heading}
             </h4>
-            {/* 1024–1480px: 2 sub-columns, 7 items in first (grid, column-wise fill) */}
-            <ul className="space-y-1 min-[1024px]:max-[1480px]:grid min-[1024px]:max-[1480px]:grid-flow-col min-[1024px]:max-[1480px]:grid-rows-[repeat(11,auto)] min-[1024px]:max-[1480px]:gap-x-3 min-[1024px]:max-[1480px]:space-y-0">
+            {/* 5 items per sub-column, filled column-wise */}
+            <ul className="grid grid-flow-col grid-rows-5 gap-x-4 min-[1024px]:max-[1480px]:gap-x-3">
               {col.items.map(({ label, href, icon: Icon, highlight }) => (
                 <li key={label} className="min-[1024px]:max-[1480px]:py-0.5">
                   <Link

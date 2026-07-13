@@ -12,7 +12,16 @@ interface GalleryProps {
 /** Vertical thumbnail rail + large main image. */
 export default function Gallery({ images, alt }: GalleryProps) {
   const [active, setActive] = useState(0);
+  const [zoomed, setZoomed] = useState(false);
+  const [origin, setOrigin] = useState("50% 50%");
   const list = images.length ? images : [""];
+
+  const trackCursor = (e: React.MouseEvent<HTMLDivElement>) => {
+    const box = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - box.left) / box.width) * 100;
+    const y = ((e.clientY - box.top) / box.height) * 100;
+    setOrigin(`${x}% ${y}%`);
+  };
 
   return (
     <div className="flex gap-2 sm:gap-3">
@@ -49,14 +58,22 @@ export default function Gallery({ images, alt }: GalleryProps) {
         </button>
       </div>
 
-      {/* Main image — fills the gallery column */}
-      <div className="relative aspect-[4/5] flex-1 overflow-hidden rounded-xl bg-light">
+      {/* Main image — fills the gallery column; zooms toward the cursor on hover */}
+      <div
+        className="relative aspect-[4/5] flex-1 cursor-zoom-in overflow-hidden rounded-xl bg-light"
+        onMouseEnter={() => setZoomed(true)}
+        onMouseLeave={() => setZoomed(false)}
+        onMouseMove={trackCursor}
+      >
         <Image
           src={list[active]}
           alt={alt}
           fill
-          sizes="(max-width:1024px) 90vw, 40vw"
-          className="object-cover"
+          sizes="(max-width:1024px) 90vw, 60vw"
+          style={{ transformOrigin: origin }}
+          className={`object-cover transition-transform duration-200 ease-out ${
+            zoomed ? "scale-200" : "scale-100"
+          }`}
           priority
         />
       </div>
