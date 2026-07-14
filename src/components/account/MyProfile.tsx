@@ -18,8 +18,8 @@ export default function MyProfile() {
   const methods = useForm<ProfileFormValues>({
     resolver: yupResolver(profileSchema) as any, // eslint-disable-line @typescript-eslint/no-explicit-any
     defaultValues: {
-      firstName: "",
-      lastName: "",
+      firstName: "Minhazur",
+      lastName: "Rahamn",
       email: "",
       phone: "",
       profilePicture: undefined,

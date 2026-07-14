@@ -69,8 +69,8 @@ export default function HeaderTopBarActions({
           </span>
         )}
       </Link>
-
-      {authLoading ? (
+<ProfileDropdown />
+      {/* {authLoading ? (
         <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-gray-200">
           <div className="w-4 h-4 rounded-full bg-gray-200 animate-pulse" />
           <div className="w-14 h-2.5 bg-gray-200 rounded animate-pulse" />
@@ -85,7 +85,7 @@ export default function HeaderTopBarActions({
           <User size={20} className="group-hover:scale-110 transition-transform" />
           <span className="hidden text-xs xl:block">Sign In</span>
         </button>
-      )}
+      )} */}
     </div>
   );
 }

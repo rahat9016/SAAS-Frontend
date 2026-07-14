@@ -2,44 +2,11 @@
 
 import { selectCanViewOwnOrders } from "@/src/lib/redux/features/permission/permissionSelectors";
 import { useAppSelector } from "@/src/lib/redux/hooks";
-import {
-    CreditCard,
-    MapPin,
-    Package,
-    RotateCcw,
-    User,
-    XCircle,
-} from "lucide-react";
+import { sidebarSections } from "@/src/utils/profileMenuItems";
+import { User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
-const sidebarSections = [
-  {
-    title: "Manage My Account",
-    items: [
-      { label: "My Profile", href: "/account", icon: User },
-      { label: "Address Book", href: "/account/addresses", icon: MapPin },
-      {
-        label: "Payment Methods",
-        href: "/account/payment-methods",
-        icon: CreditCard,
-      },
-    ],
-  },
-  {
-    title: "My Orders",
-    items: [
-      { label: "My Orders", href: "/account/orders", icon: Package },
-      { label: "My Returns", href: "/account/returns", icon: RotateCcw },
-      {
-        label: "My Cancellations",
-        href: "/account/cancellations",
-        icon: XCircle,
-      },
-    ],
-  },
-];
 
 export default function AccountLayout({
   children,

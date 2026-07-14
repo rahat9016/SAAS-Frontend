@@ -1,39 +1,35 @@
 "use client";
 
 import { logoutUser } from "@/src/lib/redux/features/auth/authSlice";
-import {
-  selectCanAccessAdmin,
-  selectCanViewOwnOrders,
-} from "@/src/lib/redux/features/permission/permissionSelectors";
 import { clearRolePermissions } from "@/src/lib/redux/features/permission/permissionSlice";
 import { useAppDispatch, useAppSelector } from "@/src/lib/redux/hooks";
 import { LogOut, User } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { userMenuItems } from "../../../../utils/profileMenuItems";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
 } from "../../../ui/dropdown-menu";
 import ProfileDropdownSkeleton from "./Skeleton/ProfileDropdownSkeleton";
-import { adminMenuItems, userMenuItems } from "../../../../utils/profileMenuItems";
 
 export function ProfileDropdown() {
   const dispatch = useAppDispatch();
   const { userInformation, loading } = useAppSelector((state) => state.auth);
-  const canAccessAdmin = useAppSelector(selectCanAccessAdmin);
-  const canViewOwnOrders = useAppSelector(selectCanViewOwnOrders);
+  // const canAccessAdmin = useAppSelector(selectCanAccessAdmin);
+  // const canViewOwnOrders = useAppSelector(selectCanViewOwnOrders);
   const router = useRouter();
 
-  const menuItems = canAccessAdmin
-    ? adminMenuItems
-    : userMenuItems.filter((item) => {
-        if (!canViewOwnOrders && item.href.includes("/orders")) return false;
-        return true;
-      });
+  // const menuItems = canAccessAdmin
+  //   ? adminMenuItems
+  //   : userMenuItems.filter((item) => {
+  //       if (!canViewOwnOrders && item.href.includes("/orders")) return false;
+  //       return true;
+  //     });
 
   const handleLogout = () => {
     dispatch(logoutUser());
@@ -60,7 +56,10 @@ export function ProfileDropdown() {
               className="w-5 h-5 rounded-full object-cover ring-1 ring-primary/30"
             />
           ) : (
-            <User size={20} className="group-hover:scale-110 transition-transform" />
+            <User
+              size={20}
+              className="group-hover:scale-110 transition-transform"
+            />
           )}
           <span className="hidden text-xs xl:block">My Account</span>
         </button>
@@ -88,6 +87,7 @@ export function ProfileDropdown() {
             )}
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-gray-900 truncate">
+                Minhazur Rahman
                 {userInformation.firstName} {userInformation.lastName}
               </p>
               <p className="text-xs text-gray-500 truncate">
@@ -101,7 +101,7 @@ export function ProfileDropdown() {
 
         {/* Menu Items */}
         <div className="py-1">
-          {menuItems.map((item) => (
+          {userMenuItems.map((item) => (
             <DropdownMenuItem
               key={item.href}
               onClick={() => router.push(item.href)}
