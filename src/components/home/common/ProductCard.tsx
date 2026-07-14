@@ -2,7 +2,7 @@
 
 import { toggleWishlist } from "@/src/lib/redux/features/wishlist/wishlistSlice";
 import { useAppDispatch, useAppSelector } from "@/src/lib/redux/hooks";
-import { Camera, Heart } from "lucide-react";
+import { Camera, Heart, Leaf } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -72,24 +72,28 @@ export default function ProductCard({
           />
         </button>
 
-        {/* Virtual trial-room — only when a slug is available */}
-        {product.slug && (
-          <button
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              router.push(`/trial-room?product=${product.slug}`);
-            }}
-            aria-label="Try on with virtual camera"
-            className="absolute right-3 top-14 flex h-9 w-9 items-center justify-center rounded-full bg-white text-secondary shadow-sm transition-transform hover:scale-110 hover:text-primary"
-          >
-            <Camera size={18} />
-          </button>
-        )}
+        {/* Virtual trial-room — always visible */}
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            router.push(`/trial-room?product=${product.slug}`);
+          }}
+          aria-label="Try on with virtual camera"
+          className="absolute right-3 top-14 flex h-9 w-9 items-center justify-center rounded-full bg-white text-secondary shadow-sm transition-transform hover:scale-110 hover:text-primary"
+        >
+          <Camera size={18} />
+        </button>
 
         {/* Badges */}
-        <div className="absolute bottom-3 left-3 flex items-center gap-2">
-          {product.extraLabel && (
+        <div className="absolute bottom-3 left-3 flex flex-wrap items-center gap-2 pr-3">
+          
+            <span className="flex items-center gap-1 rounded-md bg-green-100 px-2 py-1 text-xs font-bold uppercase text-green-700">
+              <Leaf size={14} />
+              Sustainable
+            </span>
+          
+          {/* {product.extraLabel && (
             <span className="rounded-md bg-secondary px-2.5 py-1 text-xs font-bold text-white">
               {product.extraLabel}
             </span>
@@ -98,7 +102,7 @@ export default function ProductCard({
             <span className="rounded-md bg-red-500 px-2.5 py-1 text-xs font-bold text-white">
               Deal
             </span>
-          )}
+          )} */}
         </div>
       </div>
 

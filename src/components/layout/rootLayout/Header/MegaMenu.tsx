@@ -30,7 +30,7 @@ export default function MegaMenu({ data, menuKey, onNavigate }: MegaMenuProps) {
       >
         {data.columns.map((col) => (
           <div key={col.heading}>
-            <h4 className="mb-4 text-center text-base font-bold text-gray-400 min-[1024px]:max-[1480px]:mb-2">
+            <h4 className="text-center text-base font-bold text-gray-400 ">
               {col.heading}
             </h4>
             {/* 5 items per sub-column, filled column-wise */}
@@ -40,14 +40,14 @@ export default function MegaMenu({ data, menuKey, onNavigate }: MegaMenuProps) {
                   <Link
                     href={href}
                     onClick={onNavigate}
-                    className={`group/i flex items-center gap-3 rounded-md px-2 py-1.5 -mx-2 text-sm transition-colors duration-150 min-[1024px]:max-[1480px]:gap-2 min-[1024px]:max-[1480px]:py-1 ${
+                    className={`group/i flex items-center gap-3 rounded-md px-1 xl:px-2 py-0.5 xl:py-1.5 -mx-2 text-xs xl:sm transition-colors duration-150 min-[1024px]:max-[1480px]:gap-2 min-[1024px]:max-[1480px]:py-1 ${
                       highlight
                         ? "font-semibold text-red-500 hover:bg-red-50"
                         : "text-foreground hover:bg-light hover:text-primary"
                     }`}
                   >
                     <Icon
-                      size={20}
+                      size={18}
                       strokeWidth={1.6}
                       className="shrink-0 transition-transform duration-150 group-hover/i:scale-110"
                     />

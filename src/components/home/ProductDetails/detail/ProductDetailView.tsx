@@ -148,12 +148,12 @@ export default function ProductDetailView({ product }: { product: ProductDetail 
                     readOnly
                     value={size ?? ""}
                     placeholder="Measure with camera"
-                    className="h-11 w-full rounded-lg border border-gray-300 bg-light px-3 text-sm text-secondary placeholder:text-gray-400 focus:outline-none"
+                    className="h-12 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm text-secondary placeholder:text-gray-400 focus:outline-none"
                   />
                   <Link
                     href={`/trial-room?product=${product.slug}`}
                     aria-label="Find your size with camera"
-                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-gray-300 text-secondary transition-colors hover:bg-light hover:text-primary"
+                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-gray-300 text-secondary transition-colors hover:bg-light hover:text-primary"
                   >
                     <Camera size={20} />
                   </Link>

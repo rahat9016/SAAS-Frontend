@@ -24,19 +24,19 @@ export default function BrandStoryRow({ title, subtitle, stories }: BrandStoryRo
       <div className="relative">
         <div
           ref={ref}
-          className="flex gap-3 overflow-x-auto scroll-smooth pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden snap-x"
+          className="grid grid-flow-col gap-3 overflow-x-auto scroll-smooth pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden snap-x auto-cols-[70%] sm:auto-cols-[45%] lg:auto-cols-[calc((100%-2.25rem)/4)]"
         >
           {stories.map((s) => (
             <Link
               key={s.id}
               href={s.href ?? "#"}
-              className="group relative aspect-[3/4] w-[150px] shrink-0 snap-start overflow-hidden rounded-xl bg-light sm:w-[180px]"
+              className="group relative aspect-[3/4] snap-start overflow-hidden rounded-xl bg-light"
             >
               <Image
                 src={s.image}
                 alt={s.title}
                 fill
-                sizes="180px"
+                sizes="(max-width: 640px) 50vw, 25vw"
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
