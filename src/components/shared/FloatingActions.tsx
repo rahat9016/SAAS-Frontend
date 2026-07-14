@@ -120,7 +120,7 @@ export default function FloatingActions() {
         <button
           onClick={() => setChatOpen(true)}
           aria-label="Open shopping consultant"
-          className="fixed bottom-24 right-4 z-50 cursor-pointer rounded-2xl bg-primary/20 px-2.5 py-1 text-center text-sm font-semibold leading-tight text-primary backdrop-blur-md transition-transform hover:scale-105 hover:bg-primary/30"
+          className="fixed bottom-32 right-4 z-50 cursor-pointer rounded-2xl bg-primary/20 px-2.5 py-1 text-center text-sm font-semibold leading-tight text-primary backdrop-blur-md transition-transform hover:scale-105 hover:bg-primary/30"
         >
           Shopping <br /> Consultant
         </button>
@@ -128,7 +128,7 @@ export default function FloatingActions() {
 
       {/* Go to top — bottom-right; fades in on scroll */}
       <div
-        className={`fixed bottom-12.5 right-4 z-50 transition-all duration-300 ${
+        className={`fixed bottom-16 right-4 z-50 transition-all duration-300 ${
           showTop && !chatOpen
             ? "opacity-100 translate-y-0"
             : "pointer-events-none translate-y-2 opacity-0"

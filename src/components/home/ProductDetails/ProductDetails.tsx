@@ -211,57 +211,16 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
         {/* ========== LEFT: Image Gallery ========== */}
-        <div className="lg:col-span-4">
-          <div className="flex flex-col gap-3">
-            {/* Main image */}
-            <div className="group relative w-full aspect-square rounded-xl overflow-hidden bg-gray-100 border border-border">
-              <Image
-                src={product.images[selectedImage]?.url ?? ""}
-                alt={product.images[selectedImage]?.alt ?? product.name}
-                fill
-                className="object-cover transition-transform duration-400 group-hover:scale-105"
-                sizes="(max-width: 1024px) 100vw, 33vw"
-                priority
-              />
-            </div>
-            {/* Thumbnails (≤5) */}
-            {product.images.length > 1 && product.images.length <= 5 && (
-              <div className="flex gap-2">
-                {product.images.map((img, idx) => (
-                  <button
-                    key={img.id}
-                    className={`relative w-[4.5rem] h-[4.5rem] rounded-lg overflow-hidden cursor-pointer border-2 shrink-0 bg-gray-100 transition-all hover:opacity-80 ${idx === selectedImage ? "border-primary" : "border-transparent"}`}
-                    onClick={() => setSelectedImage(idx)}
-                    aria-label={`View image ${idx + 1}`}
-                  >
-                    <Image
-                      src={img.url}
-                      alt={img.alt ?? `${product.name} ${idx + 1}`}
-                      fill
-                      className="object-cover"
-                      sizes="72px"
-                    />
-                  </button>
-                ))}
-              </div>
-            )}
-            {/* Thumbnails (>5 with arrows) */}
-            {product.images.length > 5 && (
-              <div className="relative flex items-center gap-1">
-                {selectedImage > 0 && (
-                  <button
-                    className="flex items-center justify-center w-7 h-7 rounded-full border border-border bg-card text-foreground cursor-pointer shrink-0 shadow-sm hover:bg-primary hover:text-white hover:border-primary transition-all"
-                    onClick={() => setSelectedImage((i) => Math.max(0, i - 1))}
-                    aria-label="Previous image"
-                  >
-                    <ChevronLeft size={16} />
-                  </button>
-                )}
-                <div className="flex gap-2 overflow-hidden flex-1">
+        <div className="lg:col-span-8">
+          <div className="flex gap-4">
+            {/* Thumbnails Column (Left) */}
+            <div className="w-[4.5rem] shrink-0">
+              {product.images.length > 1 && (
+                <div className="flex flex-col gap-2">
                   {product.images.map((img, idx) => (
                     <button
                       key={img.id}
-                      className={`relative w-[4.5rem] h-[4.5rem] rounded-lg overflow-hidden cursor-pointer border-2 shrink-0 bg-gray-100 transition-all hover:opacity-80 ${idx === selectedImage ? "border-primary" : "border-transparent"}`}
+                      className={`relative w-full aspect-[3/4] rounded-md overflow-hidden cursor-pointer border-2 shrink-0 bg-gray-100 transition-all hover:opacity-80 ${idx === selectedImage ? "border-primary" : "border-transparent"}`}
                       onClick={() => setSelectedImage(idx)}
                       aria-label={`View image ${idx + 1}`}
                     >
@@ -275,26 +234,25 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
                     </button>
                   ))}
                 </div>
-                {selectedImage < product.images.length - 1 && (
-                  <button
-                    className="flex items-center justify-center w-7 h-7 rounded-full border border-border bg-card text-foreground cursor-pointer shrink-0 shadow-sm hover:bg-primary hover:text-white hover:border-primary transition-all"
-                    onClick={() =>
-                      setSelectedImage((i) =>
-                        Math.min(product.images.length - 1, i + 1)
-                      )
-                    }
-                    aria-label="Next image"
-                  >
-                    <ChevronRight size={16} />
-                  </button>
-                )}
-              </div>
-            )}
+              )}
+            </div>
+
+            {/* Main image (Right) */}
+            <div className="group relative flex-1 aspect-[3/4] rounded-xl overflow-hidden bg-gray-100 border border-border">
+              <Image
+                src={product.images[selectedImage]?.url ?? ""}
+                alt={product.images[selectedImage]?.alt ?? product.name}
+                fill
+                className="object-cover transition-transform duration-400 group-hover:scale-105"
+                sizes="(max-width: 1024px) 100vw, 33vw"
+                priority
+              />
+            </div>
           </div>
         </div>
 
-        {/* ========== CENTER: Product Info ========== */}
-        <div className="lg:col-span-5 flex flex-col gap-4">
+        {/* ========== RIGHT: Product Info & Pricing ========== */}
+        <div className="lg:col-span-4 flex flex-col gap-6">
           {product.brand && (
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold text-primary uppercase tracking-wide bg-primary/10 px-2 py-0.5 rounded">
@@ -523,11 +481,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
               <span>Genuine Product</span>
             </div>
           </div>
-        </div>
-
-        {/* ========== RIGHT: Pricing Panel & Related ========== */}
-        <div className="lg:col-span-3 flex flex-col gap-5">
-          <div className="rounded-xl border border-border p-5 bg-card">
+          <div className="rounded-xl border border-border p-5 bg-card mt-2">
             <h3 className="text-sm font-bold text-foreground mb-4 flex items-center gap-2">
               <span className="w-1 h-4 bg-primary rounded-full" />
               Pricing Details
