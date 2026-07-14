@@ -34,13 +34,13 @@ export default function MegaMenu({ data, menuKey, onNavigate }: MegaMenuProps) {
               {col.heading}
             </h4>
             {/* 5 items per sub-column, filled column-wise */}
-            <ul className="grid grid-flow-col grid-rows-5 gap-x-4 min-[1024px]:max-[1480px]:gap-x-3">
+            <ul className="grid grid-flow-col grid-rows-5 gap-x-2 xl:gap-x-4 min-[1024px]:max-[1480px]:gap-x-3">
               {col.items.map(({ label, href, icon: Icon, highlight }) => (
-                <li key={label} className="min-[1024px]:max-[1480px]:py-0.5">
+                <li key={label} className="">
                   <Link
                     href={href}
                     onClick={onNavigate}
-                    className={`group/i flex items-center gap-3 rounded-md px-1 xl:px-2 py-0.5 xl:py-1.5 -mx-2 text-xs xl:sm transition-colors duration-150 min-[1024px]:max-[1480px]:gap-2 min-[1024px]:max-[1480px]:py-1 ${
+                    className={`group/i flex items-center gap-0.5 xl:gap-3 rounded-md px-0 xl:px-2 py-0.5 xl:py-1.5 -mx-2 text-xs xl:sm transition-colors duration-150 ${
                       highlight
                         ? "font-semibold text-red-500 hover:bg-red-50"
                         : "text-foreground hover:bg-light hover:text-primary"
