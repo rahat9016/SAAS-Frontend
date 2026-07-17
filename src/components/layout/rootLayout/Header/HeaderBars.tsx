@@ -1,7 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useScroll, useMotionValueEvent } from "framer-motion";
+import { useRef, useState } from "react";
 import HeaderTopBar from "./HeaderTopBar";
 import MobileNav from "./MobileNav";
 import NavItems from "./NavItems";
@@ -11,37 +11,45 @@ export default function HeaderBars() {
   const [scrolled, setScrolled] = useState(false);
   const [showUtility, setShowUtility] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
-  const lastY = useRef(0);
+  
+  const { scrollY } = useScroll();
+  const lastYRef = useRef(0);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const y = window.scrollY;
-      setScrolled(y > 10);
-      // Utility strip hides while scrolling down, returns on scroll up / at top.
-      if (y <= 10) setShowUtility(true);
-      else if (Math.abs(y - lastY.current) > 4)
-        setShowUtility(y < lastY.current);
-      lastY.current = y;
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    setScrolled(latest > 10);
+
+    if (latest <= 10) {
+      setShowUtility(true);
+      lastYRef.current = latest;
+      return;
+    }
+
+    const diff = latest - lastYRef.current;
+    if (diff > 10) {
+      // Scrolled down
+      setShowUtility(false);
+      lastYRef.current = latest;
+    } else if (diff < -10) {
+      // Scrolled up
+      setShowUtility(true);
+      lastYRef.current = latest;
+    }
+  });
 
   return (
     <>
       <div
-        className={`relative w-full transition-shadow duration-300 ${
+        className={`relative w-full bg-white transition-shadow duration-300 ${
           scrolled ? "shadow-md" : ""
         }`}
       >
-        <motion.div
-          initial={false}
-          animate={{ height: showUtility ? "auto" : 0 }}
-          transition={{ duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
-          className="overflow-hidden"
+        <div
+          className={`overflow-hidden transition-all duration-300 ease-in-out origin-top ${
+            showUtility ? "max-h-[50px] opacity-100" : "max-h-0 opacity-0"
+          }`}
         >
           <UtilityBar />
-        </motion.div>
+        </div>
         <HeaderTopBar menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
         <NavItems />
       </div>
