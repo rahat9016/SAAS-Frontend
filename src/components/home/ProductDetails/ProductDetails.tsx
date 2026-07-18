@@ -3,28 +3,27 @@
 import { dummyProducts } from "@/src/data/dummyProducts";
 import { addToCart } from "@/src/lib/redux/features/cart/cartSlice";
 import {
-    selectCanAddToCart,
-    selectCanCheckout,
+  selectCanAddToCart,
+  selectCanCheckout,
 } from "@/src/lib/redux/features/permission/permissionSelectors";
 import { toggleWishlist } from "@/src/lib/redux/features/wishlist/wishlistSlice";
 import { useAppDispatch, useAppSelector } from "@/src/lib/redux/hooks";
 import { IProduct, IProductVariant } from "@/src/types/ecommerce/product";
 import {
-    ChevronLeft,
-    ChevronRight,
-    Heart,
-    HelpCircle,
-    MessageSquare,
-    Minus,
-    Plus,
-    Send,
-    Share2,
-    ShieldCheck,
-    ShoppingCart,
-    Star,
-    ThumbsUp,
-    Truck,
-    X,
+  ChevronRight,
+  Heart,
+  HelpCircle,
+  MessageSquare,
+  Minus,
+  Plus,
+  Send,
+  Share2,
+  ShieldCheck,
+  ShoppingCart,
+  Star,
+  ThumbsUp,
+  Truck,
+  X
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -190,7 +189,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
     "w-full px-3 py-2.5 rounded-lg border border-border text-sm bg-background text-foreground focus:outline-none focus:border-primary transition-colors";
 
   return (
-    <div className="container px-4 sm:px-6 lg:px-8 py-6 lg:py-4">
+    <div className="container px-4 xl:px-0 py-6 lg:py-4">
       {/* Breadcrumb */}
       <nav className="flex items-center gap-1.5 text-xs text-muted-foreground mb-6 flex-wrap">
         <Link href="/" className="hover:text-primary transition-colors">
@@ -206,15 +205,15 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
         <ChevronRight size={12} />
         <span className="text-foreground font-medium truncate max-w-[200px]">
           {product.name}
-        </span>
+        </span> 
       </nav>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-2">
         {/* ========== LEFT: Image Gallery ========== */}
         <div className="lg:col-span-8">
-          <div className="flex gap-4">
+          <div className="flex gap-2">
             {/* Thumbnails Column (Left) */}
-            <div className="w-[4.5rem] shrink-0">
+            <div className="w-20 sm:w-24 md:w-28 lg:w-32 shrink-0">
               {product.images.length > 1 && (
                 <div className="flex flex-col gap-2">
                   {product.images.map((img, idx) => (
@@ -229,7 +228,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
                         alt={img.alt ?? `${product.name} ${idx + 1}`}
                         fill
                         className="object-cover"
-                        sizes="72px"
+                        sizes="(max-width: 768px) 80px, 128px"
                       />
                     </button>
                   ))}
@@ -252,7 +251,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
         </div>
 
         {/* ========== RIGHT: Product Info & Pricing ========== */}
-        <div className="lg:col-span-4 flex flex-col gap-6">
+        <div className="lg:col-span-4 flex flex-col gap-2">
           {product.brand && (
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold text-primary uppercase tracking-wide bg-primary/10 px-2 py-0.5 rounded">

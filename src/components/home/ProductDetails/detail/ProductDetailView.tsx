@@ -64,8 +64,8 @@ export default function ProductDetailView({ product }: { product: ProductDetail 
   };
 
   return (
-    <div className="container px-4 sm:px-6 lg:px-8 py-6 md:py-4">
-      <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
+    <div className="container px-4 xl:px-0 py-2 md:py-2">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
         {/* Gallery — 65% width on desktop; swaps with the selected colour */}
         <div className="w-full lg:w-[65%] lg:shrink-0">
           <Gallery key={activeColor} images={galleryImages} alt={product.title} />
@@ -218,14 +218,36 @@ export default function ProductDetailView({ product }: { product: ProductDetail 
         </div>
       </div>
 
-      {/* Related products */}
-      <div className="mt-14">
+      <div className="mt-14 flex flex-col gap-12">
+        {/* 1. Variations of this style */}
         <ProductCarousel
-          title="You may also like"
-          subtitle="Related products"
+          title="Variations of this style"
+          subtitle="Explore similar colors and designs"
           ctaLabel="View all"
           ctaHref="/categories"
-          products={makeProducts(`related-${product.id}`, 12)}
+          products={makeProducts(`variations-${product.id}`, 12)}
+          tileWidth="auto-cols-[70%] sm:auto-cols-[45%] lg:auto-cols-[calc((100%-2.25rem)/4)]"
+          compact
+        />
+
+        {/* 2. Better together */}
+        <ProductCarousel
+          title="Better together"
+          subtitle="Complete your look with perfect pairings"
+          ctaLabel="View all"
+          ctaHref="/categories"
+          products={makeProducts(`better-together-${product.id}`, 12)}
+          tileWidth="auto-cols-[70%] sm:auto-cols-[45%] lg:auto-cols-[calc((100%-2.25rem)/4)]"
+          compact
+        />
+
+        {/* 3. Recommendations */}
+        <ProductCarousel
+          title="Recommendations"
+          subtitle="Handpicked selections just for you"
+          ctaLabel="View all"
+          ctaHref="/categories"
+          products={makeProducts(`recommendations-${product.id}`, 12)}
           tileWidth="auto-cols-[70%] sm:auto-cols-[45%] lg:auto-cols-[calc((100%-2.25rem)/4)]"
           compact
         />
