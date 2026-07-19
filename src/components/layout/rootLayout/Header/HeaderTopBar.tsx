@@ -20,6 +20,7 @@ export default function HeaderTopBar({
   const search = useHeaderSearch();
   const cartItems = useAppSelector((state) => state.cart.items);
   const wishlistIds = useAppSelector((state) => state.wishlist.productIds);
+  const trialRoomIds = useAppSelector((state) => state.trialRoom?.productIds || []);
   const { userInformation, loading: authLoading } = useAppSelector(
     (state) => state.auth
   );
@@ -45,6 +46,7 @@ export default function HeaderTopBar({
             <HeaderTopBarActions
               cartCount={cartCount}
               wishlistCount={wishlistIds.length}
+              trialRoomCount={trialRoomIds.length}
               userInformation={userInformation}
               authLoading={authLoading}
             />

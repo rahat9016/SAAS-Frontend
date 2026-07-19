@@ -1,11 +1,13 @@
 "use client";
 
+import { toggleTrialRoom } from "@/src/lib/redux/features/trialRoom/trialRoomSlice";
 import { toggleWishlist } from "@/src/lib/redux/features/wishlist/wishlistSlice";
 import { useAppDispatch, useAppSelector } from "@/src/lib/redux/hooks";
 import { Camera, Heart, Leaf } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 import { HomeProduct } from "./homeTypes";
 
 interface ProductCardProps {
@@ -32,7 +34,10 @@ export default function ProductCard({
   const dispatch = useAppDispatch();
   const router = useRouter();
   const wished = useAppSelector((s) =>
-    s.wishlist.productIds.includes(product.id)
+    s.wishlist.productIds.includes(product.id) || (product.slug ? s.wishlist.productIds.includes(product.slug) : false)
+  );
+  const inTrialRoom = useAppSelector((s) =>
+    s.trialRoom.productIds.includes(product.id) || (product.slug ? s.trialRoom.productIds.includes(product.slug) : false)
   );
 
   return (
@@ -60,7 +65,8 @@ export default function ProductCard({
           type="button"
           onClick={(e) => {
             e.preventDefault();
-            dispatch(toggleWishlist(product.id));
+            e.stopPropagation();
+            dispatch(toggleWishlist(product.slug ?? product.id));
           }}
           aria-label="wishlist"
           className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-sm transition-transform hover:scale-110"
@@ -77,12 +83,32 @@ export default function ProductCard({
           type="button"
           onClick={(e) => {
             e.preventDefault();
-            router.push(`/trial-room?product=${product.slug}`);
+            e.stopPropagation();
+            dispatch(toggleTrialRoom(product.slug ?? product.id));
+            if (inTrialRoom) {
+              toast.info("Removed from Trial Room");
+            } else {
+              toast.success(
+                <div className="flex flex-col gap-1">
+                  <span>Added to Trial Room</span>
+                  <Link
+                    href="/trial-room"
+                    className="text-primary hover:underline text-xs font-semibold"
+                  >
+                    Go to Trial Room →
+                  </Link>
+                </div>
+              );
+            }
           }}
           aria-label="Try on with virtual camera"
-          className="absolute right-3 top-14 flex h-9 w-9 items-center justify-center rounded-full bg-white text-secondary shadow-sm transition-transform hover:scale-110 hover:text-primary"
+          className="absolute right-3 top-14 flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-sm transition-transform hover:scale-110 hover:text-primary"
         >
-          <Camera size={18} />
+          <Camera
+            size={18}
+            className={inTrialRoom ? "text-primary" : "text-secondary"}
+            fill={inTrialRoom ? "currentColor" : "none"}
+          />
         </button>
 
         {/* Badges */}

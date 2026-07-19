@@ -11,6 +11,7 @@ import { ProfileDropdown } from "./ProfileDropdown";
 interface HeaderTopBarActionsProps {
   cartCount: number;
   wishlistCount: number;
+  trialRoomCount: number;
   userInformation: IUserInformation;
   authLoading: boolean;
 }
@@ -18,6 +19,7 @@ interface HeaderTopBarActionsProps {
 export default function HeaderTopBarActions({
   cartCount,
   wishlistCount,
+  trialRoomCount,
   userInformation,
   authLoading,
 }: HeaderTopBarActionsProps) {
@@ -52,6 +54,11 @@ export default function HeaderTopBarActions({
           className="group-hover:scale-110 transition-transform"
         />
         <span className="hidden text-xs lg:block">Trial Room</span>
+        {trialRoomCount > 0 && (
+          <span className="absolute -top-0.5 right-1 min-w-4.5 h-4.5 flex items-center justify-center rounded-full bg-primary text-white text-[10px] font-bold px-1">
+            {trialRoomCount}
+          </span>
+        )}
       </Link>
 
       <Link

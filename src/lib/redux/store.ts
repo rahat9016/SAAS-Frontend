@@ -8,6 +8,7 @@ import permissionReducer from "./features/permission/permissionSlice";
 import rbacReducer from "./features/rbac/rbacSlice";
 import userReducer from "./features/user/userSlice";
 import wishlistReducer from "./features/wishlist/wishlistSlice";
+import trialRoomReducer from "./features/trialRoom/trialRoomSlice";
 
 export const makeStore = () => {
   return configureStore({
@@ -20,6 +21,7 @@ export const makeStore = () => {
       gender: genderReducer,
       cart: cartReducer,
       wishlist: wishlistReducer,
+      trialRoom: trialRoomReducer,
       rbac: rbacReducer,
     },
   });
