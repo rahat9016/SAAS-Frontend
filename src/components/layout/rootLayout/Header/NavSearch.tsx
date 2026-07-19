@@ -63,7 +63,7 @@ export default function NavSearch({
               if (searchQuery.length >= 2) setShowResults(true);
             }}
             placeholder="Search products..."
-            className="w-full h-11 pl-10 pr-10 rounded-full border border-gray-300 bg-white text-sm focus:border-green-600 focus:outline-none transition-colors"
+            className="w-full h-9 pl-10 pr-10 rounded-full border border-gray-300 bg-white text-sm focus:border-green-600 focus:outline-none transition-colors"
           />
           {searchQuery && (
             <button
