@@ -32,14 +32,16 @@ export default function HeaderTopBar({
       {/* ═══════ DESKTOP HEADER ═══════ */}
       <div className="hidden lg:block">
         {/* Row: gender tabs · centered logo · actions */}
-        <div className="container grid grid-cols-[1fr_auto_1fr] items-center gap-4 h-16">
-          <div className="justify-self-start">
+        <div className="container relative flex items-center justify-between gap-4 h-16">
+          <div className="flex-shrink-0 z-10">
             <GenderTabs />
           </div>
 
-          <BrandLogo className="justify-self-center" />
+          <div className="xl:absolute xl:left-1/2 xl:-translate-x-1/2 z-0">
+            <BrandLogo />
+          </div>
 
-          <div className="justify-self-end">
+          <div className="flex-shrink-0 z-10">
             <HeaderTopBarActions
               cartCount={cartCount}
               wishlistCount={wishlistIds.length}

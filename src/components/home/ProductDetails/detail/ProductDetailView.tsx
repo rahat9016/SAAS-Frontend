@@ -124,10 +124,10 @@ export default function ProductDetailView({ product }: { product: ProductDetail 
 
           {/* Size + Recommended size (virtual try-on) */}
           {product.sizes.length > 0 && (
-            <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-end">
+            <div className="mt-5 flex w-full items-end gap-1">
               {/* Size selector */}
-              <div className="flex-1">
-                <p className="mb-1.5 text-sm text-gray-600">Size</p>
+              <div className="flex-1 min-w-0">
+                <p className="mb-1.5 text-sm text-gray-600 truncate">Size</p>
                 <SizeSelect
                   sizes={product.sizes}
                   value={size}
@@ -139,26 +139,25 @@ export default function ProductDetailView({ product }: { product: ProductDetail 
                 />
               </div>
 
-              {/* Recommended size + camera */}
-              <div className="flex-1">
-                <p className="mb-1.5 text-sm text-gray-600">Recommended Size</p>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    readOnly
-                    value={size ?? ""}
-                    placeholder="Measure with camera"
-                    className="h-12 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm text-secondary placeholder:text-gray-400 focus:outline-none"
-                  />
-                  <Link
-                    href={`/trial-room?product=${product.slug}`}
-                    aria-label="Find your size with camera"
-                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-gray-300 text-secondary transition-colors hover:bg-light hover:text-primary"
-                  >
-                    <Camera size={20} />
-                  </Link>
-                </div>
+              {/* Recommended size */}
+              <div className="flex-1 min-w-0">
+                <p className="mb-1.5 text-sm text-gray-600 truncate">Recommended Size</p>
+                <input
+                  type="text"
+                  readOnly
+                  value={size ?? ""}
+                  placeholder="Measure with camera"
+                  className="h-12 w-full rounded-lg border border-gray-300 bg-white p-1 pl-3 text-sm text-secondary placeholder:text-gray-400 focus:outline-none"
+                />
               </div>
+
+              <Link
+                href={`/trial-room?product=${product.slug}`}
+                aria-label="Find your size with camera"
+                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-gray-300 text-secondary transition-colors hover:bg-light hover:text-primary"
+              >
+                <Camera size={20} />
+              </Link>
             </div>
           )}
 

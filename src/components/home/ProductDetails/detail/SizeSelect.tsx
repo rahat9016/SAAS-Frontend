@@ -29,7 +29,7 @@ export default function SizeSelect({ sizes, value, onChange, error }: SizeSelect
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className={`flex h-12 w-full items-center justify-between rounded-md border bg-white px-4 text-sm transition-colors ${
+        className={`flex h-12 w-full items-center rounded-md border bg-white p-1 pl-3 text-sm transition-colors ${
           error ? "border-red-400" : "border-gray-300 hover:border-gray-400"
         }`}
       >

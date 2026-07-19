@@ -12,7 +12,7 @@ export default function BrandLogo({
 }) {
   const badge = size === "sm" ? 44 : 64;
   const text = size === "sm" ? "text-lg" : "text-2xl xl:text-3xl";
-  const sub = size === "sm" ? "text-[8px]" : "text-[10px]";
+  const sub = size === "sm" ? "text-[0.8vh]" : "text-[1vh]";
 
   // Split the site name into two words for the two-tone wordmark.
   const [first, ...rest] = siteConfig.name.split(" ");
@@ -41,9 +41,14 @@ export default function BrandLogo({
           {second && <span className="text-primary"> {second}</span>}
         </span>
         <span
-          className={`mt-1 font-medium uppercase tracking-[0.18em] text-gray-400 ${sub}`}
+          className={`mt-1 flex w-full justify-between font-medium text-gray-400 ${sub}`}
+          aria-label="Try Virtually. Wear Perfectly"
         >
-          Try Virtually. Wear Perfectly
+          {"TRY VIRTUALLY. WEAR PERFECTLY".split("").map((char, i) => (
+            <span key={i} aria-hidden="true">
+              {char === " " ? "\u00A0" : char}
+            </span>
+          ))}
         </span>
       </span>
     </Link>

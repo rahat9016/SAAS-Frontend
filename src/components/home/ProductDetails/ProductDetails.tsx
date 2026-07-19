@@ -219,7 +219,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
                   {product.images.map((img, idx) => (
                     <button
                       key={img.id}
-                      className={`relative w-full aspect-[3/4] rounded-md overflow-hidden cursor-pointer border-2 shrink-0 bg-gray-100 transition-all hover:opacity-80 ${idx === selectedImage ? "border-primary" : "border-transparent"}`}
+                      className={`relative w-full aspect-3/4 rounded-md overflow-hidden cursor-pointer border-2 shrink-0 bg-gray-100 transition-all hover:opacity-80 ${idx === selectedImage ? "border-primary" : "border-transparent"}`}
                       onClick={() => setSelectedImage(idx)}
                       aria-label={`View image ${idx + 1}`}
                     >
