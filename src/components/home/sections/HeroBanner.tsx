@@ -19,19 +19,19 @@ export default function HeroBanner({
     >
       {image && (
         <>
-          <Image
+          {/* Using native img ensures the height perfectly matches the image's original aspect ratio */}
+          <img
             src={image}
             alt={title}
-            fill
-            sizes="100vw"
-            priority
-            className={`${imagePosition} transition-transform duration-700 group-hover:scale-105`}
+            className={`w-full h-auto block ${imagePosition} transition-transform duration-700 group-hover:scale-105`}
           />
           <div className="absolute inset-0 bg-black/35" />
         </>
       )}
       <div
-        className={`container relative flex flex-col items-center justify-center px-4 text-center ${height} ${text}`}
+        className={`container ${
+          image ? "absolute inset-0" : `relative ${height}`
+        } flex flex-col items-center justify-center px-4 text-center ${text}`}
       >
         <h2 className="text-2xl font-bold sm:text-4xl md:text-6xl">{title}</h2>
         <Link
