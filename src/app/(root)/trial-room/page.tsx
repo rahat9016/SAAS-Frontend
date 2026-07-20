@@ -49,13 +49,13 @@ function TrialRoom() {
     dispatch(
       addToCart({
         productId: product.id,
+        slug: product.slug,
         name: product.name,
         price: product.price,
-        originalPrice: product.compareAtPrice,
+        compareAtPrice: product.compareAtPrice,
         quantity: 1,
         stock: 10,
         image: product.images[0]?.url ?? "",
-        brand: product.brand?.name,
       })
     );
   };
