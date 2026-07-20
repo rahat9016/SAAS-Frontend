@@ -63,7 +63,7 @@ export default function HeaderTopBarActions({
 
       <Link
         href="/cart"
-        className="relative flex flex-col items-center gap-0.5 px-2 py-1.5 lg:px-3 text-gray-600 hover:text-primary transition-colors group"
+        className="relative flex flex-col items-center gap-0.5 px-1 py-1.5  text-gray-600 hover:text-primary transition-colors group"
       >
         <ShoppingBag
           size={20}

@@ -37,8 +37,14 @@ export default function MegaMenu({ data, menuKey, onNavigate }: MegaMenuProps) {
             >
               {col.heading}
             </h4>
-            {/* 5 items per sub-column, filled column-wise */}
-            <ul className="grid grid-flow-col grid-rows-5 gap-x-2 xl:gap-x-4 min-[1024px]:max-[1480px]:gap-x-3">
+            {/* Conditional layout: 5 items per sub-column normally, but Custom-Teamwear items stack in a single column */}
+            <ul
+              className={
+                menuKey === "Custom-Teamwear"
+                  ? "flex flex-col gap-0.5 min-[1024px]:max-[1480px]:gap-1"
+                  : "grid grid-flow-col grid-rows-5 gap-x-2 xl:gap-x-4 min-[1024px]:max-[1480px]:gap-x-3"
+              }
+            >
               {col.items.map(({ label, href, icon: Icon, highlight }) => (
                 <li key={label} className="">
                   <Link

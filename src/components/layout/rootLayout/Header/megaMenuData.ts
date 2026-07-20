@@ -2,19 +2,26 @@ import {
   Baby,
   Backpack,
   Briefcase,
+  Building2,
+  Camera,
   Church,
+  Coffee,
+  CreditCard,
   Crown,
   Droplet,
   Dumbbell,
   Flag,
   Footprints,
   Gem,
+  Gift,
   Heart,
   Home,
   Layers,
+  Monitor,
   Mountain,
   Package,
   Palmtree,
+  Pen,
   Shirt,
   ShoppingBag,
   Snowflake,
@@ -172,9 +179,92 @@ const SHARED_MENU: MegaMenuData = {
 
 export const defaultMegaMenu: MegaMenuData = SHARED_MENU;
 
+const CUSTOM_TEAMWEAR_MENU: MegaMenuData = {
+  columns: [
+    {
+      heading: "For Businesses & Promotions",
+      items: (
+        [
+          ["Corporate Swag", Briefcase],
+          ["Trade Show Merch & Signage", Flag],
+          ["Marketing Campaigns & Giveaways", Sparkles],
+          ["Promo & Advertising Merch", Tag],
+          ["Client Gifts", Gift],
+          ["Branded Staff Apparel", Shirt],
+          ["Bulk order for wholesale Business", Building2],
+          ["Employee Recognition & Gifts", Trophy],
+          ["Employee Team Building Swag", Users],
+          ["Content Creators", Camera],
+          ["Small Businesses & Uniforms", Briefcase],
+        ] as Pair[]
+      ).map(item),
+    },
+    {
+      heading: "For Group & Events",
+      items: (
+        [
+          ["Sports Jerseys", Shirt],
+          ["Personalized Gifts", Gift],
+          ["Weddings", Heart],
+          ["Family Events", Home],
+          ["Friend Events", Users],
+          ["Clubs & Organisations", Church],
+          ["Kindergarten to 12th Class", Backpack],
+          ["Colleges & Universities", Backpack],
+          ["Teacher Appreciation", Crown],
+          ["Hospital services", Droplet],
+          ["Festival & Religious Events", Church],
+        ] as Pair[]
+      ).map(item),
+    },
+    {
+      heading: "Designing Tool",
+      items: (
+        [
+          ["T-shirt", Shirt],
+          ["Tanktop", Shirt],
+          ["Polo Shirt", Shirt],
+          ["Sweatshirt", Layers],
+          ["Hoodies", Layers],
+          ["Blazer", Briefcase],
+          ["Socks", Footprints],
+          ["Skirts", Tag],
+          ["short Trousers", Tag],
+          ["Flags", Flag],
+          ["Jerseys", Shirt],
+        ] as Pair[]
+      ).map(item),
+    },
+    {
+      heading: "Accessories",
+      items: (
+        [
+          ["Socks", Footprints],
+          ["Belts", Watch],
+          ["Hats & Caps", Crown],
+          ["Flags", Flag],
+          ["Back pack", Backpack],
+          ["Bags", ShoppingBag],
+          ["Pens", Pen],
+          ["Mugs", Coffee],
+          ["Water Bottle", Droplet],
+          ["Key Ring", Gem],
+          ["Gift Card", CreditCard],
+        ] as Pair[]
+      ).map(item),
+    },
+  ],
+  promo: {
+    image: "https://picsum.photos/seed/custom-teamwear/520/360",
+    label: "CUSTOMIZE NOW",
+    href: "/categories?c=custom-teamwear",
+  },
+};
+
 /** Per-label menus; anything not listed falls back to the shared subcategory menu. */
 const MENU_BY_LABEL: Record<string, MegaMenuData> = {
   "rent-a-dress": RENT_A_DRESS_MENU,
+  "custom-teamwear": CUSTOM_TEAMWEAR_MENU,
 };
 
 export function getMegaMenu(label: string): MegaMenuData {
