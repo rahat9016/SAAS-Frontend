@@ -165,7 +165,7 @@ const RENT_A_DRESS_MENU: MegaMenuData = {
 
 const SHARED_MENU: MegaMenuData = {
   columns: [
-    { heading: "Tops", items: TOPS.map(item) },
+    { heading: "Tops & Indoor", items: TOPS.map(item) },
     { heading: "Outdoor & Knitwear", items: OUTDOOR.map(item) },
     { heading: "Bottoms & More", items: BOTTOMS.map(item) },
     { heading: "Home & Specials", items: SPECIALS.map(item) },
