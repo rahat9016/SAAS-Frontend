@@ -117,7 +117,7 @@ function generateTransactions(): TransactionEntry[] {
           id: ph.id,
           date: ph.date,
           orderNumber: order.orderNumber,
-          customer: order.shippingAddress.fullName,
+          customer: `${order.shippingAddress.firstName} ${order.shippingAddress.lastName}`,
           method: ph.method,
           type: ph.type as "payment" | "refund",
           amount: ph.type === "refund" ? -ph.amount : ph.amount,

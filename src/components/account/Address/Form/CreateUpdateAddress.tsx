@@ -30,7 +30,8 @@ export default function CreateUpdateAddress({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: yupResolver(addressSchema) as any,
     defaultValues: {
-      fullName: "",
+      lastName: "",
+      firstName: "",
       phone: "",
       addressType: AddressType.HOME,
       country: "",
@@ -48,7 +49,8 @@ export default function CreateUpdateAddress({
   useEffect(() => {
     if (isOpen) {
       methods.reset({
-        fullName: initialValues?.fullName || "",
+        lastName: initialValues?.lastName || "",
+        firstName: initialValues?.firstName || "",
         phone: initialValues?.phone || "",
         addressType: initialValues?.addressType || AddressType.HOME,
         country: initialValues?.country || "",
@@ -63,7 +65,8 @@ export default function CreateUpdateAddress({
       });
     } else {
       methods.reset({
-        fullName: "",
+        lastName: "",
+        firstName: "",
         phone: "",
         addressType: AddressType.HOME,
         country: "",

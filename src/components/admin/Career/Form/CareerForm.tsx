@@ -91,7 +91,7 @@ export default function CareerForm({
             <ControlledInputField
               className="bg-light"
               name="location"
-              placeholder="Dhaka, Bangladesh"
+              placeholder="Berlin, Germany"
             />
           </div>
           <div>
@@ -110,7 +110,6 @@ export default function CareerForm({
               placeholder="30,000 - 50,000 BDT"
             />
           </div>
-
           <div>
             <InputLabel label="Deadline" />
             <ControlledInputField

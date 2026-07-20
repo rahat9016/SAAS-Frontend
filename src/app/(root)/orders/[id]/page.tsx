@@ -124,8 +124,8 @@ export default function OrderDetailPage({
               </h2>
               <div className="grid grid-cols-2 gap-3 px-4 sm:px-5 py-4">
                 <div>
-                  <p className="text-[11px] text-muted-foreground mb-0.5">Full Name</p>
-                  <p className="text-sm font-medium text-foreground">{order.shippingAddress.fullName}</p>
+                  <p className="text-[11px] text-muted-foreground mb-0.5">Name</p>
+                  <p className="text-sm font-medium text-foreground">{order.shippingAddress.firstName} {order.shippingAddress.lastName}</p>
                 </div>
                 <div>
                   <p className="text-[11px] text-muted-foreground mb-0.5">Phone</p>

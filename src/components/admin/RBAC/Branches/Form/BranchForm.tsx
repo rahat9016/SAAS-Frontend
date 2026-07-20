@@ -39,7 +39,7 @@ export default function BranchForm({
       <div className="grid grid-cols-2 gap-4">
         <div>
           <InputLabel label="Country" />
-          <ControlledInputField className="bg-light" name="country" placeholder="Bangladesh" />
+          <ControlledInputField className="bg-light" name="country" placeholder="Germany" />
         </div>
         <div>
           <InputLabel label="City" />

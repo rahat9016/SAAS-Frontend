@@ -40,7 +40,8 @@ export default function CheckoutPage() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: yupResolver(checkoutSchema) as any,
     defaultValues: {
-      fullName: "",
+      lastName: "",
+      firstName: "",
       phone: "",
       email: "",
       addressLine1: "",

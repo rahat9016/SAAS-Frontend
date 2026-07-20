@@ -146,34 +146,34 @@ export default function OrderDetail({ orderId }: OrderDetailProps) {
     // Simulate customer notification
     if (pendingOrderStatus === OrderStatus.CANCELLED) {
       toast.info(
-        `📧 Notification sent to ${order.shippingAddress.fullName}: "Your order ${order.orderNumber} has been cancelled.${cancelMessage ? ` Reason: ${cancelMessage}` : ""}"`,
+        `📧 Notification sent to ${order.shippingAddress.firstName} ${order.shippingAddress.lastName}: "Your order ${order.orderNumber} has been cancelled.${cancelMessage ? ` Reason: ${cancelMessage}` : ""}"`,
         { autoClose: 6000 }
       );
       if (shouldAutoRefund) {
         toast.success(
-          `💰 Refund of ৳${order.total.toLocaleString()} initiated via ${order.paymentMethod} to ${order.shippingAddress.fullName}`,
+          `💰 Refund of ৳${order.total.toLocaleString()} initiated via ${order.paymentMethod} to ${order.shippingAddress.firstName} ${order.shippingAddress.lastName}`,
           { autoClose: 6000 }
         );
       }
     } else if (pendingOrderStatus === OrderStatus.RETURNED) {
       toast.info(
-        `📧 Notification sent to ${order.shippingAddress.fullName}: "Your return for order ${order.orderNumber} has been processed.${returnMessage ? ` Note: ${returnMessage}` : ""}"`,
+        `📧 Notification sent to ${order.shippingAddress.firstName} ${order.shippingAddress.lastName}: "Your return for order ${order.orderNumber} has been processed.${returnMessage ? ` Note: ${returnMessage}` : ""}"`,
         { autoClose: 6000 }
       );
       if (shouldAutoRefund) {
         toast.success(
-          `💰 Refund of ৳${order.total.toLocaleString()} initiated via ${order.paymentMethod} to ${order.shippingAddress.fullName}`,
+          `💰 Refund of ৳${order.total.toLocaleString()} initiated via ${order.paymentMethod} to ${order.shippingAddress.firstName} ${order.shippingAddress.lastName}`,
           { autoClose: 6000 }
         );
       }
     } else if (pendingOrderStatus === OrderStatus.SHIPPED) {
       toast.success(
-        `📧 Notification sent to ${order.shippingAddress.fullName}: "Your order ${order.orderNumber} has been shipped!"`,
+        `📧 Notification sent to ${order.shippingAddress.firstName} ${order.shippingAddress.lastName}: "Your order ${order.orderNumber} has been shipped!"`,
         { autoClose: 4000 }
       );
     } else if (pendingOrderStatus === OrderStatus.DELIVERED) {
       toast.success(
-        `📧 Notification sent to ${order.shippingAddress.fullName}: "Your order ${order.orderNumber} has been delivered!"`,
+        `📧 Notification sent to ${order.shippingAddress.firstName} ${order.shippingAddress.lastName}: "Your order ${order.orderNumber} has been delivered!"`,
         { autoClose: 4000 }
       );
     } else if (pendingOrderStatus !== prevStatus) {
@@ -277,7 +277,7 @@ export default function OrderDetail({ orderId }: OrderDetailProps) {
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-gray-500">Customer</span>
                   <span className="font-medium text-gray-900">
-                    {order.shippingAddress.fullName}
+                    {order.shippingAddress.firstName} {order.shippingAddress.lastName}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
@@ -350,7 +350,7 @@ export default function OrderDetail({ orderId }: OrderDetailProps) {
                     <Mail className="w-3.5 h-3.5 text-blue-600 mt-0.5 shrink-0" />
                     <p className="text-[11px] text-blue-700">
                       A notification will be sent to{" "}
-                      <strong>{order.shippingAddress.fullName}</strong> at{" "}
+                      <strong>{order.shippingAddress.firstName} {order.shippingAddress.lastName}</strong> at{" "}
                       <strong>
                         {order.shippingAddress.phone}
                         {order.shippingAddress.email
@@ -372,7 +372,7 @@ export default function OrderDetail({ orderId }: OrderDetailProps) {
                     </p>
                     <p>
                       ৳{order.total.toLocaleString()} will be refunded to{" "}
-                      <strong>{order.shippingAddress.fullName}</strong> via{" "}
+                      <strong>{order.shippingAddress.firstName} {order.shippingAddress.lastName}</strong> via{" "}
                       <strong>{order.paymentMethod}</strong> because the
                       payment was already received.
                     </p>
@@ -397,7 +397,7 @@ export default function OrderDetail({ orderId }: OrderDetailProps) {
                     <Mail className="w-3.5 h-3.5 text-blue-600 mt-0.5 shrink-0" />
                     <p className="text-[11px] text-blue-700">
                       A notification will be sent to{" "}
-                      <strong>{order.shippingAddress.fullName}</strong>
+                      <strong>{order.shippingAddress.firstName} {order.shippingAddress.lastName}</strong>
                     </p>
                   </div>
                 </div>
@@ -413,7 +413,7 @@ export default function OrderDetail({ orderId }: OrderDetailProps) {
                     </p>
                     <p>
                       ৳{order.total.toLocaleString()} will be refunded to{" "}
-                      <strong>{order.shippingAddress.fullName}</strong> via{" "}
+                      <strong>{order.shippingAddress.firstName} {order.shippingAddress.lastName}</strong> via{" "}
                       <strong>{order.paymentMethod}</strong>.
                     </p>
                   </div>
@@ -426,7 +426,7 @@ export default function OrderDetail({ orderId }: OrderDetailProps) {
                 <div className="flex items-start gap-2 bg-emerald-50 rounded-lg px-3 py-2 border border-emerald-200">
                   <Send className="w-3.5 h-3.5 text-emerald-600 mt-0.5 shrink-0" />
                   <p className="text-[11px] text-emerald-700">
-                    Customer <strong>{order.shippingAddress.fullName}</strong>{" "}
+                    Customer <strong>{order.shippingAddress.firstName} {order.shippingAddress.lastName}</strong>{" "}
                     will be notified that their order has been{" "}
                     <strong>
                       {pendingOrderStatus === OrderStatus.SHIPPED
@@ -785,10 +785,10 @@ export default function OrderDetail({ orderId }: OrderDetailProps) {
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 px-5 py-4">
               <div>
                 <p className="text-[11px] uppercase tracking-wide text-gray-400 mb-1">
-                  Full Name
+                  Name
                 </p>
                 <p className="text-sm font-medium text-gray-900">
-                  {order.shippingAddress.fullName}
+                  {order.shippingAddress.firstName} {order.shippingAddress.lastName}
                 </p>
               </div>
               <div>

@@ -32,7 +32,8 @@ export enum PaymentMethod {
 
 export interface IShippingAddress {
   id?: string;
-  fullName: string;
+  firstName: string;
+  lastName: string;
   phone: string;
   email?: string;
   addressLine1: string;

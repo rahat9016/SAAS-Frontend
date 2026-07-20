@@ -8,7 +8,6 @@ const LANGUAGES = [
   { code: "DE", label: "Deutsch" },
   { code: "FR", label: "Français" },
   { code: "ES", label: "Español" },
-  { code: "BN", label: "বাংলা" },
 ];
 
 /** Language selector with a dropdown menu. */

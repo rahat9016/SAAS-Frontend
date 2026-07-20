@@ -2,7 +2,8 @@ import * as Yup from "yup";
 import { AddressType } from "../types";
 
 export const addressSchema = Yup.object({
-  fullName: Yup.string().required("Full name is required"),
+  lastName: Yup.string().required("Last name is required"),
+  firstName: Yup.string().required("First name is required"),
   phone: Yup.string().required("Phone is required"),
   addressType: Yup.string()
     .oneOf([AddressType.HOME, AddressType.OFFICE, AddressType.SHIPPING, AddressType.BILLING])
@@ -16,6 +17,7 @@ export const addressSchema = Yup.object({
   zipCode: Yup.string().optional().default(""),
   company: Yup.string().optional().default(""),
   isDefault: Yup.boolean().default(false),
+  email: Yup.string().email("Enter a valid email").optional().default(""),
 });
 
 export type AddressFormValues = Yup.InferType<typeof addressSchema>;

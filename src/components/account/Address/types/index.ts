@@ -15,8 +15,10 @@ export interface IAddress {
   id?: string;
   _id?: string;
   userId?: string;
-  fullName: string;
+  lastName: string;
+  firstName: string;
   phone: string;
+  email?: string;
   addressType: IAddressType;
   country: string;
   city: string;

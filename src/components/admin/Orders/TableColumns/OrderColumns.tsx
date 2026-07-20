@@ -43,7 +43,7 @@ export const GetOrderColumns = (
         const addr = value as IOrder["shippingAddress"];
         return (
           <div className="min-w-0">
-            <p className="text-sm font-medium text-gray-800 truncate">{addr.fullName}</p>
+            <p className="text-sm font-medium text-gray-800 truncate">{addr.firstName} {addr.lastName}</p>
             <p className="text-xs text-gray-400 truncate">{addr.phone}</p>
           </div>
         );

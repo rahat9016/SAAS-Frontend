@@ -7,7 +7,7 @@ export const siteConfig = {
     "XPlaza",
   address:
     process.env.NEXT_PUBLIC_ADDRESS ||
-    "House 12, Road 12, Sector 11, Uttara, Dhaka-1230, Bangladesh",
+    "Friedrichstraße 12, 10117 Berlin, Germany",
   phone1: process.env.NEXT_PUBLIC_PHONE_1 || "+88 01711-358400",
   phone2: process.env.NEXT_PUBLIC_PHONE_2 || "+88 01711-358400",
   email: process.env.NEXT_PUBLIC_EMAIL || "[EMAIL_ADDRESS]",

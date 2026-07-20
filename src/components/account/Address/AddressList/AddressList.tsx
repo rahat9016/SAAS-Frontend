@@ -10,6 +10,7 @@ import { useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import CreateUpdateAddress from "../Form/CreateUpdateAddress";
 import AddressListSkeleton from "../Skeleton/AddressListSkeleton";
+import { dummyAddresses } from "@/src/data/dummyAddresses";
 import { IAddress } from "../types";
 
 const getAddressId = (address: IAddress) => address.id || address._id || "";
@@ -29,7 +30,10 @@ export default function AddressList() {
     { enabled: !!userId }
   );
 
-  const addresses = useMemo(() => data?.data || [], [data]);
+  const addresses = useMemo(
+    () => (data?.data && data.data.length > 0 ? data.data : dummyAddresses),
+    [data]
+  );
 
   const { mutate: deleteMutate } = useDelete(() => {
     toast.success("Address deleted successfully!");
@@ -138,7 +142,7 @@ export default function AddressList() {
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-2 text-sm font-semibold text-gray-900">
                     <User size={14} className="text-gray-400 shrink-0" />
-                    {addr.fullName}
+                    {addr.firstName} {addr.lastName}
                   </div>
                   <div className="flex items-center gap-2 text-sm text-gray-600">
                     <Phone size={14} className="text-gray-400 shrink-0" />

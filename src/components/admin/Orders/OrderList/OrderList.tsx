@@ -58,7 +58,8 @@ export default function OrderList() {
       result = result.filter(
         (order) =>
           order.orderNumber.toLowerCase().includes(query) ||
-          order.shippingAddress.fullName.toLowerCase().includes(query) ||
+          order.shippingAddress.firstName.toLowerCase().includes(query) ||
+          order.shippingAddress.lastName.toLowerCase().includes(query) ||
           order.paymentMethod.toLowerCase().includes(query)
       );
     }

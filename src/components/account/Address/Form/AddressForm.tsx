@@ -9,6 +9,17 @@ import { useFormContext } from "react-hook-form";
 import { AddressFormValues } from "../Schema/addressSchema";
 import { IAddressFormProps } from "../types";
 
+const DIVISIONS = [
+  "Berlin",
+  "Munich",
+  "Hamburg",
+  "Frankfurt",
+  "Cologne",
+  "Stuttgart",
+  "Düsseldorf",
+  "Leipzig",
+].map((d) => ({ label: d, value: d }));
+
 const ADDRESS_TYPE_OPTIONS = [
   { label: "Home", value: "HOME" },
   { label: "Office", value: "OFFICE" },
@@ -26,115 +37,72 @@ export default function AddressForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-4 mt-2">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         <div>
-          <InputLabel label="Full Name" required />
-          <ControlledInputField
-            className="bg-light"
-            name="fullName"
-            placeholder="Enter full name"
-          />
+          <InputLabel label="Last Name" required />
+          <ControlledInputField name="lastName" placeholder="Enter your last name" className="bg-light" />
+        </div>
+        <div>
+          <InputLabel label="First Name" required />
+          <ControlledInputField name="firstName" placeholder="Enter your first name" className="bg-light" />
         </div>
         <div>
           <InputLabel label="Phone" required />
-          <ControlledInputField
-            className="bg-light"
-            name="phone"
-            placeholder="Enter phone"
-          />
+          <ControlledInputField name="phone" placeholder="+880 1XX XXXX XXX" className="bg-light" />
+        </div>
+        <div className="sm:col-span-2">
+          <InputLabel label="Email" />
+          <ControlledInputField name="email" type="email" placeholder="your@email.com (optional)" className="bg-light" />
+        </div>
+        <div className="sm:col-span-2">
+          <InputLabel label="Country" required />
+          <ControlledInputField name="country" placeholder="e.g. Germany" className="bg-light" />
+        </div>
+
+        {/* Receiver's info */}
+        <div className="sm:col-span-2 mt-1">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Receiver&apos;s info
+          </p>
+        </div>
+        <div>
+          <InputLabel label="Receiver's Name" required />
+          <ControlledInputField name="addressLine2" placeholder="Enter receiver's name" className="bg-light" />
+        </div>
+        <div>
+          <InputLabel label="Receiver's Address" required />
+          <ControlledInputField name="addressLine1" placeholder="Street, area" className="bg-light" />
+        </div>
+
+        <div>
+          <InputLabel label="House Number" required />
+          <ControlledInputField name="area" placeholder="e.g. House 12" className="bg-light" />
+        </div>
+        <div>
+          <InputLabel label="City" required />
+          <ControlledSelectField name="city" options={DIVISIONS} placeholder="Select city" className="bg-light" />
+        </div>
+        <div>
+          <InputLabel label="Postal Code" />
+          <ControlledInputField name="zipCode" placeholder="e.g. 1205" className="bg-light" />
         </div>
       </div>
 
-      <div>
+      <div className="mt-4">
+        <ControlledSwitchField
+          name="isDefault"
+          label="Default Address"
+          description="Use this as your default delivery address"
+        />
+      </div>
+
+      <div className="mt-4">
         <InputLabel label="Address Type" required />
         <ControlledSelectField
           className="bg-light"
           name="addressType"
           placeholder="Select address type"
           options={ADDRESS_TYPE_OPTIONS}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <InputLabel label="Country" required />
-          <ControlledInputField
-            className="bg-light"
-            name="country"
-            placeholder="Enter country"
-          />
-        </div>
-        <div>
-          <InputLabel label="City" required />
-          <ControlledInputField
-            className="bg-light"
-            name="city"
-            placeholder="Enter city"
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <InputLabel label="Region" />
-          <ControlledInputField
-            className="bg-light"
-            name="region"
-            placeholder="Enter region"
-          />
-        </div>
-        <div>
-          <InputLabel label="Area" />
-          <ControlledInputField
-            className="bg-light"
-            name="area"
-            placeholder="Enter area"
-          />
-        </div>
-      </div>
-
-      <div>
-        <InputLabel label="Address Line 1" required />
-        <ControlledInputField
-          className="bg-light"
-          name="addressLine1"
-          placeholder="House no, street"
-        />
-      </div>
-
-      <div>
-        <InputLabel label="Address Line 2" />
-        <ControlledInputField
-          className="bg-light"
-          name="addressLine2"
-          placeholder="Apartment, landmark"
-        />
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <InputLabel label="Zip Code" />
-          <ControlledInputField
-            className="bg-light"
-            name="zipCode"
-            placeholder="Enter zip code"
-          />
-        </div>
-        <div>
-          <InputLabel label="Company" />
-          <ControlledInputField
-            className="bg-light"
-            name="company"
-            placeholder="Enter company"
-          />
-        </div>
-      </div>
-
-      <div>
-        <ControlledSwitchField
-          name="isDefault"
-          label="Default Address"
-          description="Use this as your default delivery address"
         />
       </div>
 

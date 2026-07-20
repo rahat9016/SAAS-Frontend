@@ -47,7 +47,7 @@ export const dummyProducts: IProduct[] = [
       "Sleeve Style": "Long Sleeve",
       Care: "Machine Washable",
       Weight: "550g",
-      Origin: "Made in Bangladesh",
+      Origin: "Made in Germany",
     },
     reviews: [
       { id: "r1", author: "Maruf Hasan", rating: 5, title: "Amazing quality!", comment: "Really handy product. Can easily carry while I am on the move for a long travel. The quality is outstanding and the fit is perfect.", date: "2026-02-05", verified: true, helpful: 12 },

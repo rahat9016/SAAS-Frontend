@@ -10,14 +10,14 @@ import { PaymentOption } from "../types";
 import { CheckoutFormValues } from "../Schema/checkoutSchema";
 
 const DIVISIONS = [
-  "Dhaka",
-  "Chattogram",
-  "Khulna",
-  "Rajshahi",
-  "Sylhet",
-  "Barishal",
-  "Rangpur",
-  "Mymensingh",
+  "Berlin",
+  "Munich",
+  "Hamburg",
+  "Frankfurt",
+  "Cologne",
+  "Stuttgart",
+  "Düsseldorf",
+  "Leipzig",
 ].map((d) => ({ label: d, value: d }));
 
 interface CheckoutFormProps {
@@ -57,8 +57,12 @@ export default function CheckoutForm({
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
-              <InputLabel label="Full Name" required />
-              <ControlledInputField name="fullName" placeholder="Enter your full name" className="bg-light" />
+              <InputLabel label="Last Name" required />
+              <ControlledInputField name="lastName" placeholder="Enter your last name" className="bg-light" />
+            </div>
+            <div>
+              <InputLabel label="First Name" required />
+              <ControlledInputField name="firstName" placeholder="Enter your first name" className="bg-light" />
             </div>
             <div>
               <InputLabel label="Phone" required />
@@ -70,7 +74,7 @@ export default function CheckoutForm({
             </div>
             <div className="sm:col-span-2">
               <InputLabel label="Country" required />
-              <ControlledInputField name="addressLine1" placeholder="e.g. Bangladesh" className="bg-light" />
+              <ControlledInputField name="addressLine1" placeholder="e.g. Germany" className="bg-light" />
             </div>
 
             {/* Receiver's info */}
