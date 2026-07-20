@@ -22,6 +22,7 @@ export default function Home() {
         image="/image.png"
         imagePosition="object-cover object-top"
         height="min-h-[180px] sm:min-h-[260px] md:min-h-[100vh]"
+        contentPosition="justify-start pt-24 md:pt-56"
       /><HeroBanner
         title="Especial Summer Offer"
         ctaLabel="Save Now"

@@ -20,4 +20,6 @@ export interface HeroBannerProps {
   height?: string;
   /** image position class */
   imagePosition?: string;
+  /** Custom alignment class for the text container, e.g., 'justify-start pt-16' */
+  contentPosition?: string;
 }

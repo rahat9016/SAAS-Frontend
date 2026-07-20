@@ -12,6 +12,7 @@ export default function HeroBanner({
   text = "text-white",
   height = "min-h-[180px] sm:min-h-[260px] md:min-h-[340px]",
   imagePosition = "object-cover",
+  contentPosition = "justify-center",
 }: HeroBannerProps) {
   return (
     <div
@@ -31,7 +32,7 @@ export default function HeroBanner({
       <div
         className={`container ${
           image ? "absolute inset-0" : `relative ${height}`
-        } flex flex-col items-center justify-center px-4 text-center ${text}`}
+        } flex flex-col items-center px-4 text-center ${contentPosition} ${text}`}
       >
         <h2 className="text-2xl font-bold sm:text-4xl md:text-6xl">{title}</h2>
         <Link
