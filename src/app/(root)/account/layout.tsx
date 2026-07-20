@@ -1,9 +1,11 @@
 "use client";
 
+import { logoutUser } from "@/src/lib/redux/features/auth/authSlice";
+import { clearRolePermissions } from "@/src/lib/redux/features/permission/permissionSlice";
 import { selectCanViewOwnOrders } from "@/src/lib/redux/features/permission/permissionSelectors";
-import { useAppSelector } from "@/src/lib/redux/hooks";
-import { sidebarSections } from "@/src/utils/profileMenuItems";
-import { User } from "lucide-react";
+import { useAppDispatch, useAppSelector } from "@/src/lib/redux/hooks";
+import { userMenuItems } from "@/src/utils/profileMenuItems";
+import { LogOut, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -14,16 +16,22 @@ export default function AccountLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const dispatch = useAppDispatch();
   const { userInformation } = useAppSelector((state) => state.auth);
   const canViewOwnOrders = useAppSelector(selectCanViewOwnOrders);
 
-  const visibleSidebarSections = canViewOwnOrders
-    ? sidebarSections
-    : sidebarSections.filter((section) => section.title !== "My Orders");
+  const visibleMenuItems = canViewOwnOrders
+    ? userMenuItems
+    : userMenuItems.filter((item) => !item.href.includes("/orders"));
+
+  const handleLogout = () => {
+    dispatch(logoutUser());
+    dispatch(clearRolePermissions());
+  };
 
   return (
     <div className="container px-4 sm:px-6 lg:px-8">
-      <div className="py-6 lg:py-8 pb-20 lg:pb-12">
+      <div className="py-2">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm text-gray-500 mb-6">
           <Link
@@ -67,40 +75,40 @@ export default function AccountLayout({
                 </div>
               </div>
 
-              {/* Nav Sections */}
+              {/* Nav Items */}
               <nav className="p-3">
-                {visibleSidebarSections.map((section, idx) => (
-                  <div key={section.title}>
-                    {idx > 0 && (
-                      <div className="my-2 border-t border-gray-100" />
-                    )}
-                    <p className="px-3 py-2 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
-                      {section.title}
-                    </p>
-                    {section.items.map((item) => {
-                      const isActive = pathname === item.href;
-                      return (
-                        <Link
-                          key={item.href}
-                          href={item.href}
-                          className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all no-underline ${
-                            isActive
-                              ? "bg-primary/10 text-primary font-medium"
-                              : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                          }`}
-                        >
-                          <item.icon
-                            size={16}
-                            className={
-                              isActive ? "text-primary" : "text-gray-400"
-                            }
-                          />
-                          {item.label}
-                        </Link>
-                      );
-                    })}
-                  </div>
-                ))}
+                {visibleMenuItems.map((item) => {
+                  const isActive = pathname === item.href;
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all no-underline ${
+                        isActive
+                          ? "bg-primary/10 text-primary font-medium"
+                          : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                      }`}
+                    >
+                      <item.icon
+                        size={16}
+                        className={
+                          isActive ? "text-primary" : "text-gray-400"
+                        }
+                      />
+                      {item.label}
+                    </Link>
+                  );
+                })}
+
+                <div className="my-2 border-t border-gray-100" />
+                
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 hover:text-red-600 transition-all cursor-pointer"
+                >
+                  <LogOut size={16} />
+                  Logout
+                </button>
               </nav>
             </div>
           </aside>
@@ -108,25 +116,23 @@ export default function AccountLayout({
           {/* ═══════ MOBILE TABS (Horizontal scroll) ═══════ */}
           <div className="lg:hidden overflow-x-auto scrollbar-hide -mx-4 px-4">
             <div className="flex gap-2 pb-3 min-w-max">
-              {visibleSidebarSections.flatMap((section) =>
-                section.items.map((item) => {
-                  const isActive = pathname === item.href;
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-all no-underline border ${
-                        isActive
-                          ? "bg-primary text-white border-primary shadow-sm"
-                          : "bg-white text-gray-600 border-gray-200 hover:border-primary/30 hover:text-primary"
-                      }`}
-                    >
-                      <item.icon size={14} />
-                      {item.label}
-                    </Link>
-                  );
-                })
-              )}
+              {visibleMenuItems.map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-all no-underline border ${
+                      isActive
+                        ? "bg-primary text-white border-primary shadow-sm"
+                        : "bg-white text-gray-600 border-gray-200 hover:border-primary/30 hover:text-primary"
+                    }`}
+                  >
+                    <item.icon size={14} />
+                    {item.label}
+                  </Link>
+                );
+              })}
             </div>
           </div>
 

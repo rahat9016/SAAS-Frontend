@@ -60,7 +60,7 @@ export default function OrderDetailPage({
 
   return (
     <div className="container px-4 sm:px-6 lg:px-8">
-      <div className="py-4 sm:py-6 lg:py-8 pb-20 lg:pb-16">
+      <div className="py-2">
         <Link
           href="/orders"
           className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors no-underline mb-4"
