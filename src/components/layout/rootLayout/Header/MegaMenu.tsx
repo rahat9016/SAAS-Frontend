@@ -50,7 +50,9 @@ export default function MegaMenu({ data, menuKey, onNavigate }: MegaMenuProps) {
                   <Link
                     href={href}
                     onClick={onNavigate}
-                    className={`group/i flex items-center gap-0.5 xl:gap-3 rounded-md px-0 xl:px-2 py-0.5 xl:py-1.5 -mx-2 text-xs xl:sm transition-colors duration-150 ${
+                    className={`group/i flex items-center gap-0.5 xl:gap-3 rounded-md px-0 xl:px-2 -mx-2 text-xs xl:sm transition-colors duration-150 ${
+                      menuKey === "Custom-Teamwear" ? "py-0" : "py-0.5 xl:py-1.5"
+                    } ${
                       highlight
                         ? "font-semibold text-red-500 hover:bg-red-50"
                         : "text-foreground hover:bg-light hover:text-primary"
