@@ -1,9 +1,10 @@
 "use client";
 
 import { dummyProducts } from "@/src/data/dummyProducts";
-import { Camera, Sparkles, X, ShoppingCart } from "lucide-react";
+import { Camera, Sparkles, X, ShoppingBag } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { toast } from "react-toastify";
 import { Suspense, useState, useEffect } from "react";
 import { useAppSelector, useAppDispatch } from "@/src/lib/redux/hooks";
 import { removeFromTrialRoom } from "@/src/lib/redux/features/trialRoom/trialRoomSlice";
@@ -71,23 +72,23 @@ function TrialRoom() {
 
   return (
     <div className="container px-4 sm:px-6 lg:px-8">
-      <div className="py-6 sm:py-8 lg:py-10 pb-20 lg:pb-16">
+      <div className="py-2">
         {/* Header */}
-        <div className="flex flex-col items-center text-center gap-2 mb-6 sm:mb-8">
+        <div className="flex flex-col items-center text-center gap-2 mb-2 sm:mb-2">
           <div className="flex items-center justify-center w-14 h-14 rounded-full bg-primary/10 text-primary">
             <Camera size={26} />
           </div>
           <h1 className="text-xl sm:text-2xl font-bold text-foreground">
             Virtual Trial Room
           </h1>
-          <p className="text-sm text-muted-foreground max-w-md">
+          <p className="text-sm text-muted-foreground ">
             Try the outfit on virtually with your camera before you buy.
           </p>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr] max-w-5xl mx-auto">
+        <div className="grid gap-2 lg:grid-cols-[1.4fr_1fr] ">
           {/* Camera stage */}
-          <div className="relative flex flex-col items-center justify-center aspect-[3/4] rounded-2xl border border-dashed border-border bg-muted/40 overflow-hidden">
+          <div className="relative w-full flex flex-col items-center justify-center h-[500px] lg:h-[600px] rounded-2xl border border-dashed border-border bg-muted/40 overflow-hidden">
             {activePrimaryImage ? (
               <div className="absolute inset-0 z-0">
                 <Image
@@ -123,71 +124,81 @@ function TrialRoom() {
 
           {/* Selected outfit */}
           <div className="flex flex-col gap-3">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-foreground">
-                Selected Outfit ({selectedProducts.length})
-              </h2>
-            </div>
+
             
             {selectedProducts.length > 0 ? (
-              <div className="flex flex-col gap-3 max-h-[600px] overflow-y-auto pr-2 pb-4">
+              <div className="grid grid-cols-2 gap-1 pb-4">
                 {selectedProducts.map((product) => {
                   const primaryImage = product.images.find((img) => img.isPrimary) ?? product.images[0];
+                  const hasDiscount = product.compareAtPrice && product.compareAtPrice > product.price;
                   const isActive = activeProductId === product.id;
 
                   return (
-                    <div 
+                    <div
                       key={product.id}
                       onClick={() => setActiveProductId(product.id)}
-                      className={`flex gap-3 rounded-xl border p-3 cursor-pointer transition-all hover:border-primary/50 ${isActive ? "border-primary bg-primary/5 shadow-sm" : "border-border"}`}
+                      className={`group flex flex-col relative rounded-xl border overflow-hidden cursor-pointer transition-all hover:border-primary/50 ${isActive ? "border-primary shadow-sm bg-primary/5" : "border-transparent bg-card"}`}
                     >
-                      <div className="relative w-24 h-32 shrink-0 rounded-lg overflow-hidden bg-gray-100">
-                        {primaryImage && (
-                          <Image
-                            src={primaryImage.url}
-                            alt={primaryImage.alt ?? product.name}
-                            fill
-                            className="object-cover"
-                            sizes="96px"
-                          />
-                        )}
+                      {/* Image */}
+                      <div className="relative w-full overflow-hidden bg-light aspect-3/4">
+                        <div className="absolute inset-0 z-0 pointer-events-none">
+                          {primaryImage && (
+                            <Image
+                              src={primaryImage.url}
+                              alt={primaryImage.alt ?? product.name}
+                              fill
+                              className="object-cover transition-transform duration-500 group-hover:scale-105"
+                              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                            />
+                          )}
+                        </div>
+
+                        {/* Remove button */}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemove(product.id, product.slug, e);
+                          }}
+                          aria-label="Remove from trial room"
+                          className="absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white/80 backdrop-blur-sm shadow-sm transition-transform hover:scale-110"
+                        >
+                          <X size={14} className="text-gray-500 hover:text-red-500 transition-colors" />
+                        </button>
                       </div>
-                      <div className="flex flex-col gap-1 min-w-0 flex-1">
-                        <div className="flex items-start justify-between gap-2">
-                          <span className="text-sm font-semibold text-foreground line-clamp-2">
+
+                      {/* Content */}
+                      <div className="flex-1 flex flex-col justify-between pt-2 px-3 pb-3">
+                        <div className="space-y-0.5">
+                          <p className="truncate text-[11px] font-bold text-secondary uppercase">
+                            {product.brand?.name ?? "Brand"}
+                          </p>
+                          <span className="block truncate text-xs text-gray-600 group-hover:text-primary">
                             {product.name}
                           </span>
-                          <button 
-                            onClick={(e) => handleRemove(product.id, product.slug, e)}
-                            className="text-muted-foreground hover:text-red-500 transition-colors p-1"
-                          >
-                            <X size={16} />
-                          </button>
+                          <p className="pt-1 text-sm font-bold text-primary">
+                            ৳{product.price.toLocaleString()}
+                          </p>
+                          {hasDiscount && (
+                            <p className="text-[10px] text-gray-500">
+                              Originally: ৳{product.compareAtPrice!.toLocaleString()}
+                            </p>
+                          )}
                         </div>
-                        <span className="text-sm font-bold text-foreground">
-                          ৳{product.price.toLocaleString()}
-                        </span>
-                        
-                        <div className="mt-auto flex items-center gap-2 justify-between">
-                          <Link
-                            href={`/products/${product.slug}`}
-                            onClick={(e) => e.stopPropagation()}
-                            className="text-xs font-medium text-primary hover:underline"
-                          >
-                            View
-                          </Link>
-                          
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleAddToCart(product);
-                            }}
-                            className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground rounded-md text-xs font-semibold hover:bg-primary/90 transition-colors"
-                          >
-                            <ShoppingCart size={14} />
-                            Add
-                          </button>
-                        </div>
+
+                        {/* Add to Cart button */}
+                        <button
+                          className="mt-3 flex items-center justify-center gap-1.5 w-full py-2 rounded-lg text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors cursor-pointer"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleAddToCart(product);
+                            toast.success(`${product.name} added to cart!`);
+                          }}
+                        >
+                          <ShoppingBag size={14} />
+                          Add to Cart
+                        </button>
                       </div>
                     </div>
                   );
