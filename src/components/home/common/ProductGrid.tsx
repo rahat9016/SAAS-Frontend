@@ -33,7 +33,7 @@ export default function ProductGrid({
     <div>
       {title && <SectionHeader title={title} subtitle={subtitle} />}
       {ctaLabel && <SectionCta label={ctaLabel} href={ctaHref} />}
-      <div className={`grid gap-3 md:gap-4 ${colClass[cols]}`}>
+      <div className={`grid gap-1 md:gap-1 ${colClass[cols]}`}>
         {products.map((p) => (
           <ProductCard key={p.id} product={p} />
         ))}
