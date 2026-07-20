@@ -13,7 +13,7 @@ export default function Home() {
   return (
     <div className="bg-white">
       {/* Hero — stacked full-width color banners */}
-      
+
       <HeroBanner
         title="Monthly Inspiration"
         ctaLabel="Read Now"
@@ -21,7 +21,7 @@ export default function Home() {
         bg="bg-orange-200"
         image="/image.png"
         imagePosition="object-cover object-top"
-        height="min-h-[180px] sm:min-h-[260px] md:min-h-[1040px]"
+        height="min-h-[180px] sm:min-h-[260px] md:min-h-[80vh]"
       /><HeroBanner
         title="Especial Summer Offer"
         ctaLabel="Save Now"
