@@ -433,7 +433,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
               onClick={() => handleAddToCart(false)}
             >
               <ShoppingCart size={16} />
-              Add to Cart
+              Add to Bag
             </button>
             <button
               className={`flex items-center justify-center w-10 h-10 rounded-lg border transition-colors cursor-pointer ${isWishlisted ? "border-red-300 text-red-500" : "border-border text-muted-foreground hover:text-red-500 hover:border-red-300"}`}

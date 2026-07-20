@@ -193,11 +193,11 @@ function TrialRoom() {
                             e.preventDefault();
                             e.stopPropagation();
                             handleAddToCart(product);
-                            toast.success(`${product.name} added to cart!`);
+                            toast.success(`${product.name} added to bag!`);
                           }}
                         >
                           <ShoppingBag size={14} />
-                          Add to Cart
+                          Add to Bag
                         </button>
                       </div>
                     </div>

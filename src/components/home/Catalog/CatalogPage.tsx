@@ -73,7 +73,7 @@ export default function CatalogPage({ gender, category = "Clothing" }: CatalogPa
         <div className="min-w-0 flex-1">
           <FilterBar />
 
-          <div className="mt-2">
+          <div className="mt-1">
             <ProductGrid products={makeProducts(`catalog-${category}`, 12)} cols={3} />
           </div>
         </div>

@@ -192,7 +192,7 @@ export default function WishlistPage() {
                   }}
                 >
                   <ShoppingBag size={16} />
-                  Add to Cart
+                  Add to Bag
                 </button>
               </div>
             );
