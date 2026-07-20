@@ -6,7 +6,6 @@ import {
   productCategories,
   moreInspiration,
 } from "../footerData";
-import AppDownload from "./AppDownload";
 import FooterColumn from "./FooterColumn";
 import FooterLinkGrid from "./FooterLinkGrid";
 import FooterLinkList from "./FooterLinkList";
@@ -26,10 +25,12 @@ export default function Footer() {
 
       {/* Help / Gift Cards / About */}
       <div className="border-t border-gray-200">
-        <div className="container grid gap-10  py-12 md:grid-cols-3">
-          <FooterColumn icon={HelpCircle} title="Help & Contact">
-            <FooterLinkList links={helpLinks} variant="grid" firstBold />
-          </FooterColumn>
+        <div className="container grid gap-10 py-12 md:grid-cols-4">
+          <div className="md:col-span-2">
+            <FooterColumn icon={HelpCircle} title="Help & Contact">
+              <FooterLinkList links={helpLinks} variant="grid" firstBold />
+            </FooterColumn>
+          </div>
           <FooterColumn icon={Gift} title="Gift Cards">
             <FooterLinkList links={giftCardLinks} />
           </FooterColumn>
@@ -56,7 +57,6 @@ export default function Footer() {
       <div className="border-t border-gray-200">
         <div className="container flex flex-col gap-8  py-8 lg:flex-row lg:items-start lg:justify-between">
           <LegalLinks />
-          <AppDownload />
           <SocialLinks />
         </div>
       </div>

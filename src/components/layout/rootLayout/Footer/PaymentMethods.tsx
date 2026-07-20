@@ -24,7 +24,7 @@ const PAYMENTS = [
 /** Accepted payment method badges. */
 export default function PaymentMethods() {
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="grid grid-cols-[repeat(4,max-content)] lg:grid-cols-[repeat(5,max-content)] gap-2">
       {PAYMENTS.map(({ Icon, color, label }) => (
         <span
           key={label}
