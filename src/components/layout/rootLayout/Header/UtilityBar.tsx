@@ -4,7 +4,7 @@ import Link from "next/link";
 export default function UtilityBar() {
   return (
     <div className="hidden lg:block w-full bg-gray-100 text-secondary">
-      <div className="container flex items-center justify-between py-1.5 text-xs font-semibold">
+      <div className="container flex items-center justify-between py-0.5 text-xs font-semibold">
         <Link href="/help" className="hover:text-primary transition-colors">
           Help and contact
         </Link>

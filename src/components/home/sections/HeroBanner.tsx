@@ -11,6 +11,7 @@ export default function HeroBanner({
   image,
   text = "text-white",
   height = "min-h-[180px] sm:min-h-[260px] md:min-h-[340px]",
+  imagePosition = "object-cover",
 }: HeroBannerProps) {
   return (
     <div
@@ -24,7 +25,7 @@ export default function HeroBanner({
             fill
             sizes="100vw"
             priority
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
+            className={`${imagePosition} transition-transform duration-700 group-hover:scale-105`}
           />
           <div className="absolute inset-0 bg-black/35" />
         </>

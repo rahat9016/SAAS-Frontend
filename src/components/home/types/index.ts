@@ -18,4 +18,6 @@ export interface HeroBannerProps {
   text?: string;
   /** band height */
   height?: string;
+  /** image position class */
+  imagePosition?: string;
 }

@@ -44,7 +44,7 @@ export function ProfileDropdown() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
-          className="flex flex-col items-center gap-0.5 px-2 py-1.5 lg:px-3 text-gray-600 hover:text-primary transition-colors focus:outline-none cursor-pointer group"
+          className="flex flex-col items-center gap-0.5  text-gray-600 hover:text-primary transition-colors focus:outline-none cursor-pointer group"
           aria-label="Open profile menu"
         >
           {userInformation.profilePicture ? (

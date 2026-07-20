@@ -26,12 +26,12 @@ export default function HeaderTopBarActions({
   const dispatch = useAppDispatch();
 
   return (
-    <div className="flex items-center gap-1 lg:gap-2 shrink-0">
+    <div className="flex items-center gap-1 lg:gap-1 shrink-0">
       <LanguageDropdown />
 
       <Link
         href="/wishlist"
-        className="relative flex flex-col items-center gap-0.5 px-2 py-1.5 lg:px-3 text-gray-600 hover:text-primary transition-colors group"
+        className="relative flex flex-col items-center gap-0.5 text-gray-600 hover:text-primary transition-colors group"
       >
         <Heart
           size={20}
@@ -47,7 +47,7 @@ export default function HeaderTopBarActions({
 
       <Link
         href="/trial-room"
-        className="relative flex flex-col items-center gap-0.5 px-2 py-1.5 lg:px-3 text-gray-600 hover:text-primary transition-colors group"
+        className="relative flex flex-col items-center gap-0.5 px-1 py-1.5  text-gray-600 hover:text-primary transition-colors group"
       >
         <Camera
           size={20}
