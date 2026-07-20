@@ -27,9 +27,12 @@ function TrialRoom() {
 
   useEffect(() => {
     setMounted(true);
+  }, []);
+
+  useEffect(() => {
     if (selectedProducts.length > 0 && !activeProductId) {
       setActiveProductId(selectedProducts[0].id);
-    } else if (selectedProducts.length === 0) {
+    } else if (selectedProducts.length === 0 && activeProductId !== null) {
       setActiveProductId(null);
     }
   }, [selectedProducts, activeProductId]);

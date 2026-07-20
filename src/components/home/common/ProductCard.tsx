@@ -66,7 +66,7 @@ export default function ProductCard({
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            dispatch(toggleWishlist(product.slug ?? product.id));
+            dispatch(toggleWishlist(product.id));
           }}
           aria-label="wishlist"
           className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-sm transition-transform hover:scale-110"
@@ -84,7 +84,7 @@ export default function ProductCard({
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            dispatch(toggleTrialRoom(product.slug ?? product.id));
+            dispatch(toggleTrialRoom(product.id));
             if (inTrialRoom) {
               toast.info("Removed from Trial Room");
             } else {
@@ -107,7 +107,6 @@ export default function ProductCard({
           <Camera
             size={18}
             className={inTrialRoom ? "text-primary" : "text-secondary"}
-            fill={inTrialRoom ? "currentColor" : "none"}
           />
         </button>
 

@@ -52,12 +52,15 @@ const NAMES = [
 export function makeProducts(prefix: string, n = 10): HomeProduct[] {
   const offset = prefix.length; // vary the image start per section
   return Array.from({ length: n }, (_, i) => {
+    const realSlug = PRODUCT_SLUGS[(offset + i) % PRODUCT_SLUGS.length];
+    const realProduct = dummyProducts.find((p) => p.slug === realSlug);
     const original = 40 + ((i * 9) % 60); // RRP
     const price = Math.round(original * 0.55 * 100) / 100; // current "from"
     const lastLowest = Math.round((price + 2.4) * 100) / 100;
     const off = 5 + ((i * 3) % 20);
     return {
-      id: `${prefix}-${i}`,
+      id: realProduct?.id ?? `${prefix}-${i}`,
+      slug: realSlug,
       image: fashion(offset + i),
       brand: BRANDS[i % BRANDS.length],
       name: NAMES[i % NAMES.length],
@@ -67,7 +70,7 @@ export function makeProducts(prefix: string, n = 10): HomeProduct[] {
       lastLowestLabel: `-${off}%`,
       extraLabel: i % 2 === 0 ? "15% EXTRA" : undefined,
       deal: i % 3 === 0,
-      href: `/products/${PRODUCT_SLUGS[(offset + i) % PRODUCT_SLUGS.length]}`,
+      href: `/products/${realSlug}`,
     };
   });
 }
