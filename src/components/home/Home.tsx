@@ -1,8 +1,8 @@
 import Section from "./common/Section";
 import {
-    brandStories,
-    outfitLooks,
-    productSections,
+  brandStories,
+  outfitLooks,
+  productSections,
 } from "./data/homeData";
 import BrandStoryRow from "./sections/BrandStoryRow";
 import HeroBanner from "./sections/HeroBanner";
@@ -13,12 +13,7 @@ export default function Home() {
   return (
     <div className="bg-white">
       {/* Hero — stacked full-width color banners */}
-      <HeroBanner
-        title="Especial Summer Offer"
-        ctaLabel="Save Now"
-        href="/categories"
-        bg="bg-sky-300"
-      />
+      
       <HeroBanner
         title="Monthly Inspiration"
         ctaLabel="Read Now"
@@ -26,6 +21,12 @@ export default function Home() {
         bg="bg-orange-200"
         image="/image.png"
         imagePosition="object-cover object-top"
+        height="min-h-[180px] sm:min-h-[260px] md:min-h-[1040px]"
+      /><HeroBanner
+        title="Especial Summer Offer"
+        ctaLabel="Save Now"
+        href="/categories"
+        bg="bg-sky-300"
       />
 
       {/* Stores that inspire */}
