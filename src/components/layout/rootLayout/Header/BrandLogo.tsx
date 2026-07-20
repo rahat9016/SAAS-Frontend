@@ -12,7 +12,7 @@ export default function BrandLogo({
 }) {
   const badge = size === "sm" ? 44 : 64;
   const text = size === "sm" ? "text-lg" : "text-2xl xl:text-3xl";
-  const sub = size === "sm" ? "text-[0.8vh]" : "text-[1vh]";
+  const sub = size === "sm" ? "text-[1.2vh]" : "text-[1.2vh]";
 
   // Split the site name into two words for the two-tone wordmark.
   const [first, ...rest] = siteConfig.name.split(" ");

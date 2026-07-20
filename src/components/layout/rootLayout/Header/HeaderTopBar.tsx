@@ -33,7 +33,7 @@ export default function HeaderTopBar({
       {/* ═══════ DESKTOP HEADER ═══════ */}
       <div className="hidden lg:block">
         {/* Row: gender tabs · centered logo · actions */}
-        <div className="container relative flex items-center justify-between gap-4 h-16">
+        <div className="container relative flex items-center justify-between gap-4 h-14">
           <div className="flex-shrink-0 z-10">
             <GenderTabs />
           </div>
