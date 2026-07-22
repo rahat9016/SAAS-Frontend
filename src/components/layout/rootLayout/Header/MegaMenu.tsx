@@ -32,7 +32,7 @@ export default function MegaMenu({ data, menuKey, onNavigate }: MegaMenuProps) {
           <div key={col.heading}>
             <h4
               className={`text-base font-bold text-gray-400 pb-0 ${
-                col.items.length > 5 ? "text-center" : "text-left"
+                menuKey === "Custom-Teamwear" || col.items.length <= 5 ? "text-left" : "text-center"
               }`}
             >
               {col.heading}
