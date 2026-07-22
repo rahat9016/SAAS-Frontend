@@ -38,6 +38,12 @@ export default function AddressForm({
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-4 mt-2">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+        {/* Receiver's info */}
+        <div className="sm:col-span-2">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+            Receiver&apos;s info
+          </p>
+        </div>
         <div>
           <InputLabel label="Last Name" required />
           <ControlledInputField name="lastName" placeholder="Enter your last name" className="bg-light" />
@@ -50,32 +56,30 @@ export default function AddressForm({
           <InputLabel label="Phone" required />
           <ControlledInputField name="phone" placeholder="+880 1XX XXXX XXX" className="bg-light" />
         </div>
-        <div className="sm:col-span-2">
+        <div>
           <InputLabel label="Email" />
           <ControlledInputField name="email" type="email" placeholder="your@email.com (optional)" className="bg-light" />
+        </div>
+
+        <div className="sm:col-span-2 mt-2">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+            Address Details
+          </p>
         </div>
         <div className="sm:col-span-2">
           <InputLabel label="Country" required />
           <ControlledInputField name="country" placeholder="e.g. Germany" className="bg-light" />
         </div>
-
-        {/* Receiver's info */}
-        <div className="sm:col-span-2 mt-1">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Receiver&apos;s info
-          </p>
-        </div>
-        <div>
-          <InputLabel label="Receiver's Name" required />
-          <ControlledInputField name="addressLine2" placeholder="Enter receiver's name" className="bg-light" />
-        </div>
-        <div>
-          <InputLabel label="Receiver's Address" required />
+        <div className="sm:col-span-2">
+          <InputLabel label="Street, Area" required />
           <ControlledInputField name="addressLine1" placeholder="Street, area" className="bg-light" />
         </div>
-
         <div>
-          <InputLabel label="House Number" required />
+          <InputLabel label="Apartment/Suite" />
+          <ControlledInputField name="addressLine2" placeholder="Apartment, suite, etc. (optional)" className="bg-light" />
+        </div>
+        <div>
+          <InputLabel label="House Number / Area" required />
           <ControlledInputField name="area" placeholder="e.g. House 12" className="bg-light" />
         </div>
         <div>

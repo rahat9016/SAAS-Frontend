@@ -5,7 +5,8 @@ import { OrderStatus } from "@/src/types/ecommerce/order";
 import { ArrowLeft, Package } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { use } from "react";
+import { use, useState } from "react";
+import { CancelOrderModal } from "@/src/components/shared/CancelOrderModal";
 
 const statusColors: Record<OrderStatus, string> = {
   [OrderStatus.PENDING]: "bg-yellow-50 text-yellow-700 border-yellow-200",
@@ -32,6 +33,7 @@ export default function OrderDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const order = dummyOrders.find((o) => o.id === id);
 
   if (!order) {
@@ -70,15 +72,25 @@ export default function OrderDetailPage({
         </Link>
 
         {/* Title + Badge */}
-        <div className="flex items-center gap-3 flex-wrap mb-6">
-          <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">
-            {order.orderNumber}
-          </h1>
-          <span
-            className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border capitalize ${statusColors[order.orderStatus]}`}
-          >
-            {order.orderStatus}
-          </span>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <div className="flex items-center gap-3 flex-wrap">
+            <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">
+              {order.orderNumber}
+            </h1>
+            <span
+              className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border capitalize ${statusColors[order.orderStatus]}`}
+            >
+              {order.orderStatus}
+            </span>
+          </div>
+          {order.orderStatus === OrderStatus.PENDING && (
+            <button
+              onClick={() => setIsCancelModalOpen(true)}
+              className="inline-flex items-center justify-center px-4 py-2 rounded-lg border border-red-200 bg-white text-sm font-semibold text-red-600 hover:bg-red-50 hover:border-red-300 transition-colors shadow-sm cursor-pointer w-full sm:w-auto"
+            >
+              Cancel Order
+            </button>
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -403,6 +415,18 @@ export default function OrderDetailPage({
           </div>
         </div>
       </div>
+
+      {isCancelModalOpen && (
+        <CancelOrderModal
+          isOpen={isCancelModalOpen}
+          onClose={() => setIsCancelModalOpen(false)}
+          orderNumber={order.orderNumber}
+          onConfirm={(reason, details) => {
+            console.log("Cancelled order:", order.id, reason, details);
+            // In a real app, dispatch an action or API call to update status here
+          }}
+        />
+      )}
     </div>
   );
 }

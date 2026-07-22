@@ -27,7 +27,7 @@ export default function HeroBanner({
             height={1000}
             className={`w-full h-auto block ${imagePosition} transition-transform duration-700 group-hover:scale-105`}
           />
-          <div className="absolute inset-0 bg-black/15" />
+          {/* <div className="absolute inset-0 bg-black/15" /> */}
         </>
       )}
       <div

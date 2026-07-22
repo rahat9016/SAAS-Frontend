@@ -15,6 +15,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { CancelOrderModal } from "@/src/components/shared/CancelOrderModal";
 
 const statusConfig: Record<
   OrderStatus,
@@ -95,7 +96,7 @@ const tabs = [
 ];
 
 /* ─────────────────────── Order Card ─────────────────────── */
-function OrderCard({ order }: { order: IOrder }) {
+function OrderCard({ order, onCancelOrder }: { order: IOrder, onCancelOrder: (id: string) => void }) {
   const status = statusConfig[order.orderStatus];
 
   return (
@@ -188,6 +189,14 @@ function OrderCard({ order }: { order: IOrder }) {
               Est. {new Date(order.estimatedDelivery).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
             </span>
           )}
+          {order.orderStatus === OrderStatus.PENDING && (
+            <button
+              onClick={() => onCancelOrder(order.id)}
+              className="inline-flex items-center justify-center px-3 py-1.5 rounded-lg border border-red-200 bg-white text-xs font-semibold text-red-600 hover:bg-red-50 hover:border-red-300 transition-colors shadow-sm cursor-pointer"
+            >
+              Cancel Order
+            </button>
+          )}
           <Link
             href={`/orders/${order.id}`}
             className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline no-underline transition-colors"
@@ -205,6 +214,7 @@ function OrderCard({ order }: { order: IOrder }) {
 export default function AccountOrdersPage() {
   const [activeTab, setActiveTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [cancelOrderId, setCancelOrderId] = useState<string | null>(null);
 
   const filteredOrders = useMemo(() => {
     return dummyOrders.filter((order) => {
@@ -295,7 +305,7 @@ export default function AccountOrdersPage() {
       {filteredOrders.length > 0 ? (
         <div className="flex flex-col gap-3 sm:gap-4">
           {filteredOrders.map((order) => (
-            <OrderCard key={order.id} order={order} />
+            <OrderCard key={order.id} order={order} onCancelOrder={setCancelOrderId} />
           ))}
         </div>
       ) : (
@@ -318,6 +328,20 @@ export default function AccountOrdersPage() {
             </button>
           )}
         </div>
+      )}
+
+      {cancelOrderId && (
+        <CancelOrderModal
+          isOpen={!!cancelOrderId}
+          onClose={() => setCancelOrderId(null)}
+          orderNumber={
+            dummyOrders.find((o) => o.id === cancelOrderId)?.orderNumber || ""
+          }
+          onConfirm={(reason, details) => {
+            console.log("Cancelled order:", cancelOrderId, reason, details);
+            // In a real app, dispatch an action or API call to update status here
+          }}
+        />
       )}
     </div>
   );

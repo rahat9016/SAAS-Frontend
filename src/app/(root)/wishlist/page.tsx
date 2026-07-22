@@ -188,6 +188,7 @@ export default function WishlistPage() {
                         stock: product.stock,
                       })
                     );
+                    dispatch(removeFromWishlist(product.id));
                     toast.success(`${product.name} added to cart!`);
                   }}
                 >

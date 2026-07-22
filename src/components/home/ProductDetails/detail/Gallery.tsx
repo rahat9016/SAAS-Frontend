@@ -1,8 +1,8 @@
 "use client";
 
-import { ChevronDown, ChevronUp, X } from "lucide-react";
+import { X } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface GalleryProps {
   images: string[];
@@ -23,6 +23,17 @@ export default function Gallery({ images, alt }: GalleryProps) {
     const y = ((e.clientY - box.top) / box.height) * 100;
     setOrigin(`${x}% ${y}%`);
   };
+
+  useEffect(() => {
+    if (isFullScreen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [isFullScreen]);
 
   return (
     <div className="flex flex-col-reverse md:flex-row gap-2 pt-0 md:pt-0">
@@ -68,18 +79,17 @@ export default function Gallery({ images, alt }: GalleryProps) {
 
       {/* Full-screen Modal */}
       {isFullScreen && (
-        <div className="fixed inset-0 z-100 flex items-center justify-center bg-white p-2">
+        <div className="fixed inset-0 z-100 overflow-y-auto bg-white">
           <button
             type="button"
             onClick={() => setIsFullScreen(false)}
-            className="absolute right-6 top-6 z-110 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+            className="fixed right-6 top-6 z-110 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors shadow-md"
           >
             <X size={24} />
           </button>
           
-          <div className="flex h-full w-full flex-col-reverse md:flex-row items-center gap-2">
-            {/* Thumbnails (Modal) */}
-            <div className="flex w-full shrink-0 overflow-x-auto gap-3 pb-2 md:h-full md:w-32 lg:w-40 xl:w-44 md:flex-col md:overflow-y-auto md:overflow-x-hidden md:pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="flex min-h-full w-full flex-col-reverse md:flex-row items-start gap-1">
+            <div className="flex w-full shrink-0 overflow-x-auto gap-1 p-1 md:w-32 lg:w-40 xl:w-44 md:flex-col [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:sticky md:top-0">
               {list.map((src, i) => (
                 <button
                   key={i}
@@ -97,14 +107,11 @@ export default function Gallery({ images, alt }: GalleryProps) {
             </div>
 
             {/* Main Image (Modal) */}
-            <div className="relative flex-1 h-full w-full overflow-hidden rounded-xl bg-transparent flex items-center justify-center">
-              <Image
+            <div className="relative flex-1 w-full bg-transparent flex justify-center">
+              <img
                 src={list[active]}
                 alt={alt}
-                fill
-                sizes="100vw"
-                className="object-cover object-top"
-                priority
+                className="w-full h-auto object-top"
               />
             </div>
           </div>

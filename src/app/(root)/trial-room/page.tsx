@@ -62,6 +62,8 @@ function TrialRoom() {
         image: product.images[0]?.url ?? "",
       })
     );
+    dispatch(removeFromTrialRoom(product.id));
+    dispatch(removeFromTrialRoom(product.slug));
   };
 
   const handleRemove = (id: string, slug: string, e: React.MouseEvent) => {
@@ -86,9 +88,9 @@ function TrialRoom() {
           </p>
         </div>
 
-        <div className="grid gap-2 lg:grid-cols-[1.4fr_1fr] ">
+        <div className="grid gap-2 lg:grid-cols-[1.4fr_1fr] items-start">
           {/* Camera stage */}
-          <div className="relative w-full flex flex-col items-center justify-center h-[500px] lg:h-[600px] rounded-2xl border border-dashed border-border bg-muted/40 overflow-hidden">
+          <div className="sticky top-24 w-full flex flex-col items-center justify-center h-[500px] lg:h-[600px] rounded-2xl border border-dashed border-border bg-muted/40 overflow-hidden z-10">
             {activePrimaryImage ? (
               <div className="absolute inset-0 z-0">
                 <Image
