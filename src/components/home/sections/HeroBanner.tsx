@@ -20,13 +20,14 @@ export default function HeroBanner({
     >
       {image && (
         <>
-          {/* Using native img ensures the height perfectly matches the image's original aspect ratio */}
-          <img
+          <Image
             src={image}
-            alt={title}
+            alt={title} 
+            width={2000}
+            height={1000}
             className={`w-full h-auto block ${imagePosition} transition-transform duration-700 group-hover:scale-105`}
           />
-          <div className="absolute inset-0 bg-black/35" />
+          <div className="absolute inset-0 bg-black/15" />
         </>
       )}
       <div

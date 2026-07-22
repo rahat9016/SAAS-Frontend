@@ -12,8 +12,6 @@ import ProductCarouselSection from "./sections/ProductCarouselSection";
 export default function Home() {
   return (
     <div className="bg-white">
-      {/* Hero — stacked full-width color banners */}
-
       <HeroBanner
         title="Monthly Inspiration"
         ctaLabel="Read Now"
@@ -22,7 +20,7 @@ export default function Home() {
         image="/image.png"
         imagePosition="object-cover object-top"
         height="min-h-[180px] sm:min-h-[260px] md:min-h-[100vh]"
-        contentPosition="justify-start pt-24 md:pt-56"
+        contentPosition="justify-start pt-24 md:pt-56 2xl:pt-92"
       /><HeroBanner
         title="Especial Summer Offer"
         ctaLabel="Save Now"
