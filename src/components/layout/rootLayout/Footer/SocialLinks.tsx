@@ -6,7 +6,7 @@ const SOCIALS = [FaFacebookF, FaInstagram, FaPinterest, FaTiktok];
 /** Social media icon links. */
 export default function SocialLinks() {
   return (
-    <div>
+    <div className="pt-6 pr-32 lg:pr-36">
       <p className="mb-2 text-sm font-bold text-secondary">You can also find us on</p>
       <div className="flex items-center gap-2">
         {SOCIALS.map((Icon, i) => (

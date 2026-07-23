@@ -189,28 +189,6 @@ const Footer = () => {
         <div className="grow border-t border-text-secondary-foreground hidden sm:block"></div>
       </div>
 
-      {/* Developer Credit */}
-      {/* <div className="container px-4 sm:px-6 lg:px-8 text-xs text-[#B3B3B3] flex justify-center sm:justify-end pb-4 lg:pb-3">
-        <div className="flex items-center gap-3 flex-wrap justify-center">
-          <span>|</span>
-          <span>Developed by</span>
-          <Link
-            className="text-white"
-            tabIndex={0}
-            aria-label="Developed By A T I Limited"
-            href={"https://atilimited.net/"}
-            target="_blank"
-          >
-            <Image
-              width={67}
-              height={24}
-              src="/images/common/ATI_Logo.png"
-              alt="ATI_Logo"
-              className="h-5 w-auto lg:h-6"
-            />
-          </Link>
-        </div>
-      </div> */}
     </footer>
   );
 };

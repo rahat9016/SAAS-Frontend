@@ -32,7 +32,7 @@ export const helpLinks: FooterLink[] = [
   { label: "Track your parcel", href: "/orders" },
   { label: "Delivery information", href: "/help/delivery" },
   { label: "Find the right size", href: "/help/size" },
-  { label: "Magazine", href: "/newsletter" },
+  { label: "Subscribe to our Magazine", href: "/newsletter" },
   { label: "Withdrawal", href: "/help/withdrawal" },
 ];
 
