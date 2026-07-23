@@ -1,6 +1,7 @@
 "use client";
 
 import { addToCart } from "@/src/lib/redux/features/cart/cartSlice";
+import { toggleTrialRoom } from "@/src/lib/redux/features/trialRoom/trialRoomSlice";
 import { toggleWishlist } from "@/src/lib/redux/features/wishlist/wishlistSlice";
 import { useAppDispatch, useAppSelector } from "@/src/lib/redux/hooks";
 import { Bell, Camera, Heart, ShoppingBag } from "lucide-react";
@@ -22,6 +23,9 @@ export default function ProductDetailView({ product }: { product: ProductDetail 
   const dispatch = useAppDispatch();
   const wishlistIds = useAppSelector((state) => state.wishlist.productIds);
   const wished = wishlistIds.includes(product.id);
+
+  const trialRoomIds = useAppSelector((state) => state.trialRoom.productIds);
+  const inTrialRoom = trialRoomIds.includes(product.id) || (product.slug ? trialRoomIds.includes(product.slug) : false);
 
   const [activeColor, setActiveColor] = useState(product.colors[0]?.id ?? "");
   const [size, setSize] = useState<string | null>(null);
@@ -151,13 +155,32 @@ export default function ProductDetailView({ product }: { product: ProductDetail 
                 />
               </div>
 
-              <Link
-                href={`/trial-room?product=${product.slug}`}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  dispatch(toggleTrialRoom(product.id));
+                  if (inTrialRoom) {
+                    toast.info("Removed from Trial Room");
+                  } else {
+                    toast.success(
+                      <div className="flex flex-col gap-1">
+                        <span>Added to Trial Room</span>
+                        <Link
+                          href="/trial-room"
+                          className="text-primary hover:underline text-xs font-semibold"
+                        >
+                          Go to Trial Room →
+                        </Link>
+                      </div>
+                    );
+                  }
+                }}
                 aria-label="Find your size with camera"
                 className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-gray-300 text-secondary transition-colors hover:bg-light hover:text-primary"
               >
-                <Camera size={20} />
-              </Link>
+                <Camera size={20} className={inTrialRoom ? "text-primary" : ""} />
+              </button>
             </div>
           )}
 
