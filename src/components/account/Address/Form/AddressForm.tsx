@@ -71,24 +71,20 @@ export default function AddressForm({
           <ControlledInputField name="country" placeholder="e.g. Germany" className="bg-light" />
         </div>
         <div className="sm:col-span-2">
-          <InputLabel label="Street, Area" required />
-          <ControlledInputField name="addressLine1" placeholder="Street, area" className="bg-light" />
+          <InputLabel label="Street and house number" required />
+          <ControlledInputField name="addressLine1" placeholder="Street and house number" className="bg-light" />
         </div>
         <div>
-          <InputLabel label="Apartment/Suite" />
-          <ControlledInputField name="addressLine2" placeholder="Apartment, suite, etc. (optional)" className="bg-light" />
-        </div>
-        <div>
-          <InputLabel label="House Number / Area" required />
-          <ControlledInputField name="area" placeholder="e.g. House 12" className="bg-light" />
+          <InputLabel label="Postal Code" />
+          <ControlledInputField name="zipCode" placeholder="e.g. 10117" className="bg-light" />
         </div>
         <div>
           <InputLabel label="City" required />
           <ControlledSelectField name="city" options={DIVISIONS} placeholder="Select city" className="bg-light" />
         </div>
         <div>
-          <InputLabel label="Postal Code" />
-          <ControlledInputField name="zipCode" placeholder="e.g. 1205" className="bg-light" />
+          <InputLabel label="Apartment/Suite" />
+          <ControlledInputField name="addressLine2" placeholder="Apartment, suite, etc. (optional)" className="bg-light" />
         </div>
       </div>
 

@@ -6,12 +6,11 @@ export const checkoutSchema = Yup.object({
   firstName: Yup.string().required("First name is required"),
   phone: Yup.string().required("Phone is required"),
   email: Yup.string().email("Enter a valid email").default(""),
-  addressLine1: Yup.string().required("Country is required"),
-  addressLine2: Yup.string().required("Receiver's name is required"),
-  city: Yup.string().required("Receiver's address is required"),
-  district: Yup.string().required("House number is required"),
-  division: Yup.string().required("City is required"),
+  country: Yup.string().required("Country is required"),
+  addressLine1: Yup.string().required("Street and house number is required"),
+  addressLine2: Yup.string().optional().default(""),
   postalCode: Yup.string().default(""),
+  city: Yup.string().required("City is required"),
   paymentMethod: Yup.mixed<PaymentMethod>()
     .oneOf(Object.values(PaymentMethod))
     .required("Select a payment method")

@@ -86,27 +86,23 @@ export default function CheckoutForm({
             </div>
             <div className="sm:col-span-2">
               <InputLabel label="Country" required />
-              <ControlledInputField name="addressLine1" placeholder="e.g. Germany" className="bg-light" />
+              <ControlledInputField name="country" placeholder="e.g. Germany" className="bg-light" />
             </div>
-            <div>
-              <InputLabel label="Address Line 2" />
-              <ControlledInputField name="addressLine2" placeholder="Apartment, suite, etc. (optional)" className="bg-light" />
-            </div>
-            <div>
-              <InputLabel label="Street, Area" required />
-              <ControlledInputField name="city" placeholder="Street, area" className="bg-light" />
-            </div>
-            <div>
-              <InputLabel label="House Number" required />
-              <ControlledInputField name="district" placeholder="e.g. House 12" className="bg-light" />
-            </div>
-            <div>
-              <InputLabel label="City" required />
-              <ControlledSelectField name="division" options={DIVISIONS} placeholder="Select city" className="bg-light" />
+            <div className="sm:col-span-2">
+              <InputLabel label="Street and house number" required />
+              <ControlledInputField name="addressLine1" placeholder="Street and house number" className="bg-light" />
             </div>
             <div>
               <InputLabel label="Postal Code" />
-              <ControlledInputField name="postalCode" placeholder="e.g. 1205" className="bg-light" />
+              <ControlledInputField name="postalCode" placeholder="e.g. 10117" className="bg-light" />
+            </div>
+            <div>
+              <InputLabel label="City" required />
+              <ControlledSelectField name="city" options={DIVISIONS} placeholder="Select city" className="bg-light" />
+            </div>
+            <div>
+              <InputLabel label="Apartment/Suite" />
+              <ControlledInputField name="addressLine2" placeholder="Apartment, suite, etc. (optional)" className="bg-light" />
             </div>
           </div>
         </div>
