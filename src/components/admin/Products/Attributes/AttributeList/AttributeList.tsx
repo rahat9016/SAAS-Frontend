@@ -95,12 +95,6 @@ export default function AttributeList() {
         setItemsPerPage={setItemsPerPage}
         search={search}
         handleSearchChange={handleSearchChange}
-        showCreateButton
-        createTitle="Create"
-        setIsModalOpen={() => {
-          setSelectedItem(undefined);
-          setIsModalOpen(true);
-        }}
         title="Product Attributes"
         tabs={[
           { name: "Attribute", route: "/admin/products/attributes" },

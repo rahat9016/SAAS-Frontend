@@ -4,6 +4,8 @@ export interface IParentCategory {
   description?: string;
   icon?: string;
   status?: "ACTIVE" | "INACTIVE" | string;
+  groupId?: string;
+  groupName?: string;
   createdAt: string;
   actions?: string;
 }
@@ -26,12 +28,29 @@ export interface ICategory {
   actions?: string;
 }
 
+export interface ISegment {
+  id: string;
+  name: string;
+  description?: string;
+  status?: "ACTIVE" | "INACTIVE" | string;
+  categoryId: string;
+  categoryName?: string;
+  category?: {
+    id: string;
+    name: string;
+  };
+  createdAt: string;
+  actions?: string;
+}
+
 export interface ISubCategory {
   id: string;
   name: string;
   description?: string;
   icon?: string | null;
   status?: "ACTIVE" | "INACTIVE" | string;
+  segmentId: string;
+  segmentName?: string;
   categoryId?: string;
   categoryName?: string;
   category?: {

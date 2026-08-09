@@ -1,7 +1,11 @@
 import * as Yup from "yup";
 
-export const subCategorySchema = Yup.object({
+const SUPPORTED_ICON_FORMATS = ["image/svg+xml", "image/png"];
+const ICON_MAX_SIZE = 2 * 1024 * 1024;
+
+export const segmentSchema = Yup.object({
   name: Yup.string().required("Name is required"),
+  categoryId: Yup.string().required("Category is required"),
   description: Yup.string().default(""),
   icon: Yup.mixed<File | string>()
     .nullable()
@@ -9,16 +13,16 @@ export const subCategorySchema = Yup.object({
     .default(undefined)
     .test("fileType", "Only SVG and PNG files are allowed.", (value) => {
       if (!value || typeof value === "string") return true;
-      return value instanceof File
-        ? ["image/svg+xml", "image/png"].includes(value.type)
-        : false;
+      if (value instanceof File) {
+        return SUPPORTED_ICON_FORMATS.includes(value.type);
+      }
+      return false;
     })
     .test("fileSize", "Icon size must be less than 2MB.", (value) => {
       if (!value || typeof value === "string") return true;
-      return value instanceof File ? value.size <= 2 * 1024 * 1024 : true;
+      return value instanceof File ? value.size <= ICON_MAX_SIZE : true;
     }),
-  segmentId: Yup.string().required("Segment is required"),
   isActive: Yup.boolean().default(true),
 });
 
-export type SubCategoryFormValues = Yup.InferType<typeof subCategorySchema>;
+export type SegmentFormValues = Yup.InferType<typeof segmentSchema>;

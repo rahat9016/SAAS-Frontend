@@ -37,8 +37,10 @@ const CategoriesTable = <T,>({
       onSearchChange={handleSearchChange}
       createTitle={createTitle}
       tabs={[
+        { name: "Group", route: "/admin/group" },
         { name: "Parent Category", route: "/admin/parent-category" },
         { name: "Category", route: "/admin/category" },
+        { name: "Segment", route: "/admin/segment" },
         { name: "Sub Category", route: "/admin/sub-category" },
       ]}
       IsCreate={showCreateButton}

@@ -79,19 +79,23 @@ export function getMenuItems(): MenuItem[] {
       resource: "products",
       children: [
         {
-          label: "1. Parent Category",
+          label: "Group",
+          href: "/admin/group",
+        },
+        {
+          label: "Parent Category",
           href: "/admin/parent-category",
         },
         {
-          label: "2. Category",
+          label: "Category",
           href: "/admin/category",
         },
         {
-          label: "3. Segment",
+          label: "Segment",
           href: "/admin/segment",
         },
         {
-          label: "4. Sub Category",
+          label: "Sub Category",
           href: "/admin/sub-category",
         },
         {

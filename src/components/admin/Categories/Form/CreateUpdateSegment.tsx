@@ -9,46 +9,45 @@ import {
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect } from "react";
 import { FormProvider, Resolver, useForm } from "react-hook-form";
-import { mockGroupsList } from "../data/mockGroupData";
-import {
-  ParentCategoryFormValues,
-  parentCategorySchema,
-} from "../Schema/parentCategorySchema";
-import { IParentCategory } from "../types";
-import ParentCategoryForm from "./ParentCategoryForm";
+import { mockCategoriesList } from "../data/mockCategoryHierarchy";
+import { SegmentFormValues, segmentSchema } from "../Schema/segmentSchema";
+import { ISegment } from "../types";
+import SegmentForm from "./SegmentForm";
 
-export interface ParentCategorySubmitValues {
+export interface SegmentSubmitValues {
   name: string;
   description?: string;
-  groupId: string;
-  groupName?: string;
-  icon?: string;
+  categoryId: string;
+  categoryName?: string;
   status: "ACTIVE" | "INACTIVE";
 }
 
-interface CreateUpdateParentCategoryProps {
+interface CreateUpdateSegmentProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (values: ParentCategorySubmitValues) => void;
-  initialValues?: IParentCategory;
+  onSubmit: (values: SegmentSubmitValues) => void;
+  initialValues?: ISegment;
 }
 
-export default function CreateUpdateParentCategory({
+const categoryOptions = mockCategoriesList.map((c) => ({
+  label: c.name,
+  value: c.id,
+}));
+
+export default function CreateUpdateSegment({
   isOpen,
   onClose,
   onSubmit,
   initialValues,
-}: CreateUpdateParentCategoryProps) {
+}: CreateUpdateSegmentProps) {
   const isUpdate = !!initialValues;
 
-  const methods = useForm<ParentCategoryFormValues>({
-    resolver: yupResolver(
-      parentCategorySchema
-    ) as Resolver<ParentCategoryFormValues>,
+  const methods = useForm<SegmentFormValues>({
+    resolver: yupResolver(segmentSchema) as Resolver<SegmentFormValues>,
     defaultValues: {
       name: "",
+      categoryId: "",
       description: "",
-      groupId: "",
       icon: undefined,
       isActive: true,
     },
@@ -58,22 +57,30 @@ export default function CreateUpdateParentCategory({
     if (isOpen) {
       methods.reset({
         name: initialValues?.name || "",
+        categoryId:
+          initialValues?.categoryId || initialValues?.category?.id || "",
         description: initialValues?.description || "",
-        groupId: initialValues?.groupId || "",
-        icon: initialValues?.icon || undefined,
+        icon: undefined,
         isActive: initialValues?.status === "ACTIVE" || !initialValues,
+      });
+    } else {
+      methods.reset({
+        name: "",
+        categoryId: "",
+        description: "",
+        icon: undefined,
+        isActive: true,
       });
     }
   }, [isOpen, initialValues, methods]);
 
-  const handleFormSubmit = (values: ParentCategoryFormValues) => {
-    const group = mockGroupsList.find((g) => g.id === values.groupId);
+  const handleFormSubmit = (values: SegmentFormValues) => {
+    const category = mockCategoriesList.find((c) => c.id === values.categoryId);
     onSubmit({
       name: values.name,
       description: values.description,
-      groupId: values.groupId,
-      groupName: group?.name,
-      icon: typeof values.icon === "string" ? values.icon : undefined,
+      categoryId: values.categoryId,
+      categoryName: category?.name,
       status: values.isActive ? "ACTIVE" : "INACTIVE",
     });
   };
@@ -85,18 +92,19 @@ export default function CreateUpdateParentCategory({
         if (!open) onClose();
       }}
     >
-      <DialogContent className="bg-white sm:max-w-[50%]">
+      <DialogContent className="bg-white sm:max-w-125">
         <DialogHeader>
           <DialogTitle className="text-secondary text-xl font-semibold">
-            {isUpdate ? "Update" : "Create"} Parent Category
+            {isUpdate ? "Update" : "Create"} Segment
           </DialogTitle>
         </DialogHeader>
 
         <FormProvider {...methods}>
-          <ParentCategoryForm
+          <SegmentForm
             isEditMode={isUpdate}
             onSubmit={handleFormSubmit}
             onCancel={onClose}
+            categoryOptions={categoryOptions}
           />
         </FormProvider>
       </DialogContent>

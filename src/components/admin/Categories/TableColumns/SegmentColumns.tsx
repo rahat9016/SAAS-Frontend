@@ -2,34 +2,24 @@ import StatusBadge from "@/src/components/shared/Status/Status";
 import { Button } from "@/src/components/ui/button";
 import { ColumnDef } from "@/src/components/ui/data-table";
 import { StatusType } from "@/src/types/common/common";
-import { Pencil, Trash2, UserRound } from "lucide-react";
-import Image from "next/image";
-import { ISubCategory } from "../types";
+import { Pencil, Trash2 } from "lucide-react";
+import { ISegment } from "../types";
 
-export const GetSubCategoryColumns = (
-  onEdit?: (item: ISubCategory) => void,
+export const GetSegmentColumns = (
+  onEdit?: (item: ISegment) => void,
   onDelete?: (id: string) => void
-): ColumnDef<ISubCategory>[] => {
+): ColumnDef<ISegment>[] => {
   return [
-    {
-      header: "Icon",
-      accessorKey: "icon",
-      cell: (value) => {
-        const icon = value as string | undefined | null;
-        return icon ? (
-          <div className="w-9 h-9 border border-[#E6E6E6] flex items-center justify-center rounded-lg bg-light">
-            <Image src={icon} alt="icon" width={24} height={24} />
-          </div>
-        ) : (
-          <div className="w-9 h-9 border border-[#E6E6E6] flex items-center justify-center rounded-lg bg-light">
-            <UserRound className="h-4 w-4 text-gray-400" />
-          </div>
-        );
-      },
-    },
     {
       header: "Name",
       accessorKey: "name",
+    },
+    {
+      header: "Category",
+      accessorKey: "categoryName",
+      cell: (_value, row) => {
+        return <span>{row.categoryName || row.category?.name || "—"}</span>;
+      },
     },
     {
       header: "Description",
@@ -39,22 +29,6 @@ export const GetSubCategoryColumns = (
         return (
           <span className="text-sm text-secondary-gary">{desc || "—"}</span>
         );
-      },
-    },
-    {
-      header: "Segment",
-      accessorKey: "segmentName",
-      cell: (_value, row) => {
-        const item = row as ISubCategory;
-        return <span>{item.segmentName || "—"}</span>;
-      },
-    },
-    {
-      header: "Category",
-      accessorKey: "categoryName",
-      cell: (_value, row) => {
-        const item = row as ISubCategory;
-        return <span>{item.categoryName || item.category?.name || "—"}</span>;
       },
     },
     {
@@ -74,20 +48,19 @@ export const GetSubCategoryColumns = (
       header: "Action",
       accessorKey: "actions",
       cell: (_value, row) => {
-        const item = row as ISubCategory;
         return (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full">
             <Button
               className="w-9! min-h-9 border border-[#E6E6E6] flex items-center justify-center rounded-lg bg-light hover:bg-light"
               size="sm"
-              onClick={() => onEdit?.(item)}
+              onClick={() => onEdit?.(row)}
             >
               <Pencil className="h-4 w-4 text-secondary-foreground" />
             </Button>
             <Button
               className="w-9! min-h-9 border border-red-200 flex items-center justify-center rounded-lg bg-red-50 hover:bg-red-100"
               size="sm"
-              onClick={() => onDelete?.(item.id)}
+              onClick={() => onDelete?.(row.id)}
             >
               <Trash2 className="h-4 w-4 text-red-500" />
             </Button>

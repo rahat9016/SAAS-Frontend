@@ -3,6 +3,7 @@ export interface ISeasonItem {
   season: string;
   numberOfStyles: number;
   status: "Completed" | "On Process" | "On Concept" | "On Planning";
+  actions?: string;
 }
 
 export interface IDepartmentItem {

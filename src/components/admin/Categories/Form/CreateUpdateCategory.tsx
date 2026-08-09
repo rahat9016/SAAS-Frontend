@@ -1,47 +1,47 @@
 "use client";
 
 import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
 } from "@/src/components/ui/dialog";
-import { useGet } from "@/src/hooks/useGet";
-import { usePatch } from "@/src/hooks/usePatch";
-import { usePost } from "@/src/hooks/usePost";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect } from "react";
 import { FormProvider, Resolver, useForm } from "react-hook-form";
-import { toast } from "react-toastify";
+import { mockParentCategoriesList } from "../data/mockCategoryHierarchy";
 import { CategoryFormValues, categorySchema } from "../Schema/categorySchema";
-import { ICategory, IParentCategory } from "../types";
+import { ICategory } from "../types";
 import CategoryForm from "./CategoryForm";
+
+export interface CategorySubmitValues {
+  name: string;
+  description?: string;
+  parentCategoryId: string;
+  parentCategoryName?: string;
+  icon?: string;
+  status: "ACTIVE" | "INACTIVE";
+}
 
 interface CreateUpdateCategoryProps {
   isOpen: boolean;
   onClose: () => void;
+  onSubmit: (values: CategorySubmitValues) => void;
   initialValues?: ICategory;
 }
+
+const parentCategoryOptions = mockParentCategoriesList.map((pc) => ({
+  label: pc.name,
+  value: pc.id,
+}));
 
 export default function CreateUpdateCategory({
   isOpen,
   onClose,
+  onSubmit,
   initialValues,
 }: CreateUpdateCategoryProps) {
   const isUpdate = !!initialValues;
-
-  const { data: parentCategoriesData } = useGet<IParentCategory[]>(
-    "/parent-category",
-    ["parent-categories"],
-    {},
-    { enabled: isOpen }
-  );
-  const parentCategories = parentCategoriesData?.data || [];
-
-  const parentCategoryOptions = parentCategories.map((pc) => ({
-    label: pc.name,
-    value: pc.id,
-  }));
 
   const methods = useForm<CategoryFormValues>({
     resolver: yupResolver(categorySchema) as Resolver<CategoryFormValues>,
@@ -77,72 +77,25 @@ export default function CreateUpdateCategory({
     }
   }, [isOpen, initialValues, methods]);
 
-  const {
-    mutate: createMutate,
-    isPending: isCreating,
-    error,
-    reset: resetCreateError,
-  } = usePost(
-    "/category",
-    () => {
-      toast.success("Category created successfully!");
-      onClose();
-    },
-    [["categories"]]
-  );
-
-  const {
-    mutate: updateMutate,
-    isPending: isUpdating,
-    error: updateError,
-    reset: resetUpdateError,
-  } = usePatch(() => {
-    toast.success("Category updated successfully!");
-    onClose();
-  }, [["categories"]]);
-
-  const handleClose = () => {
-    resetCreateError();
-    resetUpdateError();
-    onClose();
-  };
-
-  useEffect(() => {
-    if (!isOpen) {
-      resetCreateError();
-      resetUpdateError();
-    }
-  }, [isOpen, resetCreateError, resetUpdateError]);
-
-  const isPending = isCreating || isUpdating;
-
-  const onSubmit = (values: CategoryFormValues) => {
-    const formData = new FormData();
-    formData.append("name", values.name);
-    formData.append("parentCategoryId", values.parentCategoryId);
-    if (values.description) {
-      formData.append("description", values.description);
-    }
-    if (values.icon instanceof File) {
-      formData.append("icon", values.icon);
-    }
-    formData.append("status", values.isActive ? "ACTIVE" : "INACTIVE");
-
-    if (isUpdate && initialValues) {
-      updateMutate({
-        url: `/category/${initialValues.id}`,
-        data: formData,
-      });
-    } else {
-      createMutate({ data: formData });
-    }
+  const handleFormSubmit = (values: CategoryFormValues) => {
+    const parent = mockParentCategoriesList.find(
+      (pc) => pc.id === values.parentCategoryId
+    );
+    onSubmit({
+      name: values.name,
+      description: values.description,
+      parentCategoryId: values.parentCategoryId,
+      parentCategoryName: parent?.name,
+      icon: typeof values.icon === "string" ? values.icon : undefined,
+      status: values.isActive ? "ACTIVE" : "INACTIVE",
+    });
   };
 
   return (
     <Dialog
       open={isOpen}
       onOpenChange={(open) => {
-        if (!open) handleClose();
+        if (!open) onClose();
       }}
     >
       <DialogContent className="bg-white sm:max-w-125">
@@ -155,11 +108,9 @@ export default function CreateUpdateCategory({
         <FormProvider {...methods}>
           <CategoryForm
             isEditMode={isUpdate}
-            onSubmit={onSubmit}
-            onCancel={handleClose}
-            isPending={isPending}
+            onSubmit={handleFormSubmit}
+            onCancel={onClose}
             parentCategoryOptions={parentCategoryOptions}
-            error={error || updateError}
           />
         </FormProvider>
       </DialogContent>

@@ -1,19 +1,22 @@
 "use client";
 
 import DeleteConfirmDialog from "@/src/components/shared/DeleteConfirmDialog";
-import { useDelete } from "@/src/hooks/useDelete";
-import { useGet } from "@/src/hooks/useGet";
 import { usePagination } from "@/src/hooks/usePagination";
 import { useSearchDebounce } from "@/src/hooks/useSearchDebounce";
 import { useAppSelector } from "@/src/lib/redux/hooks";
 import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
 import CategoriesTable from "../CategoriesTable";
-import CreateUpdateParentCategory from "../Form/CreateUpdateParentCategory";
+import { mockParentCategoriesList } from "../data/mockCategoryHierarchy";
+import CreateUpdateParentCategory, {
+  ParentCategorySubmitValues,
+} from "../Form/CreateUpdateParentCategory";
 import { GetParentCategoryColumns } from "../TableColumns/ParentCategoryColumns";
 import { IParentCategory } from "../types";
 
 export default function ParentCategoryList() {
+  const [parentCategories, setParentCategories] = useState<IParentCategory[]>(
+    mockParentCategoriesList
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<
     IParentCategory | undefined
@@ -32,35 +35,26 @@ export default function ParentCategoryList() {
     useSearchDebounce(300);
   const { sortBy } = useAppSelector((state) => state.filter);
 
-  const { data, isLoading } = useGet<IParentCategory[]>(
-    "/parent-category",
-    [
-      "parent-categories",
-      currentPage.toString(),
-      itemsPerPage.toString(),
-      debouncedSearch,
-      sortBy,
-    ],
-    {
-      ...(itemsPerPage !== -1 && {
-        page: currentPage.toString(),
-        limit: itemsPerPage.toString(),
-      }),
-      search: debouncedSearch,
-      ...(sortBy && { status: sortBy }),
-    }
-  );
-
-  const { mutate: deleteMutate } = useDelete(() => {
-    toast.success("Parent category deleted successfully!");
-  }, [["parent-categories"]]);
+  const filteredParentCategories = parentCategories.filter((item) => {
+    const matchesSearch = item.name
+      .toLowerCase()
+      .includes(debouncedSearch.toLowerCase().trim());
+    const matchesStatus = !sortBy || item.status === sortBy;
+    return matchesSearch && matchesStatus;
+  });
 
   useEffect(() => {
-    if (data) {
-      setTotalItems(data.meta?.totalItems || 0);
-    }
+    setTotalItems(filteredParentCategories.length);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data]);
+  }, [filteredParentCategories.length]);
+
+  const effectivePerPage =
+    itemsPerPage === -1 ? filteredParentCategories.length || 1 : itemsPerPage;
+  const pageStart = (currentPage - 1) * effectivePerPage;
+  const paginatedParentCategories =
+    itemsPerPage === -1
+      ? filteredParentCategories
+      : filteredParentCategories.slice(pageStart, pageStart + effectivePerPage);
 
   const handleEdit = (item: IParentCategory) => {
     setSelectedItem(item);
@@ -73,7 +67,7 @@ export default function ParentCategoryList() {
 
   const handleConfirmDelete = () => {
     if (deleteId) {
-      deleteMutate({ url: `/parent-category/${deleteId}` });
+      setParentCategories((prev) => prev.filter((item) => item.id !== deleteId));
       setDeleteId(null);
     }
   };
@@ -83,20 +77,37 @@ export default function ParentCategoryList() {
     setSelectedItem(undefined);
   };
 
+  const handleSubmit = (values: ParentCategorySubmitValues) => {
+    if (selectedItem) {
+      setParentCategories((prev) =>
+        prev.map((item) =>
+          item.id === selectedItem.id ? { ...item, ...values } : item
+        )
+      );
+    } else {
+      const id = values.name.toLowerCase().trim().replace(/\s+/g, "-");
+      setParentCategories((prev) => [
+        ...prev,
+        { id, createdAt: new Date().toISOString(), ...values },
+      ]);
+    }
+    handleModalClose();
+  };
+
   const columns = GetParentCategoryColumns(handleEdit, handleDelete);
 
   return (
     <div>
       <CategoriesTable
         columns={columns}
-        data={data?.data || []}
-        isLoading={isLoading}
+        data={paginatedParentCategories}
         totalItems={totalItems}
         currentPage={currentPage}
         itemsPerPage={itemsPerPage}
         setCurrentPage={setCurrentPage}
         setItemsPerPage={setItemsPerPage}
         search={search}
+        showSearch
         handleSearchChange={handleSearchChange}
         showCreateButton
         createTitle="Create"
@@ -108,6 +119,7 @@ export default function ParentCategoryList() {
       <CreateUpdateParentCategory
         isOpen={isModalOpen}
         onClose={handleModalClose}
+        onSubmit={handleSubmit}
         initialValues={selectedItem}
       />
       <DeleteConfirmDialog

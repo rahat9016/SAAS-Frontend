@@ -16,14 +16,14 @@ export default function SubCategoryForm({
   onSubmit,
   onCancel,
   isPending = false,
-  categoryOptions = [],
+  segmentOptions = [],
   error,
 }: {
   isEditMode?: boolean;
   onSubmit: (data: SubCategoryFormValues) => void;
   onCancel: () => void;
   isPending?: boolean;
-  categoryOptions?: { label: string; value: string }[];
+  segmentOptions?: { label: string; value: string }[];
   error?: ErrorType;
 }) {
   const { handleSubmit } = useFormContext<SubCategoryFormValues>();
@@ -60,13 +60,13 @@ export default function SubCategoryForm({
         />
       </div>
 
-      {/* Category */}
+      {/* Segment */}
       <div>
-        <InputLabel label="Category" required />
+        <InputLabel label="Segment" required />
         <ControlledSelectField
-          name="categoryId"
-          placeholder="Select category"
-          options={categoryOptions}
+          name="segmentId"
+          placeholder="Select segment"
+          options={segmentOptions}
           className="bg-light shadow-none"
         />
       </div>

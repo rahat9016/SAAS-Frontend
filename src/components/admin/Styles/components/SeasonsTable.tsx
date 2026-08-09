@@ -1,85 +1,115 @@
 "use client";
 
-import Link from "next/link";
-import { mockSeasonsList } from "../data/mockStyleData";
-import StyleTabHeader from "./StyleTabHeader";
+import DeleteConfirmDialog from "@/src/components/shared/DeleteConfirmDialog";
+import { DataTable } from "@/src/components/ui/data-table";
+import { useAppSelector } from "@/src/lib/redux/hooks";
+import { useState } from "react";
+import { ISeasonItem, mockSeasonsList } from "../data/mockStyleData";
+import CreateUpdateSeason from "../Form/CreateUpdateSeason";
+import { seasonStatusOptions, SeasonFormValues } from "../Schema/seasonSchema";
+import { GetSeasonColumns } from "../TableColumns/SeasonColumns";
+
+const seasonStatusFilterOptions = [
+  { label: "All Status", value: "all" },
+  ...seasonStatusOptions,
+];
 
 export default function SeasonsTable() {
+  const [seasons, setSeasons] = useState<ISeasonItem[]>(mockSeasonsList);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<ISeasonItem | undefined>();
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const { sortBy } = useAppSelector((state) => state.filter);
+
+  const handleEdit = (item: ISeasonItem) => {
+    setSelectedItem(item);
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = (id: string) => {
+    setDeleteId(id);
+  };
+
+  const handleConfirmDelete = () => {
+    if (deleteId) {
+      setSeasons((prev) => prev.filter((item) => item.id !== deleteId));
+      setDeleteId(null);
+    }
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setSelectedItem(undefined);
+  };
+
+  const handleSubmit = (values: SeasonFormValues) => {
+    if (selectedItem) {
+      setSeasons((prev) =>
+        prev.map((item) =>
+          item.id === selectedItem.id ? { ...item, ...values } : item
+        )
+      );
+    } else {
+      const id = values.season
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, "-");
+      setSeasons((prev) => [
+        ...prev,
+        { id, season: values.season, numberOfStyles: 0, status: values.status },
+      ]);
+    }
+    handleModalClose();
+  };
+
+  const columns = GetSeasonColumns(handleEdit, handleDelete);
+
+  const filteredSeasons = seasons.filter((item) => {
+    const matchesSearch = item.season
+      .toLowerCase()
+      .includes(search.toLowerCase().trim());
+    const matchesStatus = !sortBy || item.status === sortBy;
+    return matchesSearch && matchesStatus;
+  });
+
   return (
-    <div className="w-full space-y-4">
-      <StyleTabHeader activeTab="Style" />
+    <div className="w-full">
+      <DataTable
+        columns={columns}
+        data={filteredSeasons}
+        title="Seasons"
+        totalItems={filteredSeasons.length}
+        itemsPerPage={filteredSeasons.length || 10}
+        currentPage={1}
+        showSearch
+        searchValue={search}
+        onSearchChange={(e) => setSearch(e.target.value)}
+        searchPlaceholder="Search season..."
+        isShowStatus
+        statusOptions={seasonStatusFilterOptions}
+        IsCreate
+        createTitle="Add Season"
+        setIsModalOpen={() => {
+          setSelectedItem(undefined);
+          setIsModalOpen(true);
+        }}
+      />
 
-      <div className="bg-white p-6 border border-gray-200 rounded-xl shadow-sm">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Seasons</h2>
+      <CreateUpdateSeason
+        isOpen={isModalOpen}
+        onClose={handleModalClose}
+        onSubmit={handleSubmit}
+        initialValues={selectedItem}
+      />
 
-        <div className="overflow-x-auto border border-black rounded-sm">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-black font-bold text-black bg-gray-50">
-                <th className="py-3 px-4 border-r border-black w-1/2">Season</th>
-                <th className="py-3 px-4 border-r border-black w-1/4">Number of Styles</th>
-                <th className="py-3 px-4 w-1/4">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {mockSeasonsList.map((item, idx) => {
-                const isAll = item.id === "all";
-                return (
-                  <tr
-                    key={item.id || idx}
-                    className={`border-b border-black transition-colors ${
-                      isAll ? "bg-[#e8ebff]" : "hover:bg-gray-50 cursor-pointer"
-                    }`}
-                  >
-                    <td className="py-2.5 px-4 border-r border-black font-medium">
-                      {isAll ? (
-                        <span>{item.season}</span>
-                      ) : (
-                        <Link
-                          href={`/admin/styles/${item.id}`}
-                          className="text-blue-700 hover:underline block w-full"
-                        >
-                          {item.season}
-                        </Link>
-                      )}
-                    </td>
-                    <td className="py-2.5 px-4 border-r border-black">
-                      {isAll ? "" : item.numberOfStyles}
-                    </td>
-                    <td className="py-2.5 px-4">
-                      {isAll ? (
-                        ""
-                      ) : (
-                        <span
-                          className={`inline-block px-2.5 py-0.5 text-xs font-semibold rounded ${
-                            item.status === "Completed"
-                              ? "bg-emerald-100 text-emerald-800"
-                              : item.status === "On Process"
-                              ? "bg-amber-100 text-amber-800"
-                              : item.status === "On Concept"
-                              ? "bg-blue-100 text-blue-800"
-                              : "bg-purple-100 text-purple-800"
-                          }`}
-                        >
-                          {item.status}
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-              {/* Empty rows to match spreadsheet-like mockup in Image 1 */}
-              {[1, 2, 3].map((n) => (
-                <tr key={`empty-${n}`} className="border-b border-black h-9">
-                  <td className="border-r border-black"></td>
-                  <td className="border-r border-black"></td>
-                  <td></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <DeleteConfirmDialog
+        isOpen={!!deleteId}
+        onClose={() => setDeleteId(null)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Season"
+        description="Are you sure you want to delete this season? This action cannot be undone."
+      />
     </div>
   );
 }

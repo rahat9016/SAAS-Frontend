@@ -6,8 +6,10 @@ const ICON_MAX_SIZE = 2 * 1024 * 1024; // 2MB
 export const parentCategorySchema = Yup.object({
   name: Yup.string().required("Name is required"),
   description: Yup.string().default(""),
+  groupId: Yup.string().required("Group is required"),
   icon: Yup.mixed<File | string>()
-    .required("Icon is required")
+    .nullable()
+    .transform((value) => (value === null ? undefined : value))
     .default(undefined)
     .test("fileType", "Only SVG and PNG files are allowed.", (value) => {
       if (!value || typeof value === "string") return true;

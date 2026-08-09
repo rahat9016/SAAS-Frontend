@@ -1,19 +1,22 @@
 "use client";
 
 import DeleteConfirmDialog from "@/src/components/shared/DeleteConfirmDialog";
-import { useDelete } from "@/src/hooks/useDelete";
-import { useGet } from "@/src/hooks/useGet";
 import { usePagination } from "@/src/hooks/usePagination";
 import { useSearchDebounce } from "@/src/hooks/useSearchDebounce";
 import { useAppSelector } from "@/src/lib/redux/hooks";
 import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
 import CategoriesTable from "../CategoriesTable";
-import CreateUpdateSubCategory from "../Form/CreateUpdateSubCategory";
+import { mockSubCategoriesList } from "../data/mockCategoryHierarchy";
+import CreateUpdateSubCategory, {
+  SubCategorySubmitValues,
+} from "../Form/CreateUpdateSubCategory";
 import { GetSubCategoryColumns } from "../TableColumns/SubCategoryColumns";
 import { ISubCategory } from "../types";
 
 export default function SubCategoryList() {
+  const [subCategories, setSubCategories] = useState<ISubCategory[]>(
+    mockSubCategoriesList
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ISubCategory | undefined>();
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -30,35 +33,26 @@ export default function SubCategoryList() {
     useSearchDebounce(300);
   const { sortBy } = useAppSelector((state) => state.filter);
 
-  const { data, isLoading } = useGet<ISubCategory[]>(
-    "/sub-category",
-    [
-      "sub-categories",
-      currentPage.toString(),
-      itemsPerPage.toString(),
-      debouncedSearch,
-      sortBy,
-    ],
-    {
-      ...(itemsPerPage !== -1 && {
-        page: currentPage.toString(),
-        limit: itemsPerPage.toString(),
-      }),
-      search: debouncedSearch,
-      ...(sortBy && { status: sortBy }),
-    }
-  );
-
-  const { mutate: deleteMutate } = useDelete(() => {
-    toast.success("Sub category deleted successfully!");
-  }, [["sub-categories"]]);
+  const filteredSubCategories = subCategories.filter((item) => {
+    const matchesSearch = item.name
+      .toLowerCase()
+      .includes(debouncedSearch.toLowerCase().trim());
+    const matchesStatus = !sortBy || item.status === sortBy;
+    return matchesSearch && matchesStatus;
+  });
 
   useEffect(() => {
-    if (data) {
-      setTotalItems(data.meta?.totalItems || 0);
-    }
+    setTotalItems(filteredSubCategories.length);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data]);
+  }, [filteredSubCategories.length]);
+
+  const effectivePerPage =
+    itemsPerPage === -1 ? filteredSubCategories.length || 1 : itemsPerPage;
+  const pageStart = (currentPage - 1) * effectivePerPage;
+  const paginatedSubCategories =
+    itemsPerPage === -1
+      ? filteredSubCategories
+      : filteredSubCategories.slice(pageStart, pageStart + effectivePerPage);
 
   const handleEdit = (item: ISubCategory) => {
     setSelectedItem(item);
@@ -71,7 +65,7 @@ export default function SubCategoryList() {
 
   const handleConfirmDelete = () => {
     if (deleteId) {
-      deleteMutate({ url: `/sub-category/${deleteId}` });
+      setSubCategories((prev) => prev.filter((item) => item.id !== deleteId));
       setDeleteId(null);
     }
   };
@@ -81,20 +75,37 @@ export default function SubCategoryList() {
     setSelectedItem(undefined);
   };
 
+  const handleSubmit = (values: SubCategorySubmitValues) => {
+    if (selectedItem) {
+      setSubCategories((prev) =>
+        prev.map((item) =>
+          item.id === selectedItem.id ? { ...item, ...values } : item
+        )
+      );
+    } else {
+      const id = values.name.toLowerCase().trim().replace(/\s+/g, "-");
+      setSubCategories((prev) => [
+        ...prev,
+        { id, createdAt: new Date().toISOString(), ...values },
+      ]);
+    }
+    handleModalClose();
+  };
+
   const columns = GetSubCategoryColumns(handleEdit, handleDelete);
 
   return (
     <div>
       <CategoriesTable
         columns={columns}
-        data={data?.data || []}
-        isLoading={isLoading}
+        data={paginatedSubCategories}
         totalItems={totalItems}
         currentPage={currentPage}
         itemsPerPage={itemsPerPage}
         setCurrentPage={setCurrentPage}
         setItemsPerPage={setItemsPerPage}
         search={search}
+        showSearch
         handleSearchChange={handleSearchChange}
         showCreateButton
         createTitle="Create"
@@ -106,6 +117,7 @@ export default function SubCategoryList() {
       <CreateUpdateSubCategory
         isOpen={isModalOpen}
         onClose={handleModalClose}
+        onSubmit={handleSubmit}
         initialValues={selectedItem}
       />
       <DeleteConfirmDialog

@@ -6,17 +6,17 @@ import { useSearchDebounce } from "@/src/hooks/useSearchDebounce";
 import { useAppSelector } from "@/src/lib/redux/hooks";
 import { useEffect, useState } from "react";
 import CategoriesTable from "../CategoriesTable";
-import { mockCategoriesList } from "../data/mockCategoryHierarchy";
-import CreateUpdateCategory, {
-  CategorySubmitValues,
-} from "../Form/CreateUpdateCategory";
-import { GetCategoryColumns } from "../TableColumns/CategoryColumns";
-import { ICategory } from "../types";
+import { mockSegmentsList } from "../data/mockCategoryHierarchy";
+import CreateUpdateSegment, {
+  SegmentSubmitValues,
+} from "../Form/CreateUpdateSegment";
+import { GetSegmentColumns } from "../TableColumns/SegmentColumns";
+import { ISegment } from "../types";
 
-export default function CategoryList() {
-  const [categories, setCategories] = useState<ICategory[]>(mockCategoriesList);
+export default function SegmentList() {
+  const [segments, setSegments] = useState<ISegment[]>(mockSegmentsList);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<ICategory | undefined>();
+  const [selectedItem, setSelectedItem] = useState<ISegment | undefined>();
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const {
@@ -31,7 +31,7 @@ export default function CategoryList() {
     useSearchDebounce(300);
   const { sortBy } = useAppSelector((state) => state.filter);
 
-  const filteredCategories = categories.filter((item) => {
+  const filteredSegments = segments.filter((item) => {
     const matchesSearch = item.name
       .toLowerCase()
       .includes(debouncedSearch.toLowerCase().trim());
@@ -40,19 +40,19 @@ export default function CategoryList() {
   });
 
   useEffect(() => {
-    setTotalItems(filteredCategories.length);
+    setTotalItems(filteredSegments.length);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filteredCategories.length]);
+  }, [filteredSegments.length]);
 
   const effectivePerPage =
-    itemsPerPage === -1 ? filteredCategories.length || 1 : itemsPerPage;
+    itemsPerPage === -1 ? filteredSegments.length || 1 : itemsPerPage;
   const pageStart = (currentPage - 1) * effectivePerPage;
-  const paginatedCategories =
+  const paginatedSegments =
     itemsPerPage === -1
-      ? filteredCategories
-      : filteredCategories.slice(pageStart, pageStart + effectivePerPage);
+      ? filteredSegments
+      : filteredSegments.slice(pageStart, pageStart + effectivePerPage);
 
-  const handleEdit = (item: ICategory) => {
+  const handleEdit = (item: ISegment) => {
     setSelectedItem(item);
     setIsModalOpen(true);
   };
@@ -63,7 +63,7 @@ export default function CategoryList() {
 
   const handleConfirmDelete = () => {
     if (deleteId) {
-      setCategories((prev) => prev.filter((item) => item.id !== deleteId));
+      setSegments((prev) => prev.filter((item) => item.id !== deleteId));
       setDeleteId(null);
     }
   };
@@ -73,16 +73,16 @@ export default function CategoryList() {
     setSelectedItem(undefined);
   };
 
-  const handleSubmit = (values: CategorySubmitValues) => {
+  const handleSubmit = (values: SegmentSubmitValues) => {
     if (selectedItem) {
-      setCategories((prev) =>
+      setSegments((prev) =>
         prev.map((item) =>
           item.id === selectedItem.id ? { ...item, ...values } : item
         )
       );
     } else {
       const id = values.name.toLowerCase().trim().replace(/\s+/g, "-");
-      setCategories((prev) => [
+      setSegments((prev) => [
         ...prev,
         { id, createdAt: new Date().toISOString(), ...values },
       ]);
@@ -90,13 +90,13 @@ export default function CategoryList() {
     handleModalClose();
   };
 
-  const columns = GetCategoryColumns(handleEdit, handleDelete);
+  const columns = GetSegmentColumns(handleEdit, handleDelete);
 
   return (
     <div>
       <CategoriesTable
         columns={columns}
-        data={paginatedCategories}
+        data={paginatedSegments}
         totalItems={totalItems}
         currentPage={currentPage}
         itemsPerPage={itemsPerPage}
@@ -112,7 +112,7 @@ export default function CategoryList() {
           setIsModalOpen(true);
         }}
       />
-      <CreateUpdateCategory
+      <CreateUpdateSegment
         isOpen={isModalOpen}
         onClose={handleModalClose}
         onSubmit={handleSubmit}
@@ -122,8 +122,8 @@ export default function CategoryList() {
         isOpen={!!deleteId}
         onClose={() => setDeleteId(null)}
         onConfirm={handleConfirmDelete}
-        title="Delete Category"
-        description="Are you sure you want to delete this category? This action cannot be undone."
+        title="Delete Segment"
+        description="Are you sure you want to delete this segment? This action cannot be undone."
       />
     </div>
   );

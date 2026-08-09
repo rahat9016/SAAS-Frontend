@@ -3,34 +3,29 @@ import ControlledInputField from "@/src/components/shared/FromController/Control
 import ControlledSelectField from "@/src/components/shared/FromController/ControlledSelectField";
 import ControlledTextareaField from "@/src/components/shared/FromController/ControlledTextareaField";
 import ControlledToggleField from "@/src/components/shared/FromController/ControlledToggleField";
-import { FileUploadController } from "@/src/components/shared/FromController/FileUploadController";
 import InputLabel from "@/src/components/shared/InputLabel";
 import SubmitButton from "@/src/components/shared/SubmitButton";
 import { Button } from "@/src/components/ui/button";
 import { ErrorType } from "@/src/types/common/common";
 import { useFormContext } from "react-hook-form";
-import { mockGroupsList } from "../data/mockGroupData";
-import { ParentCategoryFormValues } from "../Schema/parentCategorySchema";
+import { SegmentFormValues } from "../Schema/segmentSchema";
 
-const groupOptions = mockGroupsList.map((group) => ({
-  label: group.name,
-  value: group.id,
-}));
-
-export default function ParentCategoryForm({
+export default function SegmentForm({
   isEditMode = false,
   onSubmit,
   onCancel,
   isPending = false,
+  categoryOptions = [],
   error,
 }: {
   isEditMode?: boolean;
-  onSubmit: (data: ParentCategoryFormValues) => void;
+  onSubmit: (data: SegmentFormValues) => void;
   onCancel: () => void;
   isPending?: boolean;
+  categoryOptions?: { label: string; value: string }[];
   error?: ErrorType;
 }) {
-  const { handleSubmit } = useFormContext<ParentCategoryFormValues>();
+  const { handleSubmit } = useFormContext<SegmentFormValues>();
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-5 mt-2">
@@ -40,17 +35,18 @@ export default function ParentCategoryForm({
         <ControlledInputField
           className="bg-light"
           name="name"
-          placeholder="Enter category name"
+          placeholder="Enter segment name"
         />
       </div>
 
-      {/* Group */}
+      {/* Category */}
       <div>
-        <InputLabel label="Group" required />
+        <InputLabel label="Category" required />
         <ControlledSelectField
-          name="groupId"
-          options={groupOptions}
-          placeholder="Select group (Women / Men / Kids)"
+          name="categoryId"
+          placeholder="Select category"
+          options={categoryOptions}
+          className="bg-light shadow-none"
         />
       </div>
 
@@ -60,17 +56,7 @@ export default function ParentCategoryForm({
         <ControlledTextareaField
           className="bg-light"
           name="description"
-          placeholder="Enter category description"
-        />
-      </div>
-
-      {/* Icon Upload */}
-      <div>
-        <InputLabel label="Icon (SVG or PNG)" />
-        <FileUploadController
-          name="icon"
-          label="Upload icon"
-          accept={["image/svg+xml", "image/png"]}
+          placeholder="Enter segment description"
         />
       </div>
 

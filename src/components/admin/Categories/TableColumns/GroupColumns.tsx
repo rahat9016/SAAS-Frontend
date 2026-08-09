@@ -3,48 +3,16 @@ import { Button } from "@/src/components/ui/button";
 import { ColumnDef } from "@/src/components/ui/data-table";
 import { StatusType } from "@/src/types/common/common";
 import { Pencil, Trash2 } from "lucide-react";
-import Image from "next/image";
-import { mockGroupsList } from "../data/mockGroupData";
-import { IParentCategory } from "../types";
+import { IGroup } from "../data/mockGroupData";
 
-export const GetParentCategoryColumns = (
-  onEdit?: (item: IParentCategory) => void,
+export const GetGroupColumns = (
+  onEdit?: (item: IGroup) => void,
   onDelete?: (id: string) => void
-): ColumnDef<IParentCategory>[] => {
+): ColumnDef<IGroup>[] => {
   return [
-    {
-      header: "Icon",
-      accessorKey: "icon",
-      cell: (value) => {
-        const icon = value as string | undefined;
-        return icon ? (
-          <div className="w-9 h-9 border border-[#E6E6E6] flex items-center justify-center rounded-lg bg-light">
-            <Image src={icon} alt="icon" width={24} height={24} />
-          </div>
-        ) : (
-          <span className="text-sm text-gray-400">—</span>
-        );
-      },
-    },
     {
       header: "Name",
       accessorKey: "name",
-    },
-    {
-      header: "Group",
-      accessorKey: "groupId",
-      cell: (value, row) => {
-        const groupName =
-          row.groupName ||
-          mockGroupsList.find((g) => g.id === (value as string))?.name;
-        return groupName ? (
-          <span className="inline-block px-2.5 py-0.5 text-xs font-semibold rounded bg-primary/10 text-primary">
-            {groupName}
-          </span>
-        ) : (
-          <span className="text-sm text-gray-400">—</span>
-        );
-      },
     },
     {
       header: "Description",
@@ -69,20 +37,19 @@ export const GetParentCategoryColumns = (
       header: "Action",
       accessorKey: "actions",
       cell: (_value, row) => {
-        const item = row as IParentCategory;
         return (
-          <div className="flex items-center  gap-2 w-full">
+          <div className="flex items-center gap-2 w-full">
             <Button
               className="w-9! min-h-9 border border-[#E6E6E6] flex items-center justify-center rounded-lg bg-light hover:bg-light"
               size="sm"
-              onClick={() => onEdit?.(item)}
+              onClick={() => onEdit?.(row)}
             >
               <Pencil className="h-4 w-4 text-secondary-foreground" />
             </Button>
             <Button
               className="w-9! min-h-9 border border-red-200 flex items-center justify-center rounded-lg bg-red-50 hover:bg-red-100"
               size="sm"
-              onClick={() => onDelete?.(item.id)}
+              onClick={() => onDelete?.(row.id)}
             >
               <Trash2 className="h-4 w-4 text-red-500" />
             </Button>

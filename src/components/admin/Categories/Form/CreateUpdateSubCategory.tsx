@@ -1,50 +1,52 @@
 "use client";
 
 import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
 } from "@/src/components/ui/dialog";
-import { useGet } from "@/src/hooks/useGet";
-import { usePatch } from "@/src/hooks/usePatch";
-import { usePost } from "@/src/hooks/usePost";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect } from "react";
 import { FormProvider, Resolver, useForm } from "react-hook-form";
-import { toast } from "react-toastify";
+import { mockSegmentsList } from "../data/mockCategoryHierarchy";
 import {
-    SubCategoryFormValues,
-    subCategorySchema,
+  SubCategoryFormValues,
+  subCategorySchema,
 } from "../Schema/subCategorySchema";
-import { ICategory, ISubCategory } from "../types";
+import { ISubCategory } from "../types";
 import SubCategoryForm from "./SubCategoryForm";
+
+export interface SubCategorySubmitValues {
+  name: string;
+  description?: string;
+  segmentId: string;
+  segmentName?: string;
+  categoryId?: string;
+  categoryName?: string;
+  icon?: string;
+  status: "ACTIVE" | "INACTIVE";
+}
 
 interface CreateUpdateSubCategoryProps {
   isOpen: boolean;
   onClose: () => void;
+  onSubmit: (values: SubCategorySubmitValues) => void;
   initialValues?: ISubCategory;
 }
+
+const segmentOptions = mockSegmentsList.map((s) => ({
+  label: `${s.categoryName} › ${s.name}`,
+  value: s.id,
+}));
 
 export default function CreateUpdateSubCategory({
   isOpen,
   onClose,
+  onSubmit,
   initialValues,
 }: CreateUpdateSubCategoryProps) {
   const isUpdate = !!initialValues;
-
-  const { data: categoriesData } = useGet<ICategory[]>(
-    "/category",
-    ["categories"],
-    {},
-    { enabled: isOpen }
-  );
-  const categories = categoriesData?.data || [];
-
-  const categoryOptions = categories.map((c) => ({
-    label: c.name,
-    value: c.id,
-  }));
 
   const methods = useForm<SubCategoryFormValues>({
     resolver: yupResolver(subCategorySchema) as Resolver<SubCategoryFormValues>,
@@ -52,7 +54,7 @@ export default function CreateUpdateSubCategory({
       name: "",
       description: "",
       icon: undefined,
-      categoryId: "",
+      segmentId: "",
       isActive: true,
     },
   });
@@ -63,8 +65,7 @@ export default function CreateUpdateSubCategory({
         name: initialValues?.name || "",
         description: initialValues?.description || "",
         icon: initialValues?.icon || undefined,
-        categoryId:
-          initialValues?.categoryId || initialValues?.category?.id || "",
+        segmentId: initialValues?.segmentId || "",
         isActive: initialValues?.status === "ACTIVE" || !initialValues,
       });
     } else {
@@ -72,78 +73,31 @@ export default function CreateUpdateSubCategory({
         name: "",
         description: "",
         icon: undefined,
-        categoryId: "",
+        segmentId: "",
         isActive: true,
       });
     }
   }, [isOpen, initialValues, methods]);
 
-  const {
-    mutate: createMutate,
-    isPending: isCreating,
-    error,
-    reset: resetCreateError,
-  } = usePost(
-    "/sub-category",
-    () => {
-      toast.success("Sub category created successfully!");
-      onClose();
-    },
-    [["sub-categories"]]
-  );
-
-  const {
-    mutate: updateMutate,
-    isPending: isUpdating,
-    error: updateError,
-    reset: resetUpdateError,
-  } = usePatch(() => {
-    toast.success("Sub category updated successfully!");
-    onClose();
-  }, [["sub-categories"]]);
-
-  const handleClose = () => {
-    resetCreateError();
-    resetUpdateError();
-    onClose();
-  };
-
-  useEffect(() => {
-    if (!isOpen) {
-      resetCreateError();
-      resetUpdateError();
-    }
-  }, [isOpen, resetCreateError, resetUpdateError]);
-
-  const isPending = isCreating || isUpdating;
-
-  const onSubmit = (values: SubCategoryFormValues) => {
-    const formData = new FormData();
-    formData.append("name", values.name);
-    formData.append("categoryId", values.categoryId);
-    if (values.description) {
-      formData.append("description", values.description);
-    }
-    if (values.icon instanceof File) {
-      formData.append("icon", values.icon);
-    }
-    formData.append("status", values.isActive ? "ACTIVE" : "INACTIVE");
-
-    if (isUpdate && initialValues) {
-      updateMutate({
-        url: `/sub-category/${initialValues.id}`,
-        data: formData,
-      });
-    } else {
-      createMutate({ data: formData });
-    }
+  const handleFormSubmit = (values: SubCategoryFormValues) => {
+    const segment = mockSegmentsList.find((s) => s.id === values.segmentId);
+    onSubmit({
+      name: values.name,
+      description: values.description,
+      segmentId: values.segmentId,
+      segmentName: segment?.name,
+      categoryId: segment?.categoryId,
+      categoryName: segment?.categoryName,
+      icon: typeof values.icon === "string" ? values.icon : undefined,
+      status: values.isActive ? "ACTIVE" : "INACTIVE",
+    });
   };
 
   return (
     <Dialog
       open={isOpen}
       onOpenChange={(open) => {
-        if (!open) handleClose();
+        if (!open) onClose();
       }}
     >
       <DialogContent className="bg-white sm:max-w-125">
@@ -156,11 +110,9 @@ export default function CreateUpdateSubCategory({
         <FormProvider {...methods}>
           <SubCategoryForm
             isEditMode={isUpdate}
-            onSubmit={onSubmit}
-            onCancel={handleClose}
-            isPending={isPending}
-            categoryOptions={categoryOptions}
-            error={error || updateError}
+            onSubmit={handleFormSubmit}
+            onCancel={onClose}
+            segmentOptions={segmentOptions}
           />
         </FormProvider>
       </DialogContent>
