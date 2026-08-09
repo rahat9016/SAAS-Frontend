@@ -1,23 +1,28 @@
-import BestSellingProducts from "@/src/components/admin/Dashboard/BestSellingProducts";
-import RecentOrders from "@/src/components/admin/Dashboard/RecentOrders";
-import StatsCards from "@/src/components/admin/Dashboard/StatsCards";
-import DailySalesChart from "@/src/components/admin/Dashboard/DailySalesChart";
-import WeeklyRevenueChart from "@/src/components/admin/Dashboard/WeeklyRevenueChart";
+import ArticleInfoBoard from "@/src/components/admin/TownHall/ArticleInfoBoard";
+import DashboardWelcome from "@/src/components/admin/TownHall/DashboardWelcome";
+import MagicBoard from "@/src/components/admin/TownHall/MagicBoard";
+import NoticeBoard from "@/src/components/admin/TownHall/NoticeBoard";
+import OrderPipelineBoard from "@/src/components/admin/TownHall/OrderPipelineBoard";
+import ProductInfoBoard from "@/src/components/admin/TownHall/ProductInfoBoard";
+import TownHallBoard from "@/src/components/admin/TownHall/TownHallBoard";
 
 export default function AdminDashboardPage() {
   return (
-    <div className="space-y-3 lg:space-y-6">
-      <StatsCards />
+    <div className="space-y-4 sm:space-y-5">
+      <DashboardWelcome />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-        <WeeklyRevenueChart />
-        <DailySalesChart />
+      <TownHallBoard />
+
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-5">
+        <div className="xl:col-span-2 min-w-0">
+          <MagicBoard />
+        </div>
+        <NoticeBoard />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-        <BestSellingProducts />
-        <RecentOrders />
-      </div>
+      <ArticleInfoBoard />
+      <ProductInfoBoard />
+      <OrderPipelineBoard />
     </div>
   );
 }
