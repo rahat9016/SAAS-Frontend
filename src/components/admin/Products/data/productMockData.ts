@@ -1,35 +1,117 @@
 // Temporary mock data for dropdowns — replace with API calls later
 
-export const mockCategories = [
-  { label: "Electronics", value: "cat-1" },
-  { label: "Clothing", value: "cat-2" },
-  { label: "Home & Kitchen", value: "cat-3" },
-  { label: "Beauty & Health", value: "cat-4" },
+export const mockSeasons = [
+  { label: "Winter", value: "winter" },
+  { label: "Summer", value: "summer" },
+  { label: "786 NOOS/Summer", value: "786-summer" },
+  { label: "786 NOOS/Winter", value: "786-winter" },
+  { label: "2027 Main Collection", value: "2027-main" },
+  { label: "2028 Main Collection", value: "2028-main" },
 ];
 
-export const mockSubCategories: Record<
+export const mockParentCategories = [
+  { label: "Male (Men)", value: "pcat-male" },
+  { label: "Female (Women)", value: "pcat-female" },
+  { label: "Kids", value: "pcat-kids" },
+  { label: "Home", value: "pcat-home" },
+  { label: "Specials", value: "pcat-specials" },
+  { label: "Gifts", value: "pcat-gifts" },
+];
+
+export const mockCategoriesByParent: Record<
   string,
   { label: string; value: string }[]
 > = {
-  "cat-1": [
-    { label: "Smartphones", value: "sub-1" },
-    { label: "Laptops", value: "sub-2" },
-    { label: "Accessories", value: "sub-3" },
+  "pcat-male": [
+    { label: "Clothes", value: "cat-clothes" },
+    { label: "Footwear", value: "cat-footwear" },
+    { label: "Accessories", value: "cat-accessories" },
   ],
-  "cat-2": [
-    { label: "Men's Wear", value: "sub-4" },
-    { label: "Women's Wear", value: "sub-5" },
-    { label: "Kids", value: "sub-6" },
+  "pcat-female": [
+    { label: "Clothes", value: "cat-clothes" },
+    { label: "Footwear", value: "cat-footwear" },
+    { label: "Jewelry", value: "cat-jewelry" },
   ],
-  "cat-3": [
-    { label: "Furniture", value: "sub-7" },
-    { label: "Kitchenware", value: "sub-8" },
+  "pcat-kids": [
+    { label: "Clothes", value: "cat-clothes" },
+    { label: "Footwear", value: "cat-footwear" },
+    { label: "School Items", value: "cat-school" },
   ],
-  "cat-4": [
-    { label: "Skincare", value: "sub-9" },
-    { label: "Hair Care", value: "sub-10" },
+  "pcat-home": [
+    { label: "Curtains", value: "cat-curtains" },
+    { label: "Home Cloths", value: "cat-home-cloths" },
+  ],
+  "pcat-specials": [
+    { label: "Fine Jewelry", value: "cat-fine-jewelry" },
+    { label: "Fragrances", value: "cat-fragrances" },
+  ],
+  "pcat-gifts": [
+    { label: "Gift Cards", value: "cat-gift-cards" },
+    { label: "Accessories", value: "cat-accessories" },
   ],
 };
+
+export const mockSegmentsByCategory: Record<
+  string,
+  { label: string; value: string }[]
+> = {
+  "cat-clothes": [
+    { label: "Tops", value: "seg-tops" },
+    { label: "Bottoms", value: "seg-bottoms" },
+    { label: "Outerwear", value: "seg-outerwear" },
+    { label: "Knitwear", value: "seg-knitwear" },
+    { label: "Underwear & Sleepwear", value: "seg-innerwear" },
+  ],
+  "cat-footwear": [
+    { label: "Casual Shoes", value: "seg-shoes" },
+    { label: "Boots", value: "seg-boots" },
+    { label: "Sandals", value: "seg-sandals" },
+  ],
+  "cat-accessories": [
+    { label: "Hats & Caps", value: "seg-hats" },
+    { label: "Bags", value: "seg-bags" },
+    { label: "Belts", value: "seg-belts" },
+  ],
+};
+
+export const mockSubCategoriesBySegment: Record<
+  string,
+  { label: string; value: string }[]
+> = {
+  "seg-tops": [
+    { label: "T-Shirt", value: "sub-tshirt" },
+    { label: "Shirts", value: "sub-shirt" },
+    { label: "Polo Shirts", value: "sub-polo" },
+    { label: "Blouses", value: "sub-blouses" },
+    { label: "Sweatshirts", value: "sub-sweatshirts" },
+  ],
+  "seg-bottoms": [
+    { label: "Pants", value: "sub-pants" },
+    { label: "Jeans Pants", value: "sub-jeans" },
+    { label: "Shorts", value: "sub-shorts" },
+    { label: "Skirts", value: "sub-skirts" },
+  ],
+  "seg-outerwear": [
+    { label: "Indoor Jackets", value: "sub-indoor-jackets" },
+    { label: "Outdoor Jackets", value: "sub-outdoor-jackets" },
+    { label: "Outdoor Coat", value: "sub-coat" },
+    { label: "Indoor Blazer", value: "sub-blazer" },
+  ],
+  "seg-knitwear": [
+    { label: "Knitted Sweater", value: "sub-knitted-sweater" },
+    { label: "Knitted Vest", value: "sub-knitted-vest" },
+    { label: "Knitted Cardigan", value: "sub-cardigan" },
+  ],
+};
+
+// Default fallback categories
+export const mockCategories = [
+  { label: "Clothes", value: "cat-clothes" },
+  { label: "Footwear", value: "cat-footwear" },
+  { label: "Accessories", value: "cat-accessories" },
+];
+
+export const mockSubCategories = mockSubCategoriesBySegment;
 
 export const mockBrands = [
   { label: "Apple", value: "brand-1" },

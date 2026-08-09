@@ -10,7 +10,10 @@ export interface IProduct {
   has_variants: boolean;
   stock: number;
   store_id: string;
+  season_id?: string;
+  parent_category_id?: string;
   category_id: string;
+  segment_id?: string;
   sub_category_id?: string;
   brand_id?: string;
   status: boolean;
@@ -67,7 +70,10 @@ export interface ProductFormValues {
   name: string;
   description: string;
   images: (File | string)[];
+  seasonId: string;
+  parentCategoryId: string;
   categoryId: string;
+  segmentId: string;
   subCategoryId: string;
   brandId: string;
   hasVariants: boolean;

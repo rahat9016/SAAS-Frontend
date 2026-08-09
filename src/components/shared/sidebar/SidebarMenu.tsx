@@ -21,9 +21,15 @@ export default function SidebarMenu({ onNavigate }: SidebarMenuProps) {
   const rbac = useAppSelector(selectRbac);
 
   const menuItems = useMemo(() => {
-    const can = (resource: string) =>
-      rbac.user.isSuperAdmin ||
-      Object.values(rbac.permissions[resource] ?? {}).some(Boolean);
+    const hasPermissions = rbac.loaded && Object.keys(rbac.permissions ?? {}).length > 0;
+    const can = (resource: string) => {
+      // If RBAC is not loaded yet or permissions map is empty, show all menu items by default
+      if (!hasPermissions) return true;
+      if (rbac.user.isSuperAdmin) return true;
+      const resourcePerms = rbac.permissions[resource];
+      if (!resourcePerms) return true;
+      return Object.values(resourcePerms).some(Boolean);
+    };
     return filterMenuByAccess(getMenuItems(), can, rbac.user.isSuperAdmin);
   }, [rbac]);
 
@@ -34,9 +40,12 @@ export default function SidebarMenu({ onNavigate }: SidebarMenuProps) {
   useEffect(() => {
     menuItems.forEach((item) => {
       if (item.children) {
-        const hasActiveChild = item.children.some(
-          (child) => pathname === child.href
-        );
+        const hasActiveChild = item.children.some((child) => {
+          if (pathname === child.href) return true;
+          if (child.href !== "/admin" && pathname.startsWith(child.href)) return true;
+          if (child.matchRoutes && child.matchRoutes.some((r) => pathname.startsWith(r))) return true;
+          return false;
+        });
         if (hasActiveChild && !expandedItems.includes(item.label)) {
           setExpandedItems((prev) => [...prev, item.label]);
         }

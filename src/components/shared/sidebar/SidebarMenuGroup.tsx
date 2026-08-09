@@ -25,11 +25,12 @@ export default function SidebarMenuGroup({
   const isActiveParent = item.href ? pathname === item.href : false;
   const isActiveChild =
     item.children?.some((child) => {
-      // Check if pathname matches the child's href or any of its matchRoutes
-      if (child.matchRoutes && child.matchRoutes.includes(pathname)) {
+      if (pathname === child.href) return true;
+      if (child.href !== "/admin" && pathname.startsWith(child.href)) return true;
+      if (child.matchRoutes && child.matchRoutes.some((r) => pathname.startsWith(r))) {
         return true;
       }
-      return pathname === child.href;
+      return false;
     }) || false;
   const isActive = isActiveParent || isActiveChild;
 
@@ -56,9 +57,10 @@ export default function SidebarMenuGroup({
       >
         <div className="ml-5 mt-1 border-l-2 border-gray-200 pl-3">
           {item.children?.map((child) => {
-            // Check if pathname matches the child's href or any of its matchRoutes
             let isChildActive = pathname === child.href;
-            if (child.matchRoutes && child.matchRoutes.includes(pathname)) {
+            if (child.href !== "/admin" && pathname.startsWith(child.href)) {
+              isChildActive = true;
+            } else if (child.matchRoutes && child.matchRoutes.some((r) => pathname.startsWith(r))) {
               isChildActive = true;
             }
 

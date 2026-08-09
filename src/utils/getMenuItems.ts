@@ -1,7 +1,10 @@
 import {
+  Calendar,
+  FolderTree,
   Layers,
   LayoutDashboard,
   Package,
+  PlusCircle,
   Settings,
   ShieldCheck,
   ShoppingCart,
@@ -33,32 +36,63 @@ export interface MenuItem {
 export function getMenuItems(): MenuItem[] {
   const menuItems: (MenuItem | false)[] = [
     { label: "Dashboard", icon: LayoutDashboard, href: "/admin" },
+
+    // Dedicated Seasons & Styles PLM section
     {
-      segment: "Product Management",
-      label: "Manage Product",
+      segment: "Style & PLM Management",
+      label: "Seasons & Styles (PLM)",
+      icon: Calendar,
+      resource: "products",
+      children: [
+        {
+          label: "Seasons Overview",
+          href: "/admin/styles",
+          matchRoutes: ["/admin/styles"],
+        },
+        {
+          label: "Create Product / Style",
+          href: "/admin/products/create",
+        },
+      ],
+    },
+
+    // Product Catalog section
+    {
+      segment: "Product Catalog",
+      label: "Products",
       icon: Package,
       resource: "products",
       children: [
         { label: "All Products", href: "/admin/products" },
-        { label: "Draft Product", href: "/admin/products/draft" },
+        { label: "Create Product", href: "/admin/products/create" },
+        { label: "Draft Products", href: "/admin/products/draft" },
         { label: "Stock Products", href: "/admin/products/stock" },
         { label: "Product Review", href: "/admin/products/review" },
       ],
     },
+
+    // 4-Tier Category Hierarchy & Attributes section
     {
-      label: "Categories & Attributes",
-      icon: Layers,
-      segment: "Product Management",
+      segment: "Category Hierarchy & Attributes",
+      label: "Category Hierarchy",
+      icon: FolderTree,
       resource: "products",
       children: [
         {
-          label: "Category List",
+          label: "1. Parent Category",
           href: "/admin/parent-category",
-          matchRoutes: [
-            "/admin/parent-category",
-            "/admin/category",
-            "/admin/sub-category",
-          ],
+        },
+        {
+          label: "2. Category",
+          href: "/admin/category",
+        },
+        {
+          label: "3. Segment",
+          href: "/admin/segment",
+        },
+        {
+          label: "4. Sub Category",
+          href: "/admin/sub-category",
         },
         {
           label: "Attribute List",
@@ -71,6 +105,7 @@ export function getMenuItems(): MenuItem[] {
         { label: "Brand List", href: "/admin/brands" },
       ],
     },
+
     {
       segment: "Order Management",
       label: "Orders",

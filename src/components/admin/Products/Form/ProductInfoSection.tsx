@@ -9,8 +9,12 @@ import InputLabel from "@/src/components/shared/InputLabel";
 import { useFormContext } from "react-hook-form";
 import { ProductFormValues } from "../types";
 import {
+  mockSeasons,
+  mockParentCategories,
+  mockCategoriesByParent,
+  mockSegmentsByCategory,
+  mockSubCategoriesBySegment,
   mockCategories,
-  mockSubCategories,
   mockBrands,
 } from "../data/productMockData";
 
@@ -23,11 +27,33 @@ export default function ProductInfoSection() {
   const { watch } = useFormContext<ProductFormValues>();
 
   const hasVariants = watch("hasVariants");
+  const selectedParentCategoryId = watch("parentCategoryId");
   const selectedCategoryId = watch("categoryId");
+  const selectedSegmentId = watch("segmentId");
 
-  const subCategoryOptions = selectedCategoryId
-    ? mockSubCategories[selectedCategoryId] ?? []
-    : [];
+  const categoryOptions = selectedParentCategoryId
+    ? mockCategoriesByParent[selectedParentCategoryId] ?? mockCategories
+    : mockCategories;
+
+  const segmentOptions = selectedCategoryId
+    ? mockSegmentsByCategory[selectedCategoryId] ?? [
+        { label: "Tops", value: "seg-tops" },
+        { label: "Bottoms", value: "seg-bottoms" },
+      ]
+    : [
+        { label: "Tops", value: "seg-tops" },
+        { label: "Bottoms", value: "seg-bottoms" },
+      ];
+
+  const subCategoryOptions = selectedSegmentId
+    ? mockSubCategoriesBySegment[selectedSegmentId] ?? [
+        { label: "T-Shirt", value: "sub-tshirt" },
+        { label: "Shirts", value: "sub-shirt" },
+      ]
+    : [
+        { label: "T-Shirt", value: "sub-tshirt" },
+        { label: "Shirts", value: "sub-shirt" },
+      ];
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
@@ -37,7 +63,7 @@ export default function ProductInfoSection() {
           Product Information
         </h3>
         <p className="text-sm text-gray-400 mt-0.5">
-          Fill in the basic product details
+          Fill in the basic product details and classification
         </p>
       </div>
 
@@ -71,35 +97,74 @@ export default function ProductInfoSection() {
           />
         </div>
 
-        {/* Row 4: Category, Sub Category, Brand */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div>
-            <InputLabel label="Category" required />
-            <ControlledSelectField
-              name="categoryId"
-              options={mockCategories}
-              placeholder="Select category"
-              className="bg-light shadow-none"
-            />
+        {/* Season Selection */}
+        <div>
+          <InputLabel label="Season" required />
+          <ControlledSelectField
+            name="seasonId"
+            options={mockSeasons}
+            placeholder="Select Season (e.g. Winter, 2027 Main Collection)"
+            className="bg-light shadow-none"
+          />
+        </div>
+
+        {/* 4-Tier Classification Grid */}
+        <div className="p-4 rounded-lg bg-gray-50 border border-gray-100 space-y-3">
+          <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+            Category Hierarchy (Parent &gt; Category &gt; Segment &gt; Sub Category)
+          </h4>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+              <InputLabel label="Parent Category" required />
+              <ControlledSelectField
+                name="parentCategoryId"
+                options={mockParentCategories}
+                placeholder="Select parent (Male, Female, Kids)"
+                className="bg-white shadow-none"
+              />
+            </div>
+
+            <div>
+              <InputLabel label="Category" required />
+              <ControlledSelectField
+                name="categoryId"
+                options={categoryOptions}
+                placeholder="Select category (Clothes, etc.)"
+                className="bg-white shadow-none"
+              />
+            </div>
+
+            <div>
+              <InputLabel label="Segment" />
+              <ControlledSelectField
+                name="segmentId"
+                options={segmentOptions}
+                placeholder="Select segment (Tops, Bottoms)"
+                className="bg-white shadow-none"
+              />
+            </div>
+
+            <div>
+              <InputLabel label="Sub Category" />
+              <ControlledSelectField
+                name="subCategoryId"
+                options={subCategoryOptions}
+                placeholder="Select sub category (T-Shirt, etc.)"
+                className="bg-white shadow-none"
+              />
+            </div>
           </div>
-          <div>
-            <InputLabel label="Sub Category" />
-            <ControlledSelectField
-              name="subCategoryId"
-              options={subCategoryOptions}
-              placeholder="Select sub category"
-              className="bg-light shadow-none"
-            />
-          </div>
-          <div>
-            <InputLabel label="Brand" />
-            <ControlledSelectField
-              name="brandId"
-              options={mockBrands}
-              placeholder="Select brand"
-              className="bg-light shadow-none"
-            />
-          </div>
+        </div>
+
+        {/* Brand Selection */}
+        <div>
+          <InputLabel label="Brand" />
+          <ControlledSelectField
+            name="brandId"
+            options={mockBrands}
+            placeholder="Select brand"
+            className="bg-light shadow-none"
+          />
         </div>
 
         {/* Row 5: Has Variants toggle */}

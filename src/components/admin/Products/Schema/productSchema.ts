@@ -38,7 +38,10 @@ export const productSchema = Yup.object({
   images: Yup.array()
     .of(Yup.mixed<File | string>().required())
     .default([]),
+  seasonId: Yup.string().required("Season is required"),
+  parentCategoryId: Yup.string().required("Parent Category is required"),
   categoryId: Yup.string().required("Category is required"),
+  segmentId: Yup.string().default(""),
   subCategoryId: Yup.string().default(""),
   brandId: Yup.string().default(""),
   hasVariants: Yup.boolean().default(false),
