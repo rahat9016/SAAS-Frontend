@@ -1,22 +1,22 @@
 "use client";
 
-import { useGet } from "@/src/hooks/useGet";
-import { usePagination } from "@/src/hooks/usePagination";
 import { useSearchDebounce } from "@/src/hooks/useSearchDebounce";
-import { useAppSelector } from "@/src/lib/redux/hooks";
 import { selectIsSuperAdmin } from "@/src/lib/redux/features/rbac/rbacSelectors";
+import { useAppSelector } from "@/src/lib/redux/hooks";
+import { RbacUser } from "@/src/types/rbac/rbac";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
-import { RbacBranch, RbacUser } from "@/src/types/rbac/rbac";
+import { useState } from "react";
+import { mockBranchesList } from "../../Branches/data/mockBranchData";
+import { mockRbacUsersList } from "../../Users/data/mockRbacUserData";
 import PermissionsTable from "../PermissionsTable";
 import PermissionViewModal from "../PermissionViewModal";
 import { GetPermissionColumns } from "../TableColumns/PermissionColumns";
 
 // Scope filter value: "" = all, "platform" = no branch, otherwise a branchId.
-function scopeParams(scope: string) {
-  if (scope === "platform") return { platform: "true" };
-  if (scope) return { branchId: scope };
-  return {};
+function matchesScope(user: RbacUser, scope: string) {
+  if (scope === "platform") return !user.branchId;
+  if (scope) return user.branchId === scope;
+  return true;
 }
 
 export default function PermissionList() {
@@ -25,48 +25,23 @@ export default function PermissionList() {
   const [viewUser, setViewUser] = useState<RbacUser | null>(null);
   const [scope, setScope] = useState("");
 
-  const {
-    setCurrentPage,
-    itemsPerPage,
-    currentPage,
-    totalItems,
-    setTotalItems,
-    setItemsPerPage,
-  } = usePagination();
-  const { search, handleSearchChange, debouncedSearch } = useSearchDebounce(300);
+  const { search, handleSearchChange } = useSearchDebounce(300);
 
-  const { data: branchData } = useGet<RbacBranch[]>(
-    "/api/super-admin/branches",
-    ["rbac-branches"],
-    { limit: "-1" },
-    { enabled: isSuperAdmin },
-  );
-  const branches = useMemo(() => branchData?.data ?? [], [branchData]);
-
-  const { data, isLoading } = useGet<RbacUser[]>(
-    "/api/branches/users",
-    ["rbac-users", currentPage.toString(), itemsPerPage.toString(), debouncedSearch, scope],
-    {
-      ...(itemsPerPage !== -1 && {
-        page: currentPage.toString(),
-        limit: itemsPerPage.toString(),
-      }),
-      search: debouncedSearch,
-      ...scopeParams(scope),
-    },
-  );
-
-  useEffect(() => {
-    if (data) setTotalItems(data.meta?.totalItems || 0);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data]);
-
+  const term = search.toLowerCase().trim();
   // Super admins have implicit full access — not part of per-user mapping.
-  const rows = (data?.data || []).filter((u) => !u.role?.isSuperAdmin);
+  const rows = mockRbacUsersList.filter((user) => {
+    if (user.role?.isSuperAdmin) return false;
+    const matchesSearch =
+      !term ||
+      [user.firstName, user.lastName, user.email].some((field) =>
+        field?.toLowerCase().includes(term)
+      );
+    return matchesSearch && matchesScope(user, scope);
+  });
 
   const columns = GetPermissionColumns(
     (item) => setViewUser(item),
-    (item) => router.push(`/admin/rbac/permissions/${item.id}`),
+    (item) => router.push(`/admin/rbac/permissions/${item.id}`)
   );
 
   return (
@@ -81,7 +56,7 @@ export default function PermissionList() {
           >
             <option value="">All users</option>
             <option value="platform">Platform (no branch)</option>
-            {branches.map((b) => (
+            {mockBranchesList.map((b) => (
               <option key={b.id} value={b.id}>
                 Branch · {b.code ?? b.id.slice(0, 6)}
               </option>
@@ -92,12 +67,11 @@ export default function PermissionList() {
       <PermissionsTable
         columns={columns}
         data={rows}
-        isLoading={isLoading}
-        totalItems={totalItems}
-        currentPage={currentPage}
-        itemsPerPage={itemsPerPage}
-        setCurrentPage={setCurrentPage}
-        setItemsPerPage={setItemsPerPage}
+        totalItems={rows.length}
+        currentPage={1}
+        itemsPerPage={rows.length || 10}
+        setCurrentPage={() => {}}
+        setItemsPerPage={() => {}}
         search={search}
         showSearch
         handleSearchChange={handleSearchChange}

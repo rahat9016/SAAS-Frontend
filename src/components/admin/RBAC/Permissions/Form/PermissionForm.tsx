@@ -1,31 +1,20 @@
 "use client";
 
-import SubmitButton from "@/src/components/shared/SubmitButton";
 import ControlledSelectField from "@/src/components/shared/FromController/ControlledSelectField";
 import InputLabel from "@/src/components/shared/InputLabel";
+import SubmitButton from "@/src/components/shared/SubmitButton";
 import { Button } from "@/src/components/ui/button";
-import { useGet } from "@/src/hooks/useGet";
-import { usePatch } from "@/src/hooks/usePatch";
+import { selectIsSuperAdmin, selectRbac } from "@/src/lib/redux/features/rbac/rbacSelectors";
 import { useAppSelector } from "@/src/lib/redux/hooks";
-import { selectRbac, selectIsSuperAdmin } from "@/src/lib/redux/features/rbac/rbacSelectors";
+import { mapToScope, scopeToMap } from "@/src/types/rbac/rbac";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
 import { toast } from "react-toastify";
-import {
-  mapToScope,
-  scopeToMap,
-  type RbacScopeEntry,
-  type RbacUser,
-} from "@/src/types/rbac/rbac";
+import { mockRbacUsersList } from "../../Users/data/mockRbacUserData";
 import ResourcePermissionMatrix, {
   type SelectedGrants,
 } from "../../shared/ResourcePermissionMatrix";
-
-interface PermissionsResponse {
-  userId: string;
-  permissions: RbacScopeEntry[];
-}
 
 const LIST_PATH = "/admin/rbac/permissions";
 
@@ -53,12 +42,7 @@ export default function PermissionForm({ userId }: { userId?: string }) {
   });
   const selectedUserId = useWatch({ control: methods.control, name: "userId" }) || "";
 
-  const { data: usersData } = useGet<RbacUser[]>(
-    "/api/branches/users",
-    ["rbac-users", "-1"],
-    { limit: "-1" },
-  );
-  const users = (usersData?.data ?? []).filter((u) => !u.role?.isSuperAdmin);
+  const users = mockRbacUsersList.filter((u) => !u.role?.isSuperAdmin);
   const userOptions = users.map((u) => ({
     label: `${[u.firstName, u.lastName].filter(Boolean).join(" ")} · ${u.email}${
       u.role?.name ? ` (${u.role.name})` : ""
@@ -66,16 +50,7 @@ export default function PermissionForm({ userId }: { userId?: string }) {
     value: u.id,
   }));
   const activeUser = users.find((u) => u.id === selectedUserId);
-
-  const { data: permData, isFetching } = useGet<PermissionsResponse>(
-    `/api/branches/users/${selectedUserId}/permissions`,
-    ["user-permissions", selectedUserId],
-    undefined,
-    { enabled: !!selectedUserId },
-  );
-  const loaded = !!selectedUserId && !isFetching;
-  const serverPerms = (permData?.data as PermissionsResponse | undefined)?.permissions;
-  const initial = scopeToMap(serverPerms ?? activeUser?.permissions ?? []);
+  const initial = scopeToMap(activeUser?.permissions ?? []);
 
   return (
     <div className="w-full">
@@ -134,7 +109,7 @@ export default function PermissionForm({ userId }: { userId?: string }) {
 
         {/* Section 2 — Routes & Actions (always visible) */}
         <Editor
-          key={`${selectedUserId}-${loaded}`}
+          key={selectedUserId}
           userId={selectedUserId}
           initial={initial}
           ceiling={ceiling}
@@ -161,23 +136,18 @@ function Editor({
 }) {
   const [grants, setGrants] = useState<SelectedGrants>(initial);
 
-  const { mutate, isPending } = usePatch(
-    () => {
-      toast.success("Permissions saved!");
-      onSaved();
-    },
-    [["rbac-users"], ["user-permissions"]],
-  );
-
   const handleSave = () => {
     if (!userId) {
       toast.error("Select a user first");
       return;
     }
-    mutate({
-      url: `/api/branches/users/${userId}/permissions`,
-      data: { permissions: mapToScope(grants) },
-    });
+    // Written straight into the mock directory so the change survives the
+    // redirect back to the list. Swap for the PATCH mutation once the RBAC
+    // backend is live.
+    const target = mockRbacUsersList.find((u) => u.id === userId);
+    if (target) target.permissions = mapToScope(grants);
+    toast.success("Permissions saved!");
+    onSaved();
   };
 
   return (
@@ -202,7 +172,7 @@ function Editor({
 
       <div className="flex items-center justify-end">
         <SubmitButton
-          isLoading={isPending || !userId}
+          isLoading={!userId}
           label={mode === "edit" ? "Update Permission" : "Create Permission"}
         />
       </div>

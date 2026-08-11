@@ -1,81 +1,103 @@
 "use client";
 
 import DeleteConfirmDialog from "@/src/components/shared/DeleteConfirmDialog";
-import { useDelete } from "@/src/hooks/useDelete";
-import { useGet } from "@/src/hooks/useGet";
-import { usePagination } from "@/src/hooks/usePagination";
 import { useSearchDebounce } from "@/src/hooks/useSearchDebounce";
-import { useAppSelector } from "@/src/lib/redux/hooks";
 import { selectIsSuperAdmin } from "@/src/lib/redux/features/rbac/rbacSelectors";
-import { useEffect, useMemo, useState } from "react";
-import { toast } from "react-toastify";
-import UsersTable from "../UsersTable";
+import { useAppSelector } from "@/src/lib/redux/hooks";
+import { useState } from "react";
+import { mockBranchesList } from "../../Branches/data/mockBranchData";
+import { mockRolesList } from "../../Roles/data/mockRoleData";
+import { mockRbacUsersList } from "../data/mockRbacUserData";
 import CreateUpdateUser from "../Form/CreateUpdateUser";
+import { UserFormValues } from "../Schema/userSchema";
 import { GetUserColumns } from "../TableColumns/UserColumns";
-import { RbacBranch, RbacUser } from "../types";
+import { RbacUser } from "../types";
+import UsersTable from "../UsersTable";
 
 // Scope filter value: "" = all, "platform" = no branch, otherwise a branchId.
-function scopeParams(scope: string) {
-  if (scope === "platform") return { platform: "true" };
-  if (scope) return { branchId: scope };
-  return {};
+function matchesScope(user: RbacUser, scope: string) {
+  if (scope === "platform") return !user.branchId;
+  if (scope) return user.branchId === scope;
+  return true;
 }
 
 export default function UserList() {
   const isSuperAdmin = useAppSelector(selectIsSuperAdmin);
 
+  const [users, setUsers] = useState<RbacUser[]>(mockRbacUsersList);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<RbacUser | undefined>();
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [scope, setScope] = useState("");
 
-  const {
-    setCurrentPage,
-    itemsPerPage,
-    currentPage,
-    totalItems,
-    setTotalItems,
-    setItemsPerPage,
-  } = usePagination();
-  const { search, handleSearchChange, debouncedSearch } = useSearchDebounce(300);
+  const { search, handleSearchChange } = useSearchDebounce(300);
 
-  const { data: branchData } = useGet<RbacBranch[]>(
-    "/api/super-admin/branches",
-    ["rbac-branches"],
-    { limit: "-1" },
-    { enabled: isSuperAdmin },
-  );
-  const branches = useMemo(() => branchData?.data ?? [], [branchData]);
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setSelectedItem(undefined);
+  };
 
-  const { data, isLoading } = useGet<RbacUser[]>(
-    "/api/branches/users",
-    ["rbac-users", currentPage.toString(), itemsPerPage.toString(), debouncedSearch, scope],
-    {
-      ...(itemsPerPage !== -1 && {
-        page: currentPage.toString(),
-        limit: itemsPerPage.toString(),
-      }),
-      search: debouncedSearch,
-      ...scopeParams(scope),
-    },
-  );
+  const handleSubmit = (values: UserFormValues) => {
+    const role = mockRolesList.find((r) => r.id === values.roleId);
+    const branch = mockBranchesList.find((b) => b.id === values.branchId);
+    const fields = {
+      firstName: values.firstName,
+      lastName: values.lastName,
+      phone: values.phone,
+      gender: values.gender,
+      dateOfBirth: values.dateOfBirth,
+      role: role
+        ? { id: role.id, name: role.name, isSuperAdmin: role.isSuperAdmin }
+        : null,
+      branchId: branch?.id ?? null,
+      branch: branch ? { id: branch.id, code: branch.code } : null,
+    };
 
-  const { mutate: deleteMutate } = useDelete(() => {
-    toast.success("User deleted successfully!");
-    setDeleteId(null);
-  }, [["rbac-users"]]);
+    if (selectedItem) {
+      setUsers((prev) =>
+        prev.map((item) =>
+          item.id === selectedItem.id ? { ...item, ...fields } : item
+        )
+      );
+    } else {
+      setUsers((prev) => [
+        ...prev,
+        {
+          id: `RU-${Date.now()}`,
+          ...fields,
+          email: values.email,
+          status: "ACTIVE",
+          permissions: [],
+          createdAt: new Date().toISOString(),
+        },
+      ]);
+    }
+    handleModalClose();
+  };
 
-  useEffect(() => {
-    if (data) setTotalItems(data.meta?.totalItems || 0);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data]);
+  const handleConfirmDelete = () => {
+    if (deleteId) {
+      setUsers((prev) => prev.filter((item) => item.id !== deleteId));
+      setDeleteId(null);
+    }
+  };
+
+  const term = search.toLowerCase().trim();
+  const filteredUsers = users.filter((item) => {
+    const matchesSearch =
+      !term ||
+      [item.firstName, item.lastName, item.email, item.phone].some((field) =>
+        field?.toLowerCase().includes(term)
+      );
+    return matchesSearch && matchesScope(item, scope);
+  });
 
   const columns = GetUserColumns(
     (item) => {
       setSelectedItem(item);
       setIsModalOpen(true);
     },
-    (id) => setDeleteId(id),
+    (id) => setDeleteId(id)
   );
 
   return (
@@ -90,7 +112,7 @@ export default function UserList() {
           >
             <option value="">All users</option>
             <option value="platform">Platform (no branch)</option>
-            {branches.map((b) => (
+            {mockBranchesList.map((b) => (
               <option key={b.id} value={b.id}>
                 Branch · {b.code ?? b.id.slice(0, 6)}
               </option>
@@ -100,13 +122,12 @@ export default function UserList() {
       )}
       <UsersTable
         columns={columns}
-        data={data?.data || []}
-        isLoading={isLoading}
-        totalItems={totalItems}
-        currentPage={currentPage}
-        itemsPerPage={itemsPerPage}
-        setCurrentPage={setCurrentPage}
-        setItemsPerPage={setItemsPerPage}
+        data={filteredUsers}
+        totalItems={filteredUsers.length}
+        currentPage={1}
+        itemsPerPage={filteredUsers.length || 10}
+        setCurrentPage={() => {}}
+        setItemsPerPage={() => {}}
         search={search}
         showSearch
         handleSearchChange={handleSearchChange}
@@ -119,19 +140,15 @@ export default function UserList() {
       />
       <CreateUpdateUser
         isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false);
-          setSelectedItem(undefined);
-        }}
+        onClose={handleModalClose}
+        onSubmit={handleSubmit}
         initialValues={selectedItem}
         isSuperAdmin={isSuperAdmin}
       />
       <DeleteConfirmDialog
         isOpen={!!deleteId}
         onClose={() => setDeleteId(null)}
-        onConfirm={() => {
-          if (deleteId) deleteMutate({ url: `/api/branches/users/${deleteId}` });
-        }}
+        onConfirm={handleConfirmDelete}
         title="Delete User"
         description="This permanently removes the user account."
       />
