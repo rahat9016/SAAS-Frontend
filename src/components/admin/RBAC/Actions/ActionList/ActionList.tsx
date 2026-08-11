@@ -1,57 +1,70 @@
 "use client";
 
 import DeleteConfirmDialog from "@/src/components/shared/DeleteConfirmDialog";
-import { useDelete } from "@/src/hooks/useDelete";
-import { useGet } from "@/src/hooks/useGet";
-import { usePagination } from "@/src/hooks/usePagination";
 import { useSearchDebounce } from "@/src/hooks/useSearchDebounce";
-import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { useState } from "react";
 import ActionsTable from "../ActionsTable";
+import { mockActionsList } from "../data/mockActionData";
 import CreateUpdateAction from "../Form/CreateUpdateAction";
+import { ActionFormValues } from "../Schema/actionSchema";
 import { GetActionColumns } from "../TableColumns/ActionColumns";
 import { IActionItem } from "../types";
 
 export default function ActionList() {
+  const [actions, setActions] = useState<IActionItem[]>(mockActionsList);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<IActionItem | undefined>();
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  const {
-    setCurrentPage,
-    itemsPerPage,
-    currentPage,
-    totalItems,
-    setTotalItems,
-    setItemsPerPage,
-  } = usePagination();
-  const { search, handleSearchChange, debouncedSearch } = useSearchDebounce(300);
-
-  const { data, isLoading } = useGet<IActionItem[]>(
-    "/api/super-admin/actions",
-    ["actions", currentPage.toString(), itemsPerPage.toString(), debouncedSearch],
-    {
-      ...(itemsPerPage !== -1 && {
-        page: currentPage.toString(),
-        limit: itemsPerPage.toString(),
-      }),
-      search: debouncedSearch,
-    },
-  );
-
-  const { mutate: deleteMutate } = useDelete(() => {
-    toast.success("Action deleted successfully!");
-  }, [["actions"], ["actions-catalog"]]);
-
-  useEffect(() => {
-    if (data) setTotalItems(data.meta?.totalItems || 0);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data]);
+  const { search, handleSearchChange } = useSearchDebounce(300);
 
   const handleEdit = (item: IActionItem) => {
     setSelectedItem(item);
     setIsModalOpen(true);
   };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setSelectedItem(undefined);
+  };
+
+  const handleSubmit = (values: ActionFormValues) => {
+    if (selectedItem) {
+      // Key is immutable on update, matching the API contract.
+      setActions((prev) =>
+        prev.map((item) =>
+          item.id === selectedItem.id ? { ...item, label: values.label } : item
+        )
+      );
+    } else {
+      setActions((prev) => [
+        ...prev,
+        {
+          id: `ACT-${Date.now()}`,
+          key: values.key.toUpperCase(),
+          label: values.label,
+          isBuiltIn: false,
+          createdAt: new Date().toISOString(),
+        },
+      ]);
+    }
+    handleModalClose();
+  };
+
+  const handleConfirmDelete = () => {
+    if (deleteId) {
+      setActions((prev) => prev.filter((item) => item.id !== deleteId));
+      setDeleteId(null);
+    }
+  };
+
+  const term = search.toLowerCase().trim();
+  const filteredActions = actions.filter(
+    (item) =>
+      !term ||
+      item.key.toLowerCase().includes(term) ||
+      item.label.toLowerCase().includes(term)
+  );
 
   const columns = GetActionColumns(handleEdit, (id) => setDeleteId(id));
 
@@ -59,13 +72,12 @@ export default function ActionList() {
     <div>
       <ActionsTable
         columns={columns}
-        data={data?.data || []}
-        isLoading={isLoading}
-        totalItems={totalItems}
-        currentPage={currentPage}
-        itemsPerPage={itemsPerPage}
-        setCurrentPage={setCurrentPage}
-        setItemsPerPage={setItemsPerPage}
+        data={filteredActions}
+        totalItems={filteredActions.length}
+        currentPage={1}
+        itemsPerPage={filteredActions.length || 10}
+        setCurrentPage={() => {}}
+        setItemsPerPage={() => {}}
         search={search}
         showSearch
         handleSearchChange={handleSearchChange}
@@ -78,19 +90,14 @@ export default function ActionList() {
       />
       <CreateUpdateAction
         isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false);
-          setSelectedItem(undefined);
-        }}
+        onClose={handleModalClose}
+        onSubmit={handleSubmit}
         initialValues={selectedItem}
       />
       <DeleteConfirmDialog
         isOpen={!!deleteId}
         onClose={() => setDeleteId(null)}
-        onConfirm={() => {
-          if (deleteId) deleteMutate({ url: `/api/super-admin/actions/${deleteId}` });
-          setDeleteId(null);
-        }}
+        onConfirm={handleConfirmDelete}
         title="Delete Action"
         description="Roles using this action will lose it. Built-in actions cannot be deleted."
       />

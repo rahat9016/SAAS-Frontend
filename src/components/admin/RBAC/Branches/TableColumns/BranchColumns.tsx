@@ -12,6 +12,13 @@ export const GetBranchColumns = (
 ): ColumnDef<RbacBranch>[] => {
   return [
     {
+      header: "Name",
+      accessorKey: "name",
+      cell: (value) => (
+        <span className="text-sm font-medium">{(value as string) || "—"}</span>
+      ),
+    },
+    {
       header: "Code",
       accessorKey: "code",
       cell: (value) => (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useGet } from "@/src/hooks/useGet";
+import { mockActionsList } from "@/src/components/admin/RBAC/Actions/data/mockActionData";
 
 export interface ActionItem {
   id: string;
@@ -10,9 +10,12 @@ export interface ActionItem {
   createdAt: string;
 }
 
-/** Dynamic action catalog (the "attributes") for the permission matrix. */
+/**
+ * Dynamic action catalog (the "attributes") for the permission matrix.
+ * TODO: restore the useGet("/api/actions", ["actions-catalog"]) call once the
+ * RBAC backend is live; served from mock data until then.
+ */
 export function useActions() {
-  const { data, isLoading } = useGet<ActionItem[]>("/api/actions", ["actions-catalog"]);
-  const actions = data?.data ?? [];
-  return { actions, actionKeys: actions.map((a) => a.key), isLoading };
+  const actions: ActionItem[] = mockActionsList;
+  return { actions, actionKeys: actions.map((a) => a.key), isLoading: false };
 }

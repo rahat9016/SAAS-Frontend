@@ -21,6 +21,7 @@ export interface RbacRoleItem {
 
 export interface RbacBranch {
   id: string;
+  name?: string | null;
   code: string | null;
   contact: string | null;
   country: string | null;

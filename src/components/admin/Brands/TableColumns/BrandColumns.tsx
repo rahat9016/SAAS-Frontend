@@ -18,7 +18,13 @@ export const GetBrandColumns = (
         const icon = value as string | undefined;
         return icon ? (
           <div className="w-9 h-9 border border-[#E6E6E6] flex items-center justify-center rounded-lg bg-light">
-            <Image src={icon} alt="icon" width={24} height={24} />
+            <Image
+              src={icon}
+              alt="icon"
+              width={24}
+              height={24}
+              unoptimized={icon.startsWith("blob:")}
+            />
           </div>
         ) : (
           <div className="w-9 h-9 border border-[#E6E6E6] flex items-center justify-center rounded-lg bg-light">

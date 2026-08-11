@@ -27,35 +27,44 @@ export default function BranchForm({
     <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-5 mt-2">
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <InputLabel label="Code" />
+          <InputLabel label="Name" required />
+          <ControlledInputField
+            className="bg-light"
+            name="name"
+            placeholder="Gulshan Flagship"
+          />
+        </div>
+        <div>
+          <InputLabel label="Code" required />
           <ControlledInputField className="bg-light" name="code" placeholder="DHK-01" />
         </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
         <div>
           <InputLabel label="Contact" />
           <ControlledInputField className="bg-light" name="contact" placeholder="+8801…" />
         </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
         <div>
           <InputLabel label="Country" />
           <ControlledInputField className="bg-light" name="country" placeholder="Germany" />
         </div>
-        <div>
-          <InputLabel label="City" />
-          <ControlledInputField className="bg-light" name="city" placeholder="Dhaka" />
-        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
+          <InputLabel label="City" />
+          <ControlledInputField className="bg-light" name="city" placeholder="Dhaka" />
+        </div>
+        <div>
           <InputLabel label="Area" />
           <ControlledInputField className="bg-light" name="area" placeholder="Gulshan" />
         </div>
-        <div>
-          <InputLabel label="Address" />
-          <ControlledInputField className="bg-light" name="address" placeholder="Street, building…" />
-        </div>
+      </div>
+
+      <div>
+        <InputLabel label="Address" />
+        <ControlledInputField className="bg-light" name="address" placeholder="Street, building…" />
       </div>
 
       <ControlledSwitchField

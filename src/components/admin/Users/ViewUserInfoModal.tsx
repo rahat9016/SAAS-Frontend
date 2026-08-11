@@ -47,6 +47,7 @@ export default function ViewUserInfoModal({
                   width={64}
                   height={64}
                   className="w-16 h-16 rounded-full object-cover ring-2 ring-primary/20"
+                  unoptimized={user.profilePicture.startsWith("blob:")}
                 />
               ) : (
                 <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center text-base font-semibold text-gray-600 ring-2 ring-gray-300/60">

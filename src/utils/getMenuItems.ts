@@ -49,10 +49,6 @@ export function getMenuItems(): MenuItem[] {
           href: "/admin/styles",
           matchRoutes: ["/admin/styles"],
         },
-        {
-          label: "Create Product / Style",
-          href: "/admin/products/create",
-        },
       ],
     },
 
@@ -71,9 +67,9 @@ export function getMenuItems(): MenuItem[] {
       ],
     },
 
-    // 4-Tier Category Hierarchy & Attributes section
+    // 4-Tier Category Hierarchy & Brand section
     {
-      segment: "Category Hierarchy & Attributes",
+      segment: "Category & Brand",
       label: "Category Hierarchy",
       icon: FolderTree,
       resource: "products",
@@ -97,14 +93,6 @@ export function getMenuItems(): MenuItem[] {
         {
           label: "Sub Category",
           href: "/admin/sub-category",
-        },
-        {
-          label: "Attribute List",
-          href: "/admin/products/attributes",
-          matchRoutes: [
-            "/admin/products/attributes",
-            "/admin/products/attribute-values",
-          ],
         },
         { label: "Brand List", href: "/admin/brands" },
       ],

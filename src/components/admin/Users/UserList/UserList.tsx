@@ -1,14 +1,12 @@
 "use client";
 
 import DeleteConfirmDialog from "@/src/components/shared/DeleteConfirmDialog";
-import { useGet } from "@/src/hooks/useGet";
-import { usePagination } from "@/src/hooks/usePagination";
-import { usePatch } from "@/src/hooks/usePatch";
 import { useSearchDebounce } from "@/src/hooks/useSearchDebounce";
 import { useAppSelector } from "@/src/lib/redux/hooks";
-import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { useState } from "react";
+import { mockUsersList } from "../data/mockUserData";
 import CreateUpdateUser from "../Form/CreateUpdateUser";
+import { UserFormValues } from "../Schema/userSchema";
 import { GetUserColumns } from "../TableColumns/UserColumns";
 import { IUser } from "../types";
 import UsersTable from "../UsersTable";
@@ -16,62 +14,25 @@ import ViewUserInfoModal from "../ViewUserInfoModal";
 
 type TStatusAction = "activate" | "deactivate" | null;
 
+const resolveProfilePicture = (
+  picture: UserFormValues["profilePicture"],
+  fallback: string | null
+) => {
+  if (picture instanceof File) return URL.createObjectURL(picture);
+  if (typeof picture === "string" && picture.trim()) return picture;
+  return fallback;
+};
+
 export default function UserList() {
+  const [users, setUsers] = useState<IUser[]>(mockUsersList);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isStatusConfirmOpen, setIsStatusConfirmOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<IUser | undefined>();
   const [statusAction, setStatusAction] = useState<TStatusAction>(null);
 
-  const {
-    setCurrentPage,
-    itemsPerPage,
-    currentPage,
-    totalItems,
-    setTotalItems,
-    setItemsPerPage,
-  } = usePagination();
-
-  const { search, handleSearchChange, debouncedSearch } =
-    useSearchDebounce(300);
+  const { search, handleSearchChange } = useSearchDebounce(300);
   const { sortBy } = useAppSelector((state) => state.filter);
-
-  const { data, isLoading } = useGet<IUser[]>(
-    "/user",
-    [
-      "users",
-      currentPage.toString(),
-      itemsPerPage.toString(),
-      debouncedSearch,
-      sortBy,
-    ],
-    {
-      ...(itemsPerPage !== -1 && {
-        page: currentPage.toString(),
-        limit: itemsPerPage.toString(),
-      }),
-      search: debouncedSearch,
-      ...(sortBy && { status: sortBy }),
-    }
-  );
-
-  const { mutate: toggleStatusMutate } = usePatch(() => {
-    toast.success(
-      statusAction === "activate"
-        ? "User activated successfully!"
-        : "User deactivated successfully!"
-    );
-    setIsStatusConfirmOpen(false);
-    setStatusAction(null);
-    setSelectedItem(undefined);
-  }, [["users"]]);
-
-  useEffect(() => {
-    if (data) {
-      setTotalItems(data.meta?.totalItems || 0);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data]);
 
   const handleEdit = (item: IUser) => {
     setSelectedItem(item);
@@ -98,12 +59,17 @@ export default function UserList() {
   const handleConfirmStatusChange = () => {
     if (!selectedItem || !statusAction) return;
 
-    toggleStatusMutate({
-      url: `/user/${selectedItem.id}`,
-      data: {
-        status: statusAction === "activate" ? "ACTIVE" : "INACTIVE",
-      },
-    });
+    setUsers((prev) =>
+      prev.map((item) =>
+        item.id === selectedItem.id
+          ? {
+              ...item,
+              status: statusAction === "activate" ? "ACTIVE" : "INACTIVE",
+            }
+          : item
+      )
+    );
+    handleStatusConfirmClose();
   };
 
   const handleEditModalClose = () => {
@@ -122,6 +88,39 @@ export default function UserList() {
     setSelectedItem(undefined);
   };
 
+  const handleSubmit = (values: UserFormValues) => {
+    if (!selectedItem) return;
+
+    setUsers((prev) =>
+      prev.map((item) =>
+        item.id === selectedItem.id
+          ? {
+              ...item,
+              firstName: values.firstName,
+              lastName: values.lastName,
+              phone: values.phone || null,
+              profilePicture: resolveProfilePicture(
+                values.profilePicture,
+                item.profilePicture
+              ),
+            }
+          : item
+      )
+    );
+    handleEditModalClose();
+  };
+
+  const filteredUsers = users.filter((item) => {
+    const term = search.toLowerCase().trim();
+    const matchesSearch =
+      !term ||
+      `${item.firstName} ${item.lastName}`.toLowerCase().includes(term) ||
+      item.email.toLowerCase().includes(term) ||
+      item.id.toLowerCase().includes(term);
+    const matchesStatus = !sortBy || item.status === sortBy;
+    return matchesSearch && matchesStatus;
+  });
+
   const columns = GetUserColumns(
     handleView,
     handleEdit,
@@ -133,20 +132,21 @@ export default function UserList() {
     <div>
       <UsersTable
         columns={columns}
-        data={data?.data || []}
-        isLoading={isLoading}
-        totalItems={totalItems}
-        currentPage={currentPage}
-        itemsPerPage={itemsPerPage}
-        setCurrentPage={setCurrentPage}
-        setItemsPerPage={setItemsPerPage}
+        data={filteredUsers}
+        totalItems={filteredUsers.length}
+        currentPage={1}
+        itemsPerPage={filteredUsers.length || 10}
+        setCurrentPage={() => {}}
+        setItemsPerPage={() => {}}
         search={search}
+        showSearch
         handleSearchChange={handleSearchChange}
       />
 
       <CreateUpdateUser
         isOpen={isEditModalOpen}
         onClose={handleEditModalClose}
+        onSubmit={handleSubmit}
         initialValues={selectedItem}
       />
 
