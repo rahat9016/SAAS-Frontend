@@ -129,9 +129,9 @@ export function getMenuItems(): MenuItem[] {
       ],
     },
     {
-      label: "Admin",
+      label: "Settings",
       icon: Settings,
-      href: "/admin/admin",
+      href: "/admin/settings",
       superOnly: true,
     },
   ];
