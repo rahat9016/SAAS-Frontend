@@ -10,67 +10,62 @@ export const GetProductColumns = (
 ): ColumnDef<IProductListItem>[] => {
   return [
     {
+      header: "Style",
+      accessorKey: "style",
+      cell: (value, row) => (
+        <button
+          type="button"
+          onClick={() => onView?.(row.id)}
+          className="font-bold text-blue-700 hover:underline"
+        >
+          {(value as string) || row.id}
+        </button>
+      ),
+    },
+    { header: "Fit", accessorKey: "fit" },
+    {
       header: "Image",
       accessorKey: "image",
       cell: (value) => {
         const img = value as string | undefined;
         return img ? (
-          <div className="w-12 h-12 border border-[#E6E6E6] flex items-center justify-center rounded-lg bg-light overflow-hidden">
+          <div className="w-10 h-10 border border-[#E6E6E6] flex items-center justify-center rounded-lg bg-light overflow-hidden">
             <Image
               src={img}
               alt="product"
-              width={48}
-              height={48}
+              width={40}
+              height={40}
               className="object-cover w-full h-full"
             />
           </div>
         ) : (
-          <div className="w-12 h-12 border border-[#E6E6E6] flex items-center justify-center rounded-lg bg-light">
+          <div className="w-10 h-10 border border-[#E6E6E6] flex items-center justify-center rounded-lg bg-light">
             <span className="text-xs text-gray-400">—</span>
           </div>
         );
       },
     },
+    { header: "Month", accessorKey: "month" },
+    { header: "Retail Price", accessorKey: "retailPrice" },
+    { header: "FOB", accessorKey: "fob" },
+    { header: "Active Color", accessorKey: "activeColor" },
+    { header: "Size Range", accessorKey: "sizeRange" },
+    { header: "Fabric", accessorKey: "fabric" },
+    { header: "Fabric Description", accessorKey: "fabricDescription" },
+    { header: "Composition", accessorKey: "composition" },
     {
-      header: "Product Name",
-      accessorKey: "name",
+      header: "Promote Status",
+      accessorKey: "promoteStatus",
       cell: (value) => (
-        <span className="font-medium text-secondary">
-          {value as string}
-        </span>
+        <span className="font-semibold text-emerald-700">{value as string}</span>
       ),
     },
-    {
-      header: "Category",
-      accessorKey: "category",
-    },
-    {
-      header: "Price",
-      accessorKey: "price",
-      cell: (value) => (
-        <span className="font-medium">৳{Number(value).toFixed(2)}</span>
-      ),
-    },
-    {
-      header: "Stock",
-      accessorKey: "stock",
-      cell: (value) => {
-        const stock = value as number;
-        return (
-          <span
-            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-              stock > 10
-                ? "bg-green-100 text-green-800"
-                : stock > 0
-                  ? "bg-yellow-100 text-yellow-800"
-                  : "bg-red-100 text-red-800"
-            }`}
-          >
-            {stock > 0 ? `${stock} in stock` : "Out of stock"}
-          </span>
-        );
-      },
-    },
+    { header: "Assigned Branch", accessorKey: "assignedBranch" },
+    { header: "Packing Code", accessorKey: "packingCode" },
+    { header: "Transport Mode", accessorKey: "transportMode" },
+    { header: "Supplier", accessorKey: "supplier" },
+    { header: "Ex Delivery", accessorKey: "exDelivery" },
+    { header: "Sustainability", accessorKey: "sustainability" },
     {
       header: "Status",
       accessorKey: "status",

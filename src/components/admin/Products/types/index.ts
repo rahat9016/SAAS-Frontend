@@ -91,12 +91,32 @@ export interface IProductListItem {
   id: string;
   name: string;
   image?: string;
+  images?: string[];
   category: string;
   price: number;
   stock: number;
   status: boolean;
   hasVariants: boolean;
   isNewArrival: boolean;
+  createdAt: string;
+  // Apparel/style attributes, matching the Style module's Article table
+  style: string;
+  fit: string;
+  month: string;
+  retailPrice: string;
+  fob: string;
+  activeColor: string;
+  sizeRange: string;
+  fabric: string;
+  fabricDescription: string;
+  composition: string;
+  promoteStatus: string;
+  assignedBranch: string;
+  packingCode: string;
+  transportMode: string;
+  supplier: string;
+  exDelivery: string;
+  sustainability: string;
   actions?: string;
 }
 

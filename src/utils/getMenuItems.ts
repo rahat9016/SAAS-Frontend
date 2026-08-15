@@ -4,6 +4,7 @@ import {
   Layers,
   LayoutDashboard,
   Package,
+  Palette,
   PlusCircle,
   Settings,
   ShieldCheck,
@@ -60,10 +61,6 @@ export function getMenuItems(): MenuItem[] {
       resource: "products",
       children: [
         { label: "All Products", href: "/admin/products" },
-        { label: "Create Product", href: "/admin/products/create" },
-        { label: "Draft Products", href: "/admin/products/draft" },
-        { label: "Stock Products", href: "/admin/products/stock" },
-        { label: "Product Review", href: "/admin/products/review" },
       ],
     },
 
@@ -95,6 +92,18 @@ export function getMenuItems(): MenuItem[] {
           href: "/admin/sub-category",
         },
         { label: "Brand List", href: "/admin/brands" },
+      ],
+    },
+
+    // Color & Size Chart section
+    {
+      segment: "Product Attributes",
+      label: "Color & Size Chart",
+      icon: Palette,
+      resource: "products",
+      children: [
+        { label: "Color Chart", href: "/admin/color-chart" },
+        { label: "Size Chart", href: "/admin/size-chart" },
       ],
     },
 

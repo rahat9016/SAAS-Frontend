@@ -42,6 +42,15 @@ export interface IArticleItem {
   supplier: string;
   exDelivery: string;
   sustainability: string;
+  // Structured classification, sourced from the real Categories/Brands/
+  // Color-Size chart modules — optional so legacy rows without them still work.
+  seasonId?: string;
+  categoryId?: string;
+  segmentId?: string;
+  subCategoryId?: string;
+  brandId?: string;
+  colorIds?: string[];
+  sizeIds?: string[];
 }
 
 export const mockSeasonsList: ISeasonItem[] = [

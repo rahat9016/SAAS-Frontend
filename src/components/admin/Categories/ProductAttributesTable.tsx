@@ -2,14 +2,9 @@
 
 import { DataTable } from "@/src/components/ui/data-table";
 import { ITableProps } from "@/src/types/common/common";
-import { Package } from "lucide-react";
-import { ReactNode } from "react";
+import { Palette } from "lucide-react";
 
-interface ProductsTableProps<T> extends ITableProps<T> {
-  rightComponents?: ReactNode;
-}
-
-const ProductsTable = <T,>({
+const ProductAttributesTable = <T,>({
   columns,
   data,
   isLoading = false,
@@ -21,11 +16,10 @@ const ProductsTable = <T,>({
   search = "",
   showSearch,
   handleSearchChange,
+  setIsModalOpen,
   showCreateButton = false,
   createTitle,
-  isShowStatus,
-  rightComponents,
-}: ProductsTableProps<T>) => {
+}: ITableProps<T>) => {
   return (
     <DataTable
       columns={columns}
@@ -36,23 +30,20 @@ const ProductsTable = <T,>({
       itemsPerPage={itemsPerPage}
       onPageChange={setCurrentPage}
       setItemsPerPage={setItemsPerPage}
-      icon={<Package />}
-      title="Products"
+      icon={<Palette />}
+      title="Product Attributes"
       showSearch={showSearch}
       searchValue={search}
       onSearchChange={handleSearchChange}
-      searchPlaceholder="Search products..."
       createTitle={createTitle}
-      IsCreate={showCreateButton}
-      routeURL="/admin/products/create"
-      isShowStatus={isShowStatus}
-      statusOptions={[
-        { label: "Active", value: "ACTIVE" },
-        { label: "Inactive", value: "INACTIVE" },
+      tabs={[
+        { name: "Color Chart", route: "/admin/color-chart" },
+        { name: "Size Chart", route: "/admin/size-chart" },
       ]}
-      rightComponents={rightComponents}
+      IsCreate={showCreateButton}
+      setIsModalOpen={setIsModalOpen}
     />
   );
 };
 
-export default ProductsTable;
+export default ProductAttributesTable;
