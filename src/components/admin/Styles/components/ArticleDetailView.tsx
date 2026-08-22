@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "react-toastify";
+import ColorwaysTab from "./ColorwaysTab";
 
 interface ArticleDetailViewProps {
   seasonId: string;
@@ -71,14 +72,14 @@ export default function ArticleDetailView({
 
   return (
     <div className="w-full space-y-4">
-      {/* Top Header Bar matching Image 5 */}
-      <div className="bg-white p-3 border-2 border-orange-400 rounded-lg flex flex-wrap items-center justify-between gap-4 shadow-sm">
+      {/* Top Header Bar matching Image */}
+      <div className="bg-[#ffeac7] p-2 border-[3px] border-[#fdc276] rounded-sm flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="font-extrabold text-lg text-amber-800 tracking-wider flex items-center gap-1.5">
+          <div className="font-extrabold text-lg text-black tracking-wider flex items-center gap-1.5">
             <span className="text-xl">🦊</span> FAMILIE MUNSHI
           </div>
-          <div className="flex items-center border border-orange-400 rounded overflow-hidden">
-            <span className="bg-emerald-500 text-white font-bold px-3 py-1 text-sm flex items-center gap-1">
+          <div className="flex items-center border border-gray-300 rounded-sm overflow-hidden bg-white shadow-sm">
+            <span className="bg-[#8ee59d] text-gray-900 font-semibold px-2 py-1.5 text-sm flex items-center gap-1 border-r border-gray-300 cursor-pointer">
               Style ▼
             </span>
             <input
@@ -89,8 +90,8 @@ export default function ArticleDetailView({
           </div>
         </div>
 
-        <div className="text-sm font-bold text-gray-600 tracking-wide bg-gray-100 px-3 py-1 rounded">
-          Product Development
+        <div className="text-sm font-medium text-gray-800 pr-2">
+          Product Developement
         </div>
       </div>
 
@@ -104,16 +105,12 @@ export default function ArticleDetailView({
       </div>
 
       {/* Main Tabs (Style | Sourcing | Specification) */}
-      <div className="flex gap-4 border-b border-gray-200">
+      <div className="flex gap-4 border-b border-[#ffeac7] pb-1">
         {["Style", "Sourcing", "Specification"].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveMainTab(tab)}
-            className={`pb-2 px-2 text-base font-semibold transition-colors ${
-              activeMainTab === tab
-                ? "text-emerald-600 border-b-2 border-emerald-600"
-                : "text-gray-500 hover:text-gray-800"
-            }`}
+            className={`text-base font-semibold transition-colors text-[#2eb85c]`}
           >
             {tab}
           </button>
@@ -121,39 +118,27 @@ export default function ArticleDetailView({
       </div>
 
       {/* Sub Tabs + Action Buttons Row */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-2 border border-gray-200 rounded-lg shadow-sm">
-        <div className="flex gap-4 text-sm font-medium">
-          {["Properties", "Colorways", "Samples", "SKUs", "Documents", "Issues"].map((subTab) => (
-            <button
-              key={subTab}
-              onClick={() => setActiveSubTab(subTab)}
-              className={`${
-                activeSubTab === subTab
-                  ? "text-emerald-600 font-bold underline"
-                  : "text-emerald-800 hover:text-emerald-950"
-              }`}
-            >
-              {subTab}
-            </button>
-          ))}
-        </div>
-
-        {/* Action Buttons (Promote | Demote | Cancel | Re-activate | Transfer | Approve) */}
-        <div className="flex flex-wrap items-center gap-1.5">
-          {["Promote", "Demote", "Cancel", "Re-activate", "Transfer", "Approve"].map((btn) => (
-            <button
-              key={btn}
-              onClick={() => handleAction(btn)}
-              className="px-3 py-1 text-xs font-bold border border-orange-400 text-orange-900 bg-orange-50 hover:bg-orange-100 rounded transition-colors shadow-xs"
-            >
-              {btn}
-            </button>
-          ))}
-        </div>
+      <div className="flex gap-4 text-sm font-semibold border-b border-[#ffeac7]">
+        {["Properties", "Colorways", "Samples", "SKUs", "Documents", "Issues"].map((subTab) => (
+          <button
+            key={subTab}
+            onClick={() => setActiveSubTab(subTab)}
+            className={`pb-1 px-1 transition-colors ${
+              activeSubTab === subTab
+                ? "text-[#2eb85c] border-b-[3px] border-[#2eb85c]"
+                : "text-[#2eb85c]"
+            }`}
+          >
+            {subTab}
+          </button>
+        ))}
       </div>
 
-      {/* Main Content Layout: Left (Images) & Right (Properties + Marketing Info) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+
+      {/* Main Content Area Conditional Rendering */}
+      {activeSubTab === "Properties" && (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column: Technical Sketches & Preview */}
         <div className="lg:col-span-5 bg-white p-4 border border-gray-200 rounded-xl shadow-sm space-y-4">
           <div className="relative w-full h-80 bg-gray-50 border border-gray-200 rounded-lg overflow-hidden flex items-center justify-center p-2">
@@ -369,9 +354,14 @@ export default function ArticleDetailView({
                 </div>
               </div>
             </div>
+            </div>
           </div>
         </div>
-      </div>
+      )}
+
+      {activeSubTab === "Colorways" && (
+        <ColorwaysTab />
+      )}
     </div>
   );
 }

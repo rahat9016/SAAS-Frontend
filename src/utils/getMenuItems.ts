@@ -1,16 +1,13 @@
 import {
   Calendar,
   FolderTree,
-  Layers,
   LayoutDashboard,
-  Package,
   Palette,
-  PlusCircle,
   Settings,
   ShieldCheck,
   ShoppingCart,
   Users,
-  type LucideIcon,
+  type LucideIcon
 } from "lucide-react";
 
 export interface MenuChild {
@@ -50,17 +47,6 @@ export function getMenuItems(): MenuItem[] {
           href: "/admin/styles",
           matchRoutes: ["/admin/styles"],
         },
-      ],
-    },
-
-    // Product Catalog section
-    {
-      segment: "Product Catalog",
-      label: "Products",
-      icon: Package,
-      resource: "products",
-      children: [
-        { label: "All Products", href: "/admin/products" },
       ],
     },
 

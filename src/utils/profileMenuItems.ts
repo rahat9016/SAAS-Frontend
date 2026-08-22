@@ -43,6 +43,5 @@ export const sidebarSections = [
 export const adminMenuItems = [
   { label: "Admin Dashboard", href: "/admin", icon: LayoutDashboard },
   { label: "Go to Storefront", href: "/", icon: Home },
-  { label: "Manage Products", href: "/admin/products", icon: Package },
   { label: "Manage Users", href: "/admin/users", icon: User },
 ];
