@@ -6,12 +6,14 @@ import SidebarSimpleLink from "./SidebarSimpleLink";
 interface SidebarMenuItemProps {
   item: MenuItem;
   showSegment: boolean;
+  isCollapsed?: boolean;
   onNavigate: () => void;
 }
 
 export default function SidebarMenuItem({
   item,
   showSegment,
+  isCollapsed = false,
   onNavigate,
 }: SidebarMenuItemProps) {
   const pathname = usePathname();
@@ -20,13 +22,14 @@ export default function SidebarMenuItem({
   return (
     <div>
       {showSegment && item.segment && (
-        <SidebarSegmentHeader label={item.segment} />
+        <SidebarSegmentHeader label={item.segment} isCollapsed={isCollapsed} />
       )}
       <SidebarSimpleLink
         label={item.label}
         icon={item.icon}
         href={item.href ?? "#"}
         isActive={!!isActive}
+        isCollapsed={isCollapsed}
         onNavigate={onNavigate}
       />
     </div>

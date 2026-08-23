@@ -1,27 +1,38 @@
 import { siteConfig } from "@/src/config/siteConfig";
+import { cn } from "@/src/lib/utils";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
-export default function SidebarLogo() {
+interface SidebarLogoProps {
+  isCollapsed?: boolean;
+}
+
+export default function SidebarLogo({ isCollapsed = false }: SidebarLogoProps) {
   const router = useRouter();
 
   return (
     <div
       onClick={() => router.push("/")}
-      className="flex flex-row items-center cursor-pointer gap-1 h-18"
+      title={siteConfig.name}
+      className={cn(
+        "flex flex-row items-center cursor-pointer gap-1 h-18",
+        isCollapsed && "justify-center gap-0"
+      )}
     >
       <Image
         width={216}
         height={216}
         src="/logo.png"
         alt="logo"
-        className="w-13"
+        className={cn("w-13", isCollapsed && "w-9")}
       />
-      <div>
-        <h3 className="text-base text-secondary-dark font-semibold">
-          {siteConfig.name}
-        </h3>
-      </div>
+      {!isCollapsed && (
+        <div>
+          <h3 className="text-base text-secondary-dark font-semibold">
+            {siteConfig.name}
+          </h3>
+        </div>
+      )}
     </div>
   );
 }

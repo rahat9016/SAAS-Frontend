@@ -1,19 +1,24 @@
 "use client";
 
+import { useRbacPermissions } from "@/src/hooks/useRbacPermissions";
+import { selectRbac } from "@/src/lib/redux/features/rbac/rbacSelectors";
+import { useAppSelector } from "@/src/lib/redux/hooks";
+import { cn } from "@/src/lib/utils";
 import { filterMenuByAccess, getMenuItems } from "@/src/utils/getMenuItems";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { useAppSelector } from "@/src/lib/redux/hooks";
-import { selectRbac } from "@/src/lib/redux/features/rbac/rbacSelectors";
-import { useRbacPermissions } from "@/src/hooks/useRbacPermissions";
 import SidebarMenuGroup from "./SidebarMenuGroup";
 import SidebarMenuItem from "./SidebarMenuItem";
 
 interface SidebarMenuProps {
+  isCollapsed?: boolean;
   onNavigate: () => void;
 }
 
-export default function SidebarMenu({ onNavigate }: SidebarMenuProps) {
+export default function SidebarMenu({
+  isCollapsed = false,
+  onNavigate,
+}: SidebarMenuProps) {
   const pathname = usePathname();
 
   // Load + read the user's RBAC permission map, then gate menu entries.
@@ -61,7 +66,12 @@ export default function SidebarMenu({ onNavigate }: SidebarMenuProps) {
   };
 
   return (
-    <nav className="flex-1 overflow-y-auto custom-scrollbar mt-4">
+    <nav
+      className={cn(
+        "flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar mt-4",
+        isCollapsed && "scrollbar-hide"
+      )}
+    >
       <div className="flex flex-col gap-1 py-1">
         {menuItems.map((item, index) => {
           const showSegment =
@@ -76,6 +86,7 @@ export default function SidebarMenu({ onNavigate }: SidebarMenuProps) {
                 item={item}
                 showSegment={showSegment}
                 isExpanded={isExpanded}
+                isCollapsed={isCollapsed}
                 onToggleExpand={toggleExpand}
                 onNavigate={onNavigate}
               />
@@ -87,6 +98,7 @@ export default function SidebarMenu({ onNavigate }: SidebarMenuProps) {
               key={item.label}
               item={item}
               showSegment={showSegment}
+              isCollapsed={isCollapsed}
               onNavigate={onNavigate}
             />
           );
@@ -95,4 +107,3 @@ export default function SidebarMenu({ onNavigate }: SidebarMenuProps) {
     </nav>
   );
 }
-
