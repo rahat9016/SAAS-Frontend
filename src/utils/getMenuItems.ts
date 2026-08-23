@@ -2,7 +2,6 @@ import {
   Calendar,
   FolderTree,
   LayoutDashboard,
-  Palette,
   Settings,
   ShieldCheck,
   ShoppingCart,
@@ -78,18 +77,6 @@ export function getMenuItems(): MenuItem[] {
           href: "/admin/sub-category",
         },
         { label: "Brand List", href: "/admin/brands" },
-      ],
-    },
-
-    // Color & Size Chart section
-    {
-      segment: "Product Attributes",
-      label: "Color & Size Chart",
-      icon: Palette,
-      resource: "products",
-      children: [
-        { label: "Color Chart", href: "/admin/color-chart" },
-        { label: "Size Chart", href: "/admin/size-chart" },
       ],
     },
 
