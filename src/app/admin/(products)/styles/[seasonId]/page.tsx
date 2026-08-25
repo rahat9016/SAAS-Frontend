@@ -10,7 +10,7 @@ export default async function SeasonDepartmentsPage({ params }: PageProps) {
   const { seasonId } = await params;
 
   return (
-    <div className="w-full p-4 sm:p-6">
+    <div className="w-full p-4 sm:p-0">
       <DepartmentsTable seasonId={seasonId} />
     </div>
   );

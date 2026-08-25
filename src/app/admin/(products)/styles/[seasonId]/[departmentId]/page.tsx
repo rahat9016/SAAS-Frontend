@@ -11,7 +11,7 @@ export default async function DepartmentCategoriesPage({ params }: PageProps) {
   const { seasonId, departmentId } = await params;
 
   return (
-    <div className="w-full p-4 sm:p-6">
+    <div className="w-full p-4 sm:p-0">
       <StyleCategoriesTable seasonId={seasonId} departmentId={departmentId} />
     </div>
   );

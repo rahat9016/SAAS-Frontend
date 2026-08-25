@@ -20,7 +20,7 @@ export default function DynamicBreadcrumb() {
 
   return (
     <Breadcrumb>
-      <BreadcrumbList>
+      <BreadcrumbList className="text-xs md:text-sm text-secondary-gary">
         {!isAdminRoute && (
           <BreadcrumbItem>
             <BreadcrumbLink asChild>

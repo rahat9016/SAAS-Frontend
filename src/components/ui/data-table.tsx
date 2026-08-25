@@ -26,6 +26,8 @@ export interface ColumnDef<T> {
   accessorKey: keyof T;
   sortable?: boolean;
   align?: "left" | "right" | "center";
+  /** Allow this cell's content to wrap onto multiple lines instead of being truncated. */
+  wrap?: boolean;
   cell?: (value: T[keyof T], row: T) => React.ReactNode;
 }
 
@@ -78,6 +80,7 @@ export function DataTable<T>({
   onPageChange,
   setItemsPerPage,
   title,
+  icon,
   setIsModalOpen,
   IsCreate = false,
   createTitle = "Create",
@@ -101,12 +104,12 @@ export function DataTable<T>({
   return (
     <>
       {!isPlain && (
-        <div className="flex flex-col lg:flex-row lg:items-center gap-3 mb-6">
-          <TableTopBarHeader title={title} />
+        <div className="flex flex-col lg:flex-row lg:items-center gap-3 mb-3 bg-white border border-light-dark rounded-lg px-5 py-4">
+          <TableTopBarHeader title={title} icon={icon} />
 
           {IsCreate && (
             <Button
-              className="text-white font-inter text-sm font-medium bg-primary hover:bg-primary/70 h-11 gap-1 px-6! mb-3 lg:mb-0"
+              className="text-white font-inter text-sm font-medium bg-primary hover:bg-primary/90 h-11 gap-1.5 px-6! rounded-lg shadow-sm transition-colors lg:ml-auto"
               onClick={() => {
                 if (routeURL) {
                   router.push(routeURL);
@@ -115,7 +118,7 @@ export function DataTable<T>({
                 }
               }}
             >
-              <Plus className="text-2xl! text-white" /> {createTitle}
+              <Plus className="size-4 text-white" /> {createTitle}
             </Button>
           )}
         </div>
@@ -123,7 +126,12 @@ export function DataTable<T>({
 
       <div>
         <div className="w-full overflow-x-auto scrollbar-hide">
-          {!isPlain && (
+          {!isPlain &&
+            (tableTitle ||
+              tabs.length > 0 ||
+              showSearch ||
+              rightComponents ||
+              isShowStatus) && (
             <div
               id="table-tab"
               className="bg-white p-5 rounded-t-lg border border-light-dark"
@@ -196,7 +204,7 @@ export function DataTable<T>({
                 className={
                   isPlain
                     ? "bg-light/70 h-11 hover:bg-light/70 border-b border-light-dark"
-                    : "bg-light h-15 border border-light-dark border-t-0"
+                    : "bg-[#5098D5] h-15 border border-light-dark border-b-[3px] border-b-[#5098D5]"
                 }
               >
                 {columns.map((column, index) => {
@@ -206,7 +214,11 @@ export function DataTable<T>({
                       className={`${
                         isPlain
                           ? "font-semibold text-[11px] uppercase tracking-wide text-secondary-gary px-4 whitespace-nowrap"
-                          : "font-medium text-sm text-secondary-dark px-5"
+                          : `font-medium text-sm text-white px-5 ${
+                              index < columns.length - 1
+                                ? "border-r border-white/30"
+                                : ""
+                            }`
                       } ${alignClass(column)}`}
                     >
                       {column.header}
@@ -259,6 +271,10 @@ export function DataTable<T>({
                   >
                     {columns.map((column, idx) => {
                       const value = row[column.accessorKey];
+                      const borderR =
+                        !isPlain && idx < columns.length - 1
+                          ? "border-r border-light-dark"
+                          : "";
                       return (
                         <TableCell
                           key={`${rowIndex}-${idx}-${String(
@@ -267,7 +283,9 @@ export function DataTable<T>({
                           className={`${
                             isPlain
                               ? "whitespace-nowrap px-4 py-2.5 text-sm text-secondary-gary border-b border-light-dark/60"
-                              : "max-w-50 truncate whitespace-nowrap px-5 text-sm text-secondary-gary border-b border-light-dark"
+                              : column.wrap
+                              ? `whitespace-normal align-top py-3 px-5 text-sm text-secondary-gary border-b border-light-dark ${borderR}`
+                              : `max-w-50 truncate whitespace-nowrap px-5 text-sm text-secondary-gary border-b border-light-dark ${borderR}`
                           } ${alignClass(column)}`}
                         >
                           {column?.cell

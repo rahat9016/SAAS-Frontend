@@ -3,6 +3,7 @@
 import DeleteConfirmDialog from "@/src/components/shared/DeleteConfirmDialog";
 import { DataTable } from "@/src/components/ui/data-table";
 import { useAppSelector } from "@/src/lib/redux/hooks";
+import { CalendarRange } from "lucide-react";
 import { useState } from "react";
 import { ISeasonItem, mockSeasonsList } from "../data/mockStyleData";
 import CreateUpdateSeason from "../Form/CreateUpdateSeason";
@@ -79,6 +80,7 @@ export default function SeasonsTable() {
         columns={columns}
         data={filteredSeasons}
         title="Seasons"
+        icon={<CalendarRange />}
         totalItems={filteredSeasons.length}
         itemsPerPage={filteredSeasons.length || 10}
         currentPage={1}

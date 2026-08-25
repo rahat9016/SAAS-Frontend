@@ -1,6 +1,5 @@
 "use client";
 
-import DynamicBreadcrumb from "@/src/components/shared/DynamicBreadcrumb";
 import { siteConfig } from "@/src/config/siteConfig";
 import Image from "next/image";
 import Link from "next/link";
@@ -35,10 +34,6 @@ export default function DashboardHeader() {
       </div>
 
       <HeaderNav />
-
-      <div className="h-9 flex items-center px-3 md:px-6 border-t border-skeleton overflow-x-auto scrollbar-hide">
-        <DynamicBreadcrumb />
-      </div>
     </div>
   );
 }

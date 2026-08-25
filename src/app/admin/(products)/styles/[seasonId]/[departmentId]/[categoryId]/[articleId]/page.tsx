@@ -13,7 +13,7 @@ export default async function ArticleDetailPage({ params }: PageProps) {
   const { seasonId, departmentId, categoryId, articleId } = await params;
 
   return (
-    <div className="w-full p-4 sm:p-6">
+    <div className="w-full p-4 sm:p-0">
       <ArticleDetailView
         seasonId={seasonId}
         departmentId={departmentId}
