@@ -14,6 +14,7 @@ export interface StyleTab {
 export const STYLE_TABS: StyleTab[] = [
   { label: "Style", href: "/admin/styles" },
   { label: "Material", href: "/admin/styles/material" },
+  { label: "Color Way", href: "/admin/styles/color-way" },
   { label: "Size Chart Template", href: "/admin/styles/size-chart-template" },
   { label: "Care Label Info", href: "/admin/styles/care-label-info" },
   { label: "Supplier", href: "/admin/styles/supplier" },
