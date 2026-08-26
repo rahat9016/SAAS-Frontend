@@ -32,7 +32,14 @@ export default function CreateUpdateSeason({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: yupResolver(seasonSchema) as any,
     defaultValues: {
+      styleType: "",
+      sizeChartTemplate: "",
       season: "",
+      deliveryMonth: "",
+      collectionType: "",
+      styleMainClass: "",
+      styleClass: "",
+      styleSubClass: "",
       status: "On Planning",
     },
   });
@@ -40,7 +47,14 @@ export default function CreateUpdateSeason({
   useEffect(() => {
     if (isOpen) {
       methods.reset({
+        styleType: "",
+        sizeChartTemplate: "",
         season: initialValues?.season || "",
+        deliveryMonth: "",
+        collectionType: "",
+        styleMainClass: "",
+        styleClass: "",
+        styleSubClass: "",
         status: initialValues?.status || "On Planning",
       });
     }
@@ -53,10 +67,10 @@ export default function CreateUpdateSeason({
         if (!open) onClose();
       }}
     >
-      <DialogContent className="bg-white sm:max-w-125">
+      <DialogContent className="bg-white sm:max-w-125 max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-secondary text-xl font-semibold">
-            {isUpdate ? "Update" : "Create"} Season
+            {isUpdate ? "Update Style" : "New Style"}
           </DialogTitle>
         </DialogHeader>
 

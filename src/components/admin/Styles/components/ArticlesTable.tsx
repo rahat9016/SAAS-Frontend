@@ -1,14 +1,13 @@
 "use client";
 
-import { mockColorsList } from "@/src/components/admin/Categories/data/mockColorData";
-import { mockSizesList } from "@/src/components/admin/Categories/data/mockSizeData";
+import { Input } from "@/src/components/ui/input";
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { ChevronDown, Plus, Search } from "lucide-react";
+import { ChevronDown, ChevronRight, Plus, Search, Shirt } from "lucide-react";
 import { IArticleItem, mockArticlesListGrouped } from "../data/mockStyleData";
-import CreateUpdateArticle from "../Form/CreateUpdateArticle";
-import { ArticleFormValues } from "../Schema/articleSchema";
+import CreateUpdateSeason from "../Form/CreateUpdateSeason";
+import { SeasonFormValues } from "../Schema/seasonSchema";
 import { toast } from "react-toastify";
 
 interface ArticlesTableProps {
@@ -41,12 +40,17 @@ const catNames: Record<string, string> = {
   sweatshirts: "Sweatshirts",
 };
 
-const colorLookup = new Map(mockColorsList.map((c) => [c.id, c]));
-const sizeLookup = new Map(mockSizesList.map((s) => [s.id, s]));
+const promoteStatusStyles: Record<string, string> = {
+  Concept: "bg-blue-100 text-blue-800",
+  Development: "bg-amber-100 text-amber-800",
+  Approved: "bg-emerald-100 text-emerald-800",
+};
 
 const initialArticles: IArticleItem[] = mockArticlesListGrouped.flatMap(
   (group) => group.items
 );
+
+const columnClass = "py-3 px-4 border-r border-light-dark last:border-r-0";
 
 export default function ArticlesTable({
   seasonId,
@@ -60,6 +64,7 @@ export default function ArticlesTable({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [articles, setArticles] = useState<IArticleItem[]>(initialArticles);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
 
   const [search, setSearch] = useState("");
   const [monthFilter, setMonthFilter] = useState("all");
@@ -115,6 +120,15 @@ export default function ArticlesTable({
     return order.map((month) => ({ month, items: map.get(month)! }));
   }, [filteredArticles]);
 
+  const toggleGroup = (month: string) => {
+    setCollapsedGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(month)) next.delete(month);
+      else next.add(month);
+      return next;
+    });
+  };
+
   const handleAction = (action: string) => {
     setIsDropdownOpen(false);
     if (action === "New From Style") {
@@ -124,144 +138,151 @@ export default function ArticlesTable({
     toast.info(`Action triggered: ${action}`);
   };
 
-  const handleCreateArticle = (values: ArticleFormValues) => {
-    const colorLabel = values.colorIds
-      .map((id) => colorLookup.get(id)?.code ?? id)
-      .join(", ");
-    const sizeLabel = values.sizeIds
-      .map((id) => sizeLookup.get(id)?.code ?? id)
-      .join(", ");
-
+  const handleCreateArticle = (values: SeasonFormValues) => {
     const newArticle: IArticleItem = {
-      style: values.style,
-      fit: values.fit,
+      style: values.season,
+      fit: "",
       image:
-        values.image ||
         "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=200&q=80",
-      month: values.month,
-      retailPrice: values.retailPrice,
-      fob: values.fob,
-      activeColor: colorLabel,
-      sizeRange: sizeLabel,
-      fabric: values.fabric,
-      fabricDescription: values.fabricDescription,
-      composition: values.composition,
-      promoteStatus: values.promoteStatus,
-      assignedBranch: values.assignedBranch,
-      packingCode: values.packingCode,
-      transportMode: values.transportMode,
-      supplier: values.supplier,
-      exDelivery: values.exDelivery,
-      sustainability: values.sustainability,
-      seasonId: values.seasonId,
-      categoryId: values.categoryId,
-      segmentId: values.segmentId,
-      subCategoryId: values.subCategoryId,
-      brandId: values.brandId,
-      colorIds: values.colorIds,
-      sizeIds: values.sizeIds,
+      month: values.deliveryMonth,
+      retailPrice: "",
+      fob: "",
+      activeColor: "",
+      sizeRange: "",
+      fabric: "",
+      fabricDescription: "",
+      composition: "",
+      promoteStatus: "Concept",
+      assignedBranch: "",
+      packingCode: "",
+      transportMode: "",
+      supplier: "",
+      exDelivery: "",
+      sustainability: "",
+      seasonId,
+      categoryId: values.styleMainClass,
+      segmentId: values.styleClass,
+      subCategoryId: values.styleSubClass,
     };
 
     setArticles((prev) => [...prev, newArticle]);
     setIsModalOpen(false);
-    toast.success(`Article ${values.style} created`);
+    toast.success(`Style ${values.season} created`);
   };
+
+  const columns: { header: string; width?: string }[] = [
+    { header: "Style" },
+    { header: "Fit" },
+    { header: "Image" },
+    { header: "Month" },
+    { header: "Retail Price" },
+    { header: "FOB" },
+    { header: "Active Color" },
+    { header: "Size Range" },
+    { header: "Fabric" },
+    { header: "Fabric Description" },
+    { header: "Composition" },
+    { header: "Promote Status" },
+    { header: "Assigned Branch" },
+    { header: "Packing Code" },
+    { header: "Transport Mode" },
+    { header: "Supplier" },
+    { header: "Ex Delivery" },
+    { header: "Sustainability" },
+  ];
 
   return (
     <div className="w-full space-y-4">
       {/* Breadcrumb */}
-      <div className="text-sm text-gray-600 font-medium">
-        <Link href="/admin/styles" className="hover:underline">Style</Link> &gt;{" "}
-        <Link href={`/admin/styles/${seasonId}`} className="hover:underline">{seasonName}</Link> &gt;{" "}
-        <Link href={`/admin/styles/${seasonId}/${departmentId}`} className="hover:underline">{deptName}</Link> &gt;{" "}
-        <span className="text-gray-900">{categoryName}</span>
+      <div className="text-xs md:text-sm text-secondary-gary font-medium">
+        <Link href="/admin/styles" className="hover:text-primary hover:underline">Style</Link> {" > "}
+        <Link href={`/admin/styles/${seasonId}`} className="hover:text-primary hover:underline">{seasonName}</Link> {" > "}
+        <Link href={`/admin/styles/${seasonId}/${departmentId}`} className="hover:text-primary hover:underline">{deptName}</Link> {" > "}
+        <span className="text-secondary-dark font-semibold">{categoryName}</span>
       </div>
 
-      <div className="bg-white p-6 border border-gray-200 rounded-xl shadow-sm space-y-4">
-        {/* Header & Dropdown Button */}
-        <div className="flex items-center justify-between flex-wrap gap-3">
-          <div className="flex items-center gap-3">
-            <h2 className="text-2xl font-bold text-gray-900">Articles</h2>
-            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-              Use the column filter row below to narrow by Month, Promote Status or Ex Delivery — or search across all fields.
-            </span>
+      {/* Header card */}
+      <div className="flex flex-col lg:flex-row lg:items-center gap-3 bg-white border border-light-dark rounded-lg px-5 py-4">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center justify-center size-11 rounded-lg bg-primary/10 text-primary shrink-0">
+            <Shirt className="size-5" />
           </div>
-
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search articles..."
-                className="pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-200 w-56"
-              />
-            </div>
-
-            <div className="relative">
-              <button
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center gap-2 px-5 py-2.5 bg-orange-100 text-orange-800 border-2 border-orange-300 font-bold rounded-lg hover:bg-orange-200 transition-all shadow-sm text-base"
-              >
-                <Plus className="w-5 h-5 text-orange-700" />
-                <span>New Article</span>
-                <ChevronDown className="w-4 h-4 text-orange-700 ml-1" />
-              </button>
-
-              {isDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-xl z-20 overflow-hidden">
-                  <button
-                    onClick={() => handleAction("New From Style")}
-                    className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-900 font-medium border-b border-gray-100 transition-colors"
-                  >
-                    New From Style
-                  </button>
-                  <button
-                    onClick={() => handleAction("Move From")}
-                    className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-900 font-medium transition-colors"
-                  >
-                    Move From
-                  </button>
-                </div>
-              )}
-            </div>
+          <div>
+            <h1 className="text-xl md:text-2xl text-secondary-dark font-bold tracking-tight">
+              Articles
+            </h1>
+            <p className="text-xs text-secondary-gary mt-0.5">
+              Use the column filter row below to narrow by Month, Promote Status or Ex Delivery — or search across all fields.
+            </p>
           </div>
         </div>
 
-        {/* Articles Table with Green Header & Month Groups */}
-        <div className="overflow-x-auto border border-emerald-600 rounded-sm">
+        <div className="flex items-center gap-3 lg:ml-auto">
+          <div className="flex items-center border border-light-dark px-3 rounded-[6px] h-11 w-full max-w-60">
+            <Search className="text-[#BDBDBD] size-4 shrink-0" />
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search articles..."
+              className="border-none shadow-none focus-visible:ring-0 h-auto placeholder:text-[#BDBDBD] bg-transparent"
+            />
+          </div>
+
+          <div className="relative shrink-0">
+            <button
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="flex items-center gap-1.5 h-11 px-6 bg-primary text-white text-sm font-medium rounded-lg shadow-sm hover:bg-primary/90 transition-colors whitespace-nowrap shrink-0"
+            >
+              <Plus className="size-4" />
+              New Article
+              <ChevronDown className="size-4 ml-1" />
+            </button>
+
+            {isDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-white border border-light-dark rounded-lg shadow-lg z-20 overflow-hidden">
+                <button
+                  onClick={() => handleAction("New From Style")}
+                  className="w-full text-left px-4 py-2.5 text-sm text-secondary-dark hover:bg-primary/5 hover:text-primary font-medium border-b border-light-dark transition-colors"
+                >
+                  New From Style
+                </button>
+                <button
+                  onClick={() => handleAction("Move From")}
+                  className="w-full text-left px-4 py-2.5 text-sm text-secondary-dark hover:bg-primary/5 hover:text-primary font-medium transition-colors"
+                >
+                  Move From
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Articles table */}
+      <div className="bg-white border border-light-dark rounded-lg overflow-hidden">
+        <div className="overflow-x-auto scrollbar-hide">
           <table className="w-full text-left border-collapse text-xs whitespace-nowrap">
             <thead>
-              <tr className="bg-[#60ab43] text-white font-bold border-b border-emerald-700">
-                <th className="py-2.5 px-3 border-r border-emerald-500">Style</th>
-                <th className="py-2.5 px-3 border-r border-emerald-500">Fit</th>
-                <th className="py-2.5 px-3 border-r border-emerald-500">Image</th>
-                <th className="py-2.5 px-3 border-r border-emerald-500">Month</th>
-                <th className="py-2.5 px-3 border-r border-emerald-500">Retail Price</th>
-                <th className="py-2.5 px-3 border-r border-emerald-500">FOB</th>
-                <th className="py-2.5 px-3 border-r border-emerald-500">Active Color</th>
-                <th className="py-2.5 px-3 border-r border-emerald-500">Size Range</th>
-                <th className="py-2.5 px-3 border-r border-emerald-500">Fabric</th>
-                <th className="py-2.5 px-3 border-r border-emerald-500">Fabric Description</th>
-                <th className="py-2.5 px-3 border-r border-emerald-500">Composition</th>
-                <th className="py-2.5 px-3 border-r border-emerald-500">Promote Status</th>
-                <th className="py-2.5 px-3 border-r border-emerald-500">Assigned Branch</th>
-                <th className="py-2.5 px-3 border-r border-emerald-500">Packing Code</th>
-                <th className="py-2.5 px-3 border-r border-emerald-500">Transport Mode</th>
-                <th className="py-2.5 px-3 border-r border-emerald-500">Supplier</th>
-                <th className="py-2.5 px-3 border-r border-emerald-500">Ex Delivery</th>
-                <th className="py-2.5 px-3">Sustainability</th>
+              <tr className="bg-[#5098D5]">
+                {columns.map((col) => (
+                  <th
+                    key={col.header}
+                    className="py-3 px-4 border-r border-white/30 last:border-r-0 font-semibold text-white text-xs uppercase tracking-wide"
+                  >
+                    {col.header}
+                  </th>
+                ))}
               </tr>
               {/* Column filter row */}
-              <tr className="bg-[#e4f5d9] font-medium text-emerald-950 border-b border-emerald-400">
-                <td className="py-1.5 px-3 border-r border-emerald-300">All</td>
-                <td className="py-1.5 px-3 border-r border-emerald-300">All</td>
-                <td className="py-1.5 px-3 border-r border-emerald-300">All</td>
-                <td className="py-1 px-2 border-r border-emerald-300">
+              <tr className="bg-primary/5 border-b border-light-dark">
+                <td className={`${columnClass} text-secondary-gary`}>All</td>
+                <td className={`${columnClass} text-secondary-gary`}>All</td>
+                <td className={`${columnClass} text-secondary-gary`}>All</td>
+                <td className={columnClass}>
                   <select
                     value={monthFilter}
                     onChange={(e) => setMonthFilter(e.target.value)}
-                    className="w-full bg-transparent text-emerald-950 font-medium focus:outline-none"
+                    className="w-full bg-transparent text-secondary-dark font-medium focus:outline-none"
                   >
                     <option value="all">All</option>
                     {monthFilterOptions.map((m) => (
@@ -269,18 +290,18 @@ export default function ArticlesTable({
                     ))}
                   </select>
                 </td>
-                <td className="py-1.5 px-3 border-r border-emerald-300">All</td>
-                <td className="py-1.5 px-3 border-r border-emerald-300">All</td>
-                <td className="py-1.5 px-3 border-r border-emerald-300">All</td>
-                <td className="py-1.5 px-3 border-r border-emerald-300">All</td>
-                <td className="py-1.5 px-3 border-r border-emerald-300">All</td>
-                <td className="py-1.5 px-3 border-r border-emerald-300">All</td>
-                <td className="py-1.5 px-3 border-r border-emerald-300">All</td>
-                <td className="py-1 px-2 border-r border-emerald-300">
+                <td className={`${columnClass} text-secondary-gary`}>All</td>
+                <td className={`${columnClass} text-secondary-gary`}>All</td>
+                <td className={`${columnClass} text-secondary-gary`}>All</td>
+                <td className={`${columnClass} text-secondary-gary`}>All</td>
+                <td className={`${columnClass} text-secondary-gary`}>All</td>
+                <td className={`${columnClass} text-secondary-gary`}>All</td>
+                <td className={`${columnClass} text-secondary-gary`}>All</td>
+                <td className={columnClass}>
                   <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="w-full bg-transparent text-emerald-950 font-medium focus:outline-none"
+                    className="w-full bg-transparent text-secondary-dark font-medium focus:outline-none"
                   >
                     <option value="all">All</option>
                     {statusFilterOptions.map((s) => (
@@ -288,15 +309,15 @@ export default function ArticlesTable({
                     ))}
                   </select>
                 </td>
-                <td className="py-1.5 px-3 border-r border-emerald-300">All</td>
-                <td className="py-1.5 px-3 border-r border-emerald-300">All</td>
-                <td className="py-1.5 px-3 border-r border-emerald-300">All</td>
-                <td className="py-1.5 px-3 border-r border-emerald-300">All</td>
-                <td className="py-1 px-2 border-r border-emerald-300">
+                <td className={`${columnClass} text-secondary-gary`}>All</td>
+                <td className={`${columnClass} text-secondary-gary`}>All</td>
+                <td className={`${columnClass} text-secondary-gary`}>All</td>
+                <td className={`${columnClass} text-secondary-gary`}>All</td>
+                <td className={columnClass}>
                   <select
                     value={dateFilter}
                     onChange={(e) => setDateFilter(e.target.value)}
-                    className="w-full bg-transparent text-emerald-950 font-medium focus:outline-none"
+                    className="w-full bg-transparent text-secondary-dark font-medium focus:outline-none"
                   >
                     <option value="all">All</option>
                     {dateFilterOptions.map((d) => (
@@ -304,79 +325,105 @@ export default function ArticlesTable({
                     ))}
                   </select>
                 </td>
-                <td className="py-1.5 px-3">All</td>
+                <td className={`py-3 px-4 text-secondary-gary`}>All</td>
               </tr>
             </thead>
-            <tbody>
-              {groupedArticles.length === 0 && (
+
+            {groupedArticles.length === 0 && (
+              <tbody>
                 <tr>
-                  <td colSpan={18} className="py-6 px-3 text-center text-sm text-gray-400">
+                  <td colSpan={columns.length} className="py-10 px-3 text-center text-sm text-secondary-gary">
                     No articles match the current filters.
                   </td>
                 </tr>
-              )}
-              {groupedArticles.map((group) => (
-                <tr key={group.month} className="contents">
-                  {/* Group Row Header */}
-                  <tr className="bg-white font-bold border-b border-gray-300">
-                    <td colSpan={18} className="py-2 px-3 text-sm text-gray-900 bg-gray-50/80">
-                      <span className="text-orange-500 mr-1">➡️</span> {group.month} ({group.items.length.toString().padStart(2, "0")})
+              </tbody>
+            )}
+
+            {groupedArticles.map((group) => {
+              const isCollapsed = collapsedGroups.has(group.month);
+              return (
+                <tbody key={group.month}>
+                  <tr className="bg-light border-b border-light-dark">
+                    <td colSpan={columns.length} className="p-0">
+                      <button
+                        onClick={() => toggleGroup(group.month)}
+                        className="w-full flex items-center gap-2 py-2.5 px-4 text-sm font-semibold text-secondary-dark hover:bg-light-dark/40 transition-colors"
+                      >
+                        {isCollapsed ? (
+                          <ChevronRight className="size-4 text-primary" />
+                        ) : (
+                          <ChevronDown className="size-4 text-primary" />
+                        )}
+                        {group.month}
+                        <span className="text-secondary-gary font-normal">
+                          ({group.items.length.toString().padStart(2, "0")})
+                        </span>
+                      </button>
                     </td>
                   </tr>
 
-                  {/* Group Items */}
-                  {group.items.map((item) => (
-                    <tr key={item.style} className="border-b border-gray-200 hover:bg-emerald-50/20">
-                      <td className="py-2 px-3 border-r border-gray-200 font-bold text-gray-900">
-                        <Link
-                          href={`/admin/styles/${seasonId}/${departmentId}/${categoryId}/${item.style}`}
-                          className="text-blue-700 hover:underline block"
-                        >
-                          {item.style}
-                        </Link>
-                      </td>
-                      <td className="py-2 px-3 border-r border-gray-200">{item.fit}</td>
-                      <td className="py-2 px-3 border-r border-gray-200">
-                        <div className="relative w-8 h-8 rounded border overflow-hidden bg-gray-100">
-                          <Image
-                            src={item.image}
-                            alt={`Style ${item.style}`}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                      </td>
-                      <td className="py-2 px-3 border-r border-gray-200">{item.month}</td>
-                      <td className="py-2 px-3 border-r border-gray-200">{item.retailPrice}</td>
-                      <td className="py-2 px-3 border-r border-gray-200">{item.fob}</td>
-                      <td className="py-2 px-3 border-r border-gray-200">{item.activeColor}</td>
-                      <td className="py-2 px-3 border-r border-gray-200">{item.sizeRange}</td>
-                      <td className="py-2 px-3 border-r border-gray-200">{item.fabric}</td>
-                      <td className="py-2 px-3 border-r border-gray-200">{item.fabricDescription}</td>
-                      <td className="py-2 px-3 border-r border-gray-200">{item.composition}</td>
-                      <td className="py-2 px-3 border-r border-gray-200 font-semibold text-emerald-700">
-                        {item.promoteStatus}
-                      </td>
-                      <td className="py-2 px-3 border-r border-gray-200">{item.assignedBranch}</td>
-                      <td className="py-2 px-3 border-r border-gray-200">{item.packingCode}</td>
-                      <td className="py-2 px-3 border-r border-gray-200">{item.transportMode}</td>
-                      <td className="py-2 px-3 border-r border-gray-200">{item.supplier}</td>
-                      <td className="py-2 px-3 border-r border-gray-200">{item.exDelivery}</td>
-                      <td className="py-2 px-3">{item.sustainability}</td>
-                    </tr>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
+                  {!isCollapsed &&
+                    group.items.map((item) => (
+                      <tr
+                        key={item.style}
+                        className="border-b border-light-dark even:bg-light/30 hover:bg-primary/5 transition-colors"
+                      >
+                        <td className={columnClass}>
+                          <Link
+                            href={`/admin/styles/${seasonId}/${departmentId}/${categoryId}/${item.style}`}
+                            className="text-primary font-semibold hover:underline"
+                          >
+                            {item.style}
+                          </Link>
+                        </td>
+                        <td className={`${columnClass} text-secondary-dark`}>{item.fit}</td>
+                        <td className={columnClass}>
+                          <div className="relative w-8 h-8 rounded-md border border-light-dark overflow-hidden bg-light">
+                            <Image
+                              src={item.image}
+                              alt={`Style ${item.style}`}
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                        </td>
+                        <td className={`${columnClass} text-secondary-dark`}>{item.month}</td>
+                        <td className={`${columnClass} text-secondary-dark`}>{item.retailPrice}</td>
+                        <td className={`${columnClass} text-secondary-dark`}>{item.fob}</td>
+                        <td className={`${columnClass} text-secondary-dark`}>{item.activeColor}</td>
+                        <td className={`${columnClass} text-secondary-dark`}>{item.sizeRange}</td>
+                        <td className={`${columnClass} text-secondary-dark`}>{item.fabric}</td>
+                        <td className={`${columnClass} text-secondary-gary`}>{item.fabricDescription}</td>
+                        <td className={`${columnClass} text-secondary-gary`}>{item.composition}</td>
+                        <td className={columnClass}>
+                          <span
+                            className={`inline-block px-2.5 py-0.5 text-xs font-semibold rounded ${
+                              promoteStatusStyles[item.promoteStatus] ??
+                              "bg-purple-100 text-purple-800"
+                            }`}
+                          >
+                            {item.promoteStatus}
+                          </span>
+                        </td>
+                        <td className={`${columnClass} text-secondary-dark`}>{item.assignedBranch}</td>
+                        <td className={`${columnClass} text-secondary-gary`}>{item.packingCode}</td>
+                        <td className={`${columnClass} text-secondary-gary`}>{item.transportMode}</td>
+                        <td className={`${columnClass} text-secondary-gary`}>{item.supplier}</td>
+                        <td className={`${columnClass} text-secondary-gary`}>{item.exDelivery}</td>
+                        <td className="py-3 px-4 text-secondary-gary">{item.sustainability}</td>
+                      </tr>
+                    ))}
+                </tbody>
+              );
+            })}
           </table>
         </div>
       </div>
 
-      <CreateUpdateArticle
+      <CreateUpdateSeason
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleCreateArticle}
-        defaultSeasonId={seasonId in seasonNames ? seasonId : undefined}
       />
     </div>
   );
