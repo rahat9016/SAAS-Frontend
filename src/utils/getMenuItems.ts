@@ -40,13 +40,8 @@ export function getMenuItems(): MenuItem[] {
       label: "Seasons & Styles (PLM)",
       icon: Calendar,
       resource: "products",
-      children: [
-        {
-          label: "Seasons Overview",
-          href: "/admin/styles",
-          matchRoutes: ["/admin/styles"],
-        },
-      ],
+      href: "/admin/styles",
+      matchRoutes: ["/admin/styles"],
     },
 
     // 4-Tier Category Hierarchy & Brand section
