@@ -9,6 +9,7 @@ import {
   ImageUp,
   ImageMinus,
   RefreshCw,
+  Shirt,
   Tag,
 } from "lucide-react";
 import Image from "next/image";
@@ -78,7 +79,7 @@ const ACTION_BUTTONS = [
 interface MarketingRow {
   label: string;
   value: string;
-  /** Render the value in the green "affirmative" style. */
+  /** Render the value as an affirmative badge. */
   highlight?: boolean;
 }
 
@@ -122,8 +123,16 @@ const MARKETING_ROWS: MarketingRow[] = [
 interface PropertyRow {
   label: string;
   value: string;
-  /** Render the value in the green "affirmative" style. */
+  /** Render the value as an affirmative badge. */
   highlight?: boolean;
+}
+
+function ValueBadge({ children }: { children: string }) {
+  return (
+    <span className="inline-block px-2.5 py-0.5 text-xs font-semibold rounded bg-emerald-100 text-emerald-800">
+      {children}
+    </span>
+  );
 }
 
 export default function ArticleDetailView({
@@ -205,24 +214,23 @@ export default function ArticleDetailView({
     if (!row) {
       return (
         <>
-          <td className="py-1.5 px-3 bg-emerald-50 border-r border-emerald-200" />
-          <td className={cn("py-1.5 px-3", !isLast && "border-r border-emerald-200")} />
+          <td className="py-2 px-3 bg-light border-r border-light-dark" />
+          <td className={cn("py-2 px-3", !isLast && "border-r border-light-dark")} />
         </>
       );
     }
     return (
       <>
-        <td className="py-1.5 px-3 font-bold text-emerald-900 bg-emerald-50 border-r border-emerald-200 w-1/4">
+        <td className="py-2 px-3 font-semibold text-secondary-dark bg-light border-r border-light-dark w-1/4">
           {row.label}
         </td>
         <td
           className={cn(
-            "py-1.5 px-3 w-1/4",
-            !isLast && "border-r border-emerald-200",
-            row.highlight && "font-semibold text-emerald-700"
+            "py-2 px-3 w-1/4 text-secondary-gary",
+            !isLast && "border-r border-light-dark"
           )}
         >
-          {row.value}
+          {row.highlight ? <ValueBadge>{row.value}</ValueBadge> : row.value}
         </td>
       </>
     );
@@ -230,47 +238,52 @@ export default function ArticleDetailView({
 
   return (
     <div className="w-full space-y-4">
-      {/* Top Header Bar matching Image */}
-      <div className="bg-[#ffeac7] p-2 border-[3px] border-[#fdc276] rounded-sm flex flex-wrap items-center justify-between gap-4">
+      {/* Header bar */}
+      <div className="bg-white border border-light-dark rounded-lg px-5 py-4 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="font-extrabold text-lg text-black tracking-wider flex items-center gap-1.5">
-            <span className="text-xl">🦊</span> FAMILIE MUNSHI
+          <div className="flex items-center justify-center size-11 rounded-lg bg-primary/10 text-primary shrink-0">
+            <Shirt className="size-5" />
           </div>
-          <div className="flex items-center border border-gray-300 rounded-sm overflow-hidden bg-white shadow-sm">
-            <span className="bg-[#8ee59d] text-gray-900 font-semibold px-2 py-1.5 text-sm flex items-center gap-1 border-r border-gray-300 cursor-pointer">
-              Style ▼
+          <div className="font-bold text-lg text-secondary-dark tracking-wide">
+            FAMILIE MUNSHI
+          </div>
+          <div className="flex items-center border border-light-dark rounded-[6px] overflow-hidden h-11">
+            <span className="bg-primary/10 text-primary font-semibold px-3 h-full flex items-center gap-1 border-r border-light-dark text-sm cursor-pointer">
+              Style <ChevronDown className="size-3.5" />
             </span>
             <input
               type="text"
               defaultValue={articleId}
-              className="px-3 py-1 text-sm font-semibold w-28 text-gray-800 outline-none"
+              className="px-3 h-full text-sm font-semibold w-28 text-secondary-dark outline-none bg-transparent"
             />
           </div>
         </div>
 
-        <div className="text-sm font-medium text-gray-800 pr-2">
+        <span className="inline-block px-3 py-1.5 text-sm font-medium rounded-md bg-light text-secondary-dark">
           Product Developement
-        </div>
+        </span>
       </div>
 
       {/* Breadcrumb */}
-      <div className="text-sm text-gray-600 font-medium">
-        <Link href="/admin/styles" className="hover:underline">Style</Link> &gt;{" "}
-        <Link href={`/admin/styles/${seasonId}`} className="hover:underline">{seasonName}</Link> &gt;{" "}
-        <Link href={`/admin/styles/${seasonId}/${departmentId}`} className="hover:underline">{deptName}</Link> &gt;{" "}
-        <Link href={`/admin/styles/${seasonId}/${departmentId}/${categoryId}`} className="hover:underline">{categoryName}</Link> &gt;{" "}
-        <span className="text-gray-900">{articleId}</span>
+      <div className="text-xs md:text-sm text-secondary-gary font-medium">
+        <Link href="/admin/styles" className="hover:text-primary hover:underline">Style</Link> {" > "}
+        <Link href={`/admin/styles/${seasonId}`} className="hover:text-primary hover:underline">{seasonName}</Link> {" > "}
+        <Link href={`/admin/styles/${seasonId}/${departmentId}`} className="hover:text-primary hover:underline">{deptName}</Link> {" > "}
+        <Link href={`/admin/styles/${seasonId}/${departmentId}/${categoryId}`} className="hover:text-primary hover:underline">{categoryName}</Link> {" > "}
+        <span className="text-secondary-dark font-semibold">{articleId}</span>
       </div>
 
       {/* Main Tabs (Style | Sourcing | Specification) */}
-      <div className="flex gap-4 border-b border-[#ffeac7] pb-1">
+      <div className="flex gap-6 border-b border-light-dark">
         {MAIN_TABS.map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveMainTab(tab)}
             className={cn(
-              "text-base font-semibold text-[#2eb85c] transition-colors",
-              activeMainTab === tab && "underline underline-offset-4"
+              "text-base font-semibold pb-2 -mb-px border-b-2 transition-colors",
+              activeMainTab === tab
+                ? "text-primary border-primary"
+                : "text-secondary-dark border-transparent hover:text-primary"
             )}
           >
             {tab}
@@ -279,14 +292,16 @@ export default function ArticleDetailView({
       </div>
 
       {/* Sub Tabs */}
-      <div className="flex gap-4 text-sm font-semibold border-b border-[#ffeac7]">
+      <div className="flex gap-5 text-sm font-medium border-b border-light-dark">
         {SUB_TABS.map((subTab) => (
           <button
             key={subTab}
             onClick={() => setActiveSubTab(subTab)}
             className={cn(
-              "pb-1 px-1 text-[#2eb85c] transition-colors",
-              activeSubTab === subTab && "border-b-[3px] border-[#2eb85c]"
+              "pb-2 px-1 -mb-px border-b-2 transition-colors",
+              activeSubTab === subTab
+                ? "text-primary border-primary font-semibold"
+                : "text-secondary-gary border-transparent hover:text-primary"
             )}
           >
             {subTab}
@@ -304,7 +319,7 @@ export default function ArticleDetailView({
               title={label}
               aria-label={label}
               onClick={() => handleAction(label)}
-              className="h-9 w-9 flex items-center justify-center rounded border border-gray-300 bg-gray-50 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 cursor-pointer"
+              className="h-9 w-9 flex items-center justify-center rounded-lg border border-light-dark bg-light text-secondary-gary transition-colors hover:bg-light-dark/40 hover:text-secondary-dark cursor-pointer"
             >
               <Icon className="h-4.5 w-4.5" />
             </button>
@@ -315,7 +330,7 @@ export default function ArticleDetailView({
             title="Tag"
             aria-label="Tag"
             onClick={() => handleAction("Tag")}
-            className="h-9 flex items-center gap-1 px-2 rounded border border-gray-300 bg-gray-50 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 cursor-pointer"
+            className="h-9 flex items-center gap-1 px-2 rounded-lg border border-light-dark bg-light text-secondary-gary transition-colors hover:bg-light-dark/40 hover:text-secondary-dark cursor-pointer"
           >
             <Tag className="h-4.5 w-4.5" />
             <ChevronDown className="h-3.5 w-3.5" />
@@ -326,7 +341,7 @@ export default function ArticleDetailView({
             title="Refresh"
             aria-label="Refresh"
             onClick={() => handleAction("Refresh")}
-            className="h-9 w-9 flex items-center justify-center rounded border border-gray-300 bg-gray-50 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 cursor-pointer"
+            className="h-9 w-9 flex items-center justify-center rounded-lg border border-light-dark bg-light text-secondary-gary transition-colors hover:bg-light-dark/40 hover:text-secondary-dark cursor-pointer"
           >
             <RefreshCw className="h-4.5 w-4.5" />
           </button>
@@ -338,7 +353,7 @@ export default function ArticleDetailView({
               key={btn}
               type="button"
               onClick={() => handleAction(btn)}
-              className="h-9 px-3 rounded border border-orange-400 bg-white text-sm font-medium text-gray-800 transition-colors hover:bg-orange-50 cursor-pointer"
+              className="h-9 px-4 rounded-lg border border-light-dark bg-white text-sm font-medium text-secondary-dark transition-colors hover:bg-primary/5 hover:border-primary/40 hover:text-primary cursor-pointer"
             >
               {btn}
             </button>
@@ -350,8 +365,8 @@ export default function ArticleDetailView({
       {activeSubTab === "Properties" && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column: Technical Sketches & Preview */}
-        <div className="lg:col-span-5 lg:self-start lg:sticky lg:top-4 bg-white p-3 border border-gray-200 rounded-xl shadow-sm space-y-3">
-          <div className="relative w-full h-56 bg-gray-50 border border-gray-200 rounded-lg overflow-hidden flex items-center justify-center p-2">
+        <div className="lg:col-span-5 lg:self-start lg:sticky lg:top-4 bg-white p-3 border border-light-dark rounded-xl shadow-sm space-y-3">
+          <div className="relative w-full h-56 bg-light border border-light-dark rounded-lg overflow-hidden flex items-center justify-center p-2">
             <Image
               src={productImages[selectedImage].src}
               alt={productImages[selectedImage].label}
@@ -370,10 +385,10 @@ export default function ArticleDetailView({
                 key={img.src}
                 onClick={() => setSelectedImage(idx)}
                 className={cn(
-                  "relative h-16 rounded border-2 overflow-hidden transition-all",
+                  "relative h-16 rounded-lg border-2 overflow-hidden transition-all",
                   selectedImage === idx
-                    ? "border-emerald-600 shadow-md"
-                    : "border-gray-200 hover:border-gray-400"
+                    ? "border-primary shadow-md"
+                    : "border-light-dark hover:border-primary/50"
                 )}
               >
                 <Image src={img.src} alt={img.label} fill className="object-cover" />
@@ -385,13 +400,13 @@ export default function ArticleDetailView({
         {/* Right Column: Properties & Marketing Info */}
         <div className="lg:col-span-7 space-y-6">
           {/* Article / Assigned Branch property grid */}
-          <div className="bg-white border border-emerald-600 rounded-xl overflow-hidden shadow-sm">
+          <div className="bg-white border border-light-dark rounded-lg overflow-hidden shadow-sm">
             <table className="w-full text-xs text-left border-collapse">
               <tbody>
                 {Array.from({ length: rowCount }).map((_, idx) => (
                   <tr
                     key={articleRows[idx]?.label ?? branchRows[idx]?.label ?? idx}
-                    className={cn(idx < rowCount - 1 && "border-b border-emerald-200")}
+                    className={cn(idx < rowCount - 1 && "border-b border-light-dark")}
                   >
                     {renderCells(articleRows[idx], false)}
                     {renderCells(branchRows[idx], true)}
@@ -402,31 +417,31 @@ export default function ArticleDetailView({
           </div>
 
           {/* Marketing Info */}
-          <div className="bg-white border-2 border-orange-400 rounded-sm overflow-hidden shadow-sm">
-            <h3 className="bg-[#fdf7dc] border-b-2 border-orange-400 px-3 py-2 text-lg font-bold text-gray-900">
+          <div className="bg-white border border-light-dark rounded-lg overflow-hidden shadow-sm">
+            <h3 className="bg-light border-b border-light-dark px-4 py-3 text-lg font-bold text-secondary-dark">
               Marketing Info
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 text-xs">
               {/* Left Column: fabric facts, care instructions, details */}
-              <div className="border-b border-orange-300 md:border-b-0 md:border-r-2 md:border-orange-400">
+              <div className="border-b border-light-dark md:border-b-0 md:border-r md:border-light-dark">
                 {FABRIC_ROWS.map((row) => (
                   <div
                     key={row.label}
-                    className="flex min-h-11 border-b border-orange-300"
+                    className="flex min-h-11 border-b border-light-dark"
                   >
-                    <span className="w-1/2 flex items-center px-3 py-2 font-bold text-gray-900 border-r border-orange-300">
+                    <span className="w-1/2 flex items-center px-3 py-2 font-semibold text-secondary-dark border-r border-light-dark bg-light">
                       {row.label}
                     </span>
-                    <span className="w-1/2 flex items-center px-3 py-2 text-gray-700">
+                    <span className="w-1/2 flex items-center px-3 py-2 text-secondary-gary">
                       {row.value}
                     </span>
                   </div>
                 ))}
 
-                <div className="border-b border-orange-300 px-3 py-2">
-                  <p className="font-bold text-gray-900">Care Instructions:</p>
-                  <ul className="mt-1 space-y-0.5 pl-6 text-gray-600">
+                <div className="border-b border-light-dark px-3 py-2">
+                  <p className="font-semibold text-secondary-dark">Care Instructions:</p>
+                  <ul className="mt-1 space-y-0.5 pl-6 text-secondary-gary">
                     {CARE_INSTRUCTIONS.map((care) => (
                       <li key={care}>&gt; {care}</li>
                     ))}
@@ -434,8 +449,8 @@ export default function ArticleDetailView({
                 </div>
 
                 <div className="px-3 py-2">
-                  <p className="text-sm font-bold text-gray-900">Details:</p>
-                  <ol className="mt-1 list-decimal space-y-1 pl-5 text-gray-700">
+                  <p className="text-sm font-semibold text-secondary-dark">Details:</p>
+                  <ol className="mt-1 list-decimal space-y-1 pl-5 text-secondary-gary">
                     {DETAIL_QUESTIONS.map((question) => (
                       <li key={question}>{question}</li>
                     ))}
@@ -448,36 +463,31 @@ export default function ArticleDetailView({
                 {MARKETING_ROWS.map((row) => (
                   <div
                     key={row.label}
-                    className="flex min-h-11 border-b border-orange-300"
+                    className="flex min-h-11 border-b border-light-dark"
                   >
-                    <span className="w-1/2 flex items-center px-3 py-2 font-bold text-gray-900 border-r border-orange-300">
+                    <span className="w-1/2 flex items-center px-3 py-2 font-semibold text-secondary-dark border-r border-light-dark bg-light">
                       {row.label}
                     </span>
-                    <span
-                      className={cn(
-                        "w-1/2 flex items-center px-3 py-2 text-gray-700",
-                        row.highlight && "font-bold text-emerald-600"
-                      )}
-                    >
-                      {row.value}
+                    <span className="w-1/2 flex items-center px-3 py-2 text-secondary-gary">
+                      {row.highlight ? <ValueBadge>{row.value}</ValueBadge> : row.value}
                     </span>
                   </div>
                 ))}
 
                 <div className="px-3 py-2">
-                  <p className="font-bold text-gray-900">Print on Care Label</p>
+                  <p className="font-semibold text-secondary-dark">Print on Care Label</p>
                   <div className="mt-2 space-y-3 pl-3">
                     <div className="flex">
-                      <span className="w-24 shrink-0 font-semibold text-gray-900">
+                      <span className="w-24 shrink-0 font-semibold text-secondary-dark">
                         Designed in
                       </span>
-                      <span className="text-gray-700">Germany</span>
+                      <span className="text-secondary-gary">Germany</span>
                     </div>
                     <div className="flex">
-                      <span className="w-24 shrink-0 font-semibold text-gray-900">
+                      <span className="w-24 shrink-0 font-semibold text-secondary-dark">
                         Address
                       </span>
-                      <div className="space-y-0.5 text-gray-700">
+                      <div className="space-y-0.5 text-secondary-gary">
                         <p>Familie Munshi</p>
                         <p className="pt-2">Familie Munshi UG</p>
                         <p>Robert Dißmann str.10</p>
