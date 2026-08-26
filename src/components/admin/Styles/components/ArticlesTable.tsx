@@ -1,14 +1,23 @@
 "use client";
 
+import { mockCategoriesList } from "@/src/components/admin/Categories/data/mockCategoryHierarchy";
+import { mockBranchesList } from "@/src/components/admin/RBAC/Branches/data/mockBranchData";
 import { Input } from "@/src/components/ui/input";
+import { useAppDispatch } from "@/src/lib/redux/hooks";
+import { createProperty } from "@/src/lib/redux/features/styleProperty/stylePropertySlice";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { ChevronDown, ChevronRight, Plus, Search, Shirt } from "lucide-react";
 import { IArticleItem, mockArticlesListGrouped } from "../data/mockStyleData";
-import CreateUpdateSeason from "../Form/CreateUpdateSeason";
-import { SeasonFormValues } from "../Schema/seasonSchema";
+import CreateStyleProperty from "../Form/CreateStyleProperty";
+import PropertyCreatedDialog from "../Form/PropertyCreatedDialog";
+import { StylePropertyFormValues } from "../Schema/stylePropertySchema";
 import { toast } from "react-toastify";
+
+const categoryLookup = new Map(mockCategoriesList.map((c) => [c.id, c.name]));
+const branchLookup = new Map(mockBranchesList.map((b) => [b.id, b.name ?? b.id]));
 
 interface ArticlesTableProps {
   seasonId: string;
@@ -61,9 +70,13 @@ export default function ArticlesTable({
   const deptName = deptNames[departmentId] || "Men";
   const categoryName = catNames[categoryId] || "T-Shirt";
 
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [articles, setArticles] = useState<IArticleItem[]>(initialArticles);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [createdCode, setCreatedCode] = useState<string | null>(null);
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
 
   const [search, setSearch] = useState("");
@@ -138,9 +151,34 @@ export default function ArticlesTable({
     toast.info(`Action triggered: ${action}`);
   };
 
-  const handleCreateArticle = (values: SeasonFormValues) => {
+  const handleCreateArticle = (values: StylePropertyFormValues) => {
+    const selectedCategoryName = categoryLookup.get(values.categoryId) ?? "";
+    const selectedBranchName =
+      branchLookup.get(values.assignedBranchId ?? "") ?? "";
+
+    const action = dispatch(
+      createProperty({
+        styleType: values.styleType,
+        sizeChartTemplate: values.sizeChartTemplate ?? "",
+        deliveryMonth: values.deliveryMonth,
+        collectionType: values.collectionType,
+        categoryId: values.categoryId,
+        categoryName: selectedCategoryName,
+        seasonId,
+        departmentId,
+        supplierId: values.supplierId ?? "",
+        assignedBranchId: values.assignedBranchId ?? "",
+        assignedBranchName: selectedBranchName,
+        carryOver: !!values.carryOver,
+        autoProtoSr: !!values.autoProtoSr,
+        autoSmsSr: !!values.autoSmsSr,
+        autoFfpSr: !!values.autoFfpSr,
+      })
+    );
+    const code = action.payload.code;
+
     const newArticle: IArticleItem = {
-      style: values.season,
+      style: code,
       fit: "",
       image:
         "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=200&q=80",
@@ -153,21 +191,28 @@ export default function ArticlesTable({
       fabricDescription: "",
       composition: "",
       promoteStatus: "Concept",
-      assignedBranch: "",
+      assignedBranch: selectedBranchName,
       packingCode: "",
       transportMode: "",
-      supplier: "",
+      supplier: values.supplierId ?? "",
       exDelivery: "",
       sustainability: "",
       seasonId,
-      categoryId: values.styleMainClass,
-      segmentId: values.styleClass,
-      subCategoryId: values.styleSubClass,
+      categoryId: values.categoryId,
     };
 
     setArticles((prev) => [...prev, newArticle]);
     setIsModalOpen(false);
-    toast.success(`Style ${values.season} created`);
+    setCreatedCode(code);
+    toast.success(`Property ${code} created`);
+  };
+
+  const handleViewCreatedProperty = () => {
+    if (!createdCode) return;
+    router.push(
+      `/admin/styles/${seasonId}/${departmentId}/${categoryId}/${createdCode}`
+    );
+    setCreatedCode(null);
   };
 
   const columns: { header: string; width?: string }[] = [
@@ -420,10 +465,17 @@ export default function ArticlesTable({
         </div>
       </div>
 
-      <CreateUpdateSeason
+      <CreateStyleProperty
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleCreateArticle}
+      />
+
+      <PropertyCreatedDialog
+        isOpen={!!createdCode}
+        code={createdCode}
+        onClose={() => setCreatedCode(null)}
+        onViewDetails={handleViewCreatedProperty}
       />
     </div>
   );

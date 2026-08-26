@@ -6,6 +6,7 @@ import genderReducer from "./features/gender/genderSlice";
 import organizerReducer from "./features/organizer/organizationSlice";
 import permissionReducer from "./features/permission/permissionSlice";
 import rbacReducer from "./features/rbac/rbacSlice";
+import stylePropertyReducer from "./features/styleProperty/stylePropertySlice";
 import userReducer from "./features/user/userSlice";
 import wishlistReducer from "./features/wishlist/wishlistSlice";
 import trialRoomReducer from "./features/trialRoom/trialRoomSlice";
@@ -23,6 +24,7 @@ export const makeStore = () => {
       wishlist: wishlistReducer,
       trialRoom: trialRoomReducer,
       rbac: rbacReducer,
+      styleProperty: stylePropertyReducer,
     },
   });
 };

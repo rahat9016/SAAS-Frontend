@@ -12,11 +12,13 @@ import {
   Shirt,
   Tag,
 } from "lucide-react";
+import { useAppSelector } from "@/src/lib/redux/hooks";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import ColorwaysTab from "./ColorwaysTab";
+import PropertyDetailsView from "./PropertyDetailsView";
 
 interface ArticleDetailViewProps {
   seasonId: string;
@@ -145,6 +147,10 @@ export default function ArticleDetailView({
   const deptName = deptNames[departmentId] || "Men";
   const categoryName = catNames[categoryId] || "T-Shirt";
 
+  const createdProperty = useAppSelector(
+    (state) => state.styleProperty.items[articleId]
+  );
+
   const [activeMainTab, setActiveMainTab] = useState("Style");
   const [activeSubTab, setActiveSubTab] = useState("Properties");
   const [selectedImage, setSelectedImage] = useState(0);
@@ -152,6 +158,17 @@ export default function ArticleDetailView({
   const handleAction = (btn: string) => {
     toast.success(`Action executed: ${btn} for Style #${articleId}`);
   };
+
+  if (createdProperty) {
+    return (
+      <PropertyDetailsView
+        property={createdProperty}
+        seasonName={seasonName}
+        deptName={deptName}
+        backHref={`/admin/styles/${seasonId}/${departmentId}/${categoryId}`}
+      />
+    );
+  }
 
   const productImages = [
     {
