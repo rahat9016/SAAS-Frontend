@@ -1,6 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./features/auth/authSlice";
 import cartReducer from "./features/cart/cartSlice";
+import colorwayReducer from "./features/colorway/colorwaySlice";
 import filterReducer from "./features/filter/filterSlice";
 import genderReducer from "./features/gender/genderSlice";
 import organizerReducer from "./features/organizer/organizationSlice";
@@ -25,6 +26,7 @@ export const makeStore = () => {
       trialRoom: trialRoomReducer,
       rbac: rbacReducer,
       styleProperty: stylePropertyReducer,
+      colorway: colorwayReducer,
     },
   });
 };
