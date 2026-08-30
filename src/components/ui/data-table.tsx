@@ -22,12 +22,14 @@ import {
 
 // Types
 export interface ColumnDef<T> {
-  header: string;
+  header: ReactNode;
   accessorKey: keyof T;
   sortable?: boolean;
   align?: "left" | "right" | "center";
   /** Allow this cell's content to wrap onto multiple lines instead of being truncated. */
   wrap?: boolean;
+  /** Content shown in the optional per-column filter row (see `showColumnFilters`). Omit for a blank cell. */
+  filterLabel?: ReactNode;
   cell?: (value: T[keyof T], row: T) => React.ReactNode;
 }
 
@@ -66,6 +68,8 @@ export interface DataTableProps<T> {
   options?: { value: string; label: string }[];
   rightComponents?: ReactNode;
   statusOptions?: { label: string; value: string }[];
+  /** Render an extra header row with each column's `filterLabel` (default variant only). */
+  showColumnFilters?: boolean;
 }
 
 export function DataTable<T>({
@@ -93,6 +97,7 @@ export function DataTable<T>({
   rightComponents,
   statusOptions,
   isShowStatus = true,
+  showColumnFilters = false,
 }: DataTableProps<T>) {
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -103,7 +108,7 @@ export function DataTable<T>({
 
   return (
     <>
-      {!isPlain && (
+      {!isPlain && (title || icon || IsCreate) && (
         <div className="flex flex-col lg:flex-row lg:items-center gap-3 mb-3 bg-white border border-light-dark rounded-lg px-5 py-4">
           <TableTopBarHeader title={title} icon={icon} />
 
@@ -214,7 +219,7 @@ export function DataTable<T>({
                       className={`${
                         isPlain
                           ? "font-semibold text-[11px] uppercase tracking-wide text-secondary-gary px-4 whitespace-nowrap"
-                          : `font-medium text-sm text-white px-5 ${
+                          : `font-medium text-sm text-white px-5 py-2 whitespace-nowrap leading-tight align-middle ${
                               index < columns.length - 1
                                 ? "border-r border-white/30"
                                 : ""
@@ -226,6 +231,23 @@ export function DataTable<T>({
                   );
                 })}
               </TableRow>
+
+              {!isPlain && showColumnFilters && (
+                <TableRow className="bg-primary/5 h-auto hover:bg-primary/5 border-b border-light-dark">
+                  {columns.map((column, index) => (
+                    <TableCell
+                      key={index}
+                      className={`p-3 align-top text-secondary-gary font-medium whitespace-nowrap ${
+                        index < columns.length - 1
+                          ? "border-r border-light-dark"
+                          : ""
+                      } ${alignClass(column)}`}
+                    >
+                      {column.filterLabel}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              )}
             </TableHeader>
 
             <TableBody

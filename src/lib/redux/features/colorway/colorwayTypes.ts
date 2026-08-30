@@ -7,6 +7,7 @@ export interface IColorway {
   standard: string;
   pantone: string;
   colorHex: string;
+  image?: string;
   active: boolean;
   inTheme: boolean;
   sustLabelOff: boolean;

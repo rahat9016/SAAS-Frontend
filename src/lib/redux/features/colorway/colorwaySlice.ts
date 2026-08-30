@@ -151,6 +151,22 @@ const persistItems = (items: Record<string, IColorway>) => {
   }
 };
 
+export type ColorwayFlag =
+  | "active"
+  | "inTheme"
+  | "sustLabelOff"
+  | "planSms"
+  | "plan3dSms"
+  | "actualSms";
+
+export type ColorwayTextField =
+  | "name"
+  | "colorway"
+  | "spec"
+  | "description"
+  | "standard"
+  | "pantone";
+
 const colorwaySlice = createSlice({
   name: "colorway",
   initialState: getInitialState(),
@@ -168,8 +184,43 @@ const colorwaySlice = createSlice({
         },
       }),
     },
+    setColorwayFlag: (
+      state,
+      action: PayloadAction<{ code: string; field: ColorwayFlag; value: boolean }>
+    ) => {
+      const item = state.items[action.payload.code];
+      if (item) {
+        item[action.payload.field] = action.payload.value;
+        persistItems(state.items);
+      }
+    },
+    setColorwayImage: (
+      state,
+      action: PayloadAction<{ code: string; image: string }>
+    ) => {
+      const item = state.items[action.payload.code];
+      if (item) {
+        item.image = action.payload.image;
+        persistItems(state.items);
+      }
+    },
+    setColorwayField: (
+      state,
+      action: PayloadAction<{ code: string; field: ColorwayTextField; value: string }>
+    ) => {
+      const item = state.items[action.payload.code];
+      if (item) {
+        item[action.payload.field] = action.payload.value;
+        persistItems(state.items);
+      }
+    },
   },
 });
 
-export const { createColorway } = colorwaySlice.actions;
+export const {
+  createColorway,
+  setColorwayFlag,
+  setColorwayImage,
+  setColorwayField,
+} = colorwaySlice.actions;
 export default colorwaySlice.reducer;

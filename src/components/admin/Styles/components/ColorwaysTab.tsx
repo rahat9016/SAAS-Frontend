@@ -1,16 +1,34 @@
 import { useMemo } from "react";
-import { Checkbox } from "@/src/components/ui/checkbox";
 import { ChevronDown } from "lucide-react";
 import Link from "next/link";
-import { useAppSelector } from "@/src/lib/redux/hooks";
-
-const columnClass = "p-3 border-r border-light-dark align-top";
-const headerCellClass =
-  "p-3 border-r border-white/30 align-top font-semibold text-white uppercase tracking-wide";
+import { DataTable } from "@/src/components/ui/data-table";
+import {
+  ColorwayFlag,
+  ColorwayTextField,
+  setColorwayField,
+  setColorwayFlag,
+  setColorwayImage,
+} from "@/src/lib/redux/features/colorway/colorwaySlice";
+import { useAppDispatch, useAppSelector } from "@/src/lib/redux/hooks";
+import { GetColorwayColumns } from "../TableColumns/ColorwayColumns";
 
 export default function ColorwaysTab() {
+  const dispatch = useAppDispatch();
   const items = useAppSelector((state) => state.colorway.items);
   const data = useMemo(() => Object.values(items), [items]);
+  const handleToggleFlag = (code: string, field: ColorwayFlag, value: boolean) => {
+    dispatch(setColorwayFlag({ code, field, value }));
+  };
+  const handleImageUpload = (code: string, image: string) => {
+    dispatch(setColorwayImage({ code, image }));
+  };
+  const handleFieldChange = (code: string, field: ColorwayTextField, value: string) => {
+    dispatch(setColorwayField({ code, field, value }));
+  };
+  const columns = useMemo(
+    () => GetColorwayColumns(handleToggleFlag, handleImageUpload, handleFieldChange),
+    []
+  );
 
   return (
     <div className="w-full bg-white border border-light-dark rounded-lg overflow-hidden flex flex-col shadow-sm mt-4">
@@ -38,91 +56,16 @@ export default function ColorwaysTab() {
         </div>
       </div>
 
-      {/* Table Container */}
-      <div className="overflow-x-auto scrollbar-hide">
-        <table className="w-full text-xs text-left border-collapse min-w-max">
-          <thead>
-            <tr className="bg-[#5098D5]">
-              <th className={headerCellClass}>Color Marketing<br/>Name</th>
-              <th className={headerCellClass}>
-                <span className="flex items-center gap-1">Colorway <span className="text-[10px] opacity-70">↕</span></span>
-              </th>
-              <th className={headerCellClass}>Color<br/>Specification</th>
-              <th className={headerCellClass}>Description</th>
-              <th className={headerCellClass}>Color<br/>Standard</th>
-              <th className={headerCellClass}>Pantone</th>
-              <th className={headerCellClass}>Image</th>
-              <th className={`${headerCellClass} text-center`}>Active</th>
-              <th className={`${headerCellClass} text-center`}>In<br/>Theme</th>
-              <th className={`${headerCellClass} text-center`}>Sust<br/>Label<br/>Off</th>
-              <th className={`${headerCellClass} text-center`}>Plan<br/>SMS</th>
-              <th className={`${headerCellClass} text-center`}>Plan<br/>3D<br/>SMS</th>
-              <th className={`${headerCellClass} text-center`}>Actual<br/>SMS</th>
-              <th className={headerCellClass}>Color<br/>Start<br/>Date</th>
-              <th className={headerCellClass}>Color<br/>End<br/>Date</th>
-              <th className="p-3 font-semibold text-white uppercase tracking-wide">Stock<br/>Clearance<br/>Date</th>
-            </tr>
-            {/* Filter Row */}
-            <tr className="bg-primary/5 border-b border-light-dark text-secondary-gary font-medium">
-              <td className={columnClass}>All</td>
-              <td className={columnClass}>All</td>
-              <td className={columnClass}>All</td>
-              <td className={columnClass}>All</td>
-              <td className={columnClass}>All</td>
-              <td className={columnClass}>All</td>
-              <td className={columnClass}></td>
-              <td className={`${columnClass} text-center`}>All</td>
-              <td className={columnClass}></td>
-              <td className={`${columnClass} text-center`}>All</td>
-              <td className={`${columnClass} text-center`}>All</td>
-              <td className={`${columnClass} text-center`}>All</td>
-              <td className={`${columnClass} text-center`}>All</td>
-              <td className={columnClass}>All</td>
-              <td className={columnClass}>All</td>
-              <td className="p-3">All</td>
-            </tr>
-          </thead>
-          <tbody className="bg-white">
-            {data.map((row) => (
-              <tr key={row.code} className="border-b border-light-dark even:bg-light/30 hover:bg-primary/5 transition-colors">
-                <td className={`${columnClass} text-secondary-dark`}>{row.name}</td>
-                <td className={`${columnClass} text-primary font-medium`}>{row.colorway}</td>
-                <td className={`${columnClass} text-primary font-medium`}>{row.spec}</td>
-                <td className={`${columnClass} text-secondary-gary`}>{row.description}</td>
-                <td className={`${columnClass} text-secondary-gary`}>{row.standard}</td>
-                <td className={`${columnClass} text-secondary-gary whitespace-pre-wrap leading-tight`}>{row.pantone.replace(" TCX", "\nTCX")}</td>
-                <td className={`${columnClass} text-center`}>
-                  <div className="w-8 h-8 mx-auto rounded border border-light-dark" style={{ backgroundColor: row.colorHex }} />
-                </td>
-                <td className={`${columnClass} text-center align-middle`}>
-                  <Checkbox checked={row.active} disabled className="mx-auto" />
-                </td>
-                <td className={`${columnClass} text-center align-middle`}>
-                  <Checkbox checked={row.inTheme} disabled className="mx-auto" />
-                </td>
-                <td className={`${columnClass} text-center align-middle`}>
-                  <Checkbox checked={row.sustLabelOff} disabled className="mx-auto" />
-                </td>
-                <td className={`${columnClass} text-center align-middle`}>
-                  <Checkbox checked={row.planSms} disabled className="mx-auto" />
-                </td>
-                <td className={`${columnClass} text-center align-middle`}>
-                  <Checkbox checked={row.plan3dSms} disabled className="mx-auto" />
-                </td>
-                <td className={`${columnClass} text-center align-middle`}>
-                  <Checkbox checked={row.actualSms} disabled className="mx-auto" />
-                </td>
-                <td className={`${columnClass} text-secondary-gary`}>{row.startDate}</td>
-                <td className={`${columnClass} text-secondary-gary`}>{row.endDate}</td>
-                <td className="p-3 text-secondary-gary">{row.clearanceDate}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <div className="p-3 border-t border-light-dark bg-light text-xs text-secondary-gary">
-        Displaying {data.length} results
-      </div>
+      <DataTable
+        columns={columns}
+        data={data}
+        showSearch={false}
+        isShowStatus={false}
+        showColumnFilters
+        totalItems={data.length}
+        itemsPerPage={data.length || 10}
+        currentPage={1}
+      />
     </div>
   );
 }
