@@ -18,6 +18,7 @@ export interface IColorway {
   endDate: string;
   clearanceDate: string;
   createdAt: string;
+  articleIds: string[];
 }
 
 export interface IColorwayState {

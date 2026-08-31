@@ -8,7 +8,7 @@ const STORAGE_KEY = "colorways";
 const generateCode = () => `CLR-${nanoid(6).toUpperCase()}`;
 
 const getDefaultItems = (): Record<string, IColorway> => {
-  const seeds: Omit<IColorway, "code" | "createdAt">[] = [
+  const seeds: Omit<IColorway, "code" | "createdAt" | "articleIds">[] = [
     {
       name: "yellow",
       colorway: "1015",
@@ -125,6 +125,7 @@ const getDefaultItems = (): Record<string, IColorway> => {
         ...seed,
         code: generateCode(),
         createdAt: new Date().toISOString(),
+        articleIds: [],
       };
       return [item.code, item];
     })
@@ -136,7 +137,11 @@ const getInitialState = (): IColorwayState => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       try {
-        return { items: JSON.parse(saved) };
+        const parsed: Record<string, IColorway> = JSON.parse(saved);
+        Object.values(parsed).forEach((item) => {
+          if (!item.articleIds) item.articleIds = [];
+        });
+        return { items: parsed };
       } catch {
         // ignore corrupted data
       }
@@ -176,13 +181,34 @@ const colorwaySlice = createSlice({
         state.items[action.payload.code] = action.payload;
         persistItems(state.items);
       },
-      prepare: (payload: Omit<IColorway, "code" | "createdAt">) => ({
+      prepare: (payload: Omit<IColorway, "code" | "createdAt" | "articleIds">) => ({
         payload: {
           ...payload,
           code: generateCode(),
           createdAt: new Date().toISOString(),
+          articleIds: [],
         },
       }),
+    },
+    mapColorwayToArticle: (
+      state,
+      action: PayloadAction<{ code: string; articleId: string }>
+    ) => {
+      const item = state.items[action.payload.code];
+      if (item && !item.articleIds.includes(action.payload.articleId)) {
+        item.articleIds.push(action.payload.articleId);
+        persistItems(state.items);
+      }
+    },
+    unmapColorwayFromArticle: (
+      state,
+      action: PayloadAction<{ code: string; articleId: string }>
+    ) => {
+      const item = state.items[action.payload.code];
+      if (item) {
+        item.articleIds = item.articleIds.filter((id) => id !== action.payload.articleId);
+        persistItems(state.items);
+      }
     },
     setColorwayFlag: (
       state,
@@ -222,5 +248,7 @@ export const {
   setColorwayFlag,
   setColorwayImage,
   setColorwayField,
+  mapColorwayToArticle,
+  unmapColorwayFromArticle,
 } = colorwaySlice.actions;
 export default colorwaySlice.reducer;

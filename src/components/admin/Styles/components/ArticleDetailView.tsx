@@ -521,7 +521,7 @@ export default function ArticleDetailView({
         </div>
       )}
 
-      {activeSubTab === "Colorways" && <ColorwaysTab />}
+      {activeSubTab === "Colorways" && <ColorwaysTab articleId={articleId} />}
     </div>
   );
 }

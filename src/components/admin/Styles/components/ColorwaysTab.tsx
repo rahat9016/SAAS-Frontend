@@ -1,32 +1,40 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { ChevronDown } from "lucide-react";
-import Link from "next/link";
 import { DataTable } from "@/src/components/ui/data-table";
 import {
-  ColorwayFlag,
-  ColorwayTextField,
-  setColorwayField,
-  setColorwayFlag,
-  setColorwayImage,
+  mapColorwayToArticle,
+  unmapColorwayFromArticle,
 } from "@/src/lib/redux/features/colorway/colorwaySlice";
 import { useAppDispatch, useAppSelector } from "@/src/lib/redux/hooks";
-import { GetColorwayColumns } from "../TableColumns/ColorwayColumns";
+import { GetArticleColorwayColumns } from "../TableColumns/ArticleColorwayColumns";
+import MapColorwayModal from "../Form/MapColorwayModal";
 
-export default function ColorwaysTab() {
+interface ColorwaysTabProps {
+  articleId: string;
+}
+
+export default function ColorwaysTab({ articleId }: ColorwaysTabProps) {
   const dispatch = useAppDispatch();
   const items = useAppSelector((state) => state.colorway.items);
-  const data = useMemo(() => Object.values(items), [items]);
-  const handleToggleFlag = (code: string, field: ColorwayFlag, value: boolean) => {
-    dispatch(setColorwayFlag({ code, field, value }));
+  const [isMapModalOpen, setIsMapModalOpen] = useState(false);
+  const allItems = useMemo(() => Object.values(items), [items]);
+  const data = useMemo(
+    () => allItems.filter((item) => item.articleIds.includes(articleId)),
+    [allItems, articleId]
+  );
+  const unmappedOptions = useMemo(
+    () => allItems.filter((item) => !item.articleIds.includes(articleId)),
+    [allItems, articleId]
+  );
+  const handleMapColorway = (code: string) => {
+    dispatch(mapColorwayToArticle({ code, articleId }));
+    setIsMapModalOpen(false);
   };
-  const handleImageUpload = (code: string, image: string) => {
-    dispatch(setColorwayImage({ code, image }));
-  };
-  const handleFieldChange = (code: string, field: ColorwayTextField, value: string) => {
-    dispatch(setColorwayField({ code, field, value }));
+  const handleRemoveColorway = (code: string) => {
+    dispatch(unmapColorwayFromArticle({ code, articleId }));
   };
   const columns = useMemo(
-    () => GetColorwayColumns(handleToggleFlag, handleImageUpload, handleFieldChange),
+    () => GetArticleColorwayColumns(handleRemoveColorway),
     []
   );
 
@@ -34,12 +42,13 @@ export default function ColorwaysTab() {
     <div className="w-full bg-white border border-light-dark rounded-lg overflow-hidden flex flex-col shadow-sm mt-4">
       {/* Top Action Bar */}
       <div className="flex flex-wrap items-center justify-between gap-2 p-3 border-b border-light-dark bg-white">
-        <Link
-          href="/admin/styles/color-way"
-          className="h-9 px-4 inline-flex items-center text-sm text-primary font-semibold bg-primary/5 border border-primary/30 rounded-lg hover:bg-primary/10 transition-colors"
+        <button
+          type="button"
+          onClick={() => setIsMapModalOpen(true)}
+          className="h-9 px-4 inline-flex items-center text-sm text-primary font-semibold bg-primary/5 border border-primary/30 rounded-lg hover:bg-primary/10 transition-colors cursor-pointer"
         >
-          Manage colorways in Color Way
-        </Link>
+          New color way
+        </button>
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -65,6 +74,13 @@ export default function ColorwaysTab() {
         totalItems={data.length}
         itemsPerPage={data.length || 10}
         currentPage={1}
+      />
+
+      <MapColorwayModal
+        isOpen={isMapModalOpen}
+        onClose={() => setIsMapModalOpen(false)}
+        options={unmappedOptions}
+        onSubmit={handleMapColorway}
       />
     </div>
   );
