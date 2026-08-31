@@ -2,7 +2,9 @@ import { useMemo, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { DataTable } from "@/src/components/ui/data-table";
 import {
+  ColorwayTextField,
   mapColorwayToArticle,
+  setColorwayField,
   unmapColorwayFromArticle,
 } from "@/src/lib/redux/features/colorway/colorwaySlice";
 import { useAppDispatch, useAppSelector } from "@/src/lib/redux/hooks";
@@ -33,8 +35,11 @@ export default function ColorwaysTab({ articleId }: ColorwaysTabProps) {
   const handleRemoveColorway = (code: string) => {
     dispatch(unmapColorwayFromArticle({ code, articleId }));
   };
+  const handleFieldChange = (code: string, field: ColorwayTextField, value: string) => {
+    dispatch(setColorwayField({ code, field, value }));
+  };
   const columns = useMemo(
-    () => GetArticleColorwayColumns(handleRemoveColorway),
+    () => GetArticleColorwayColumns(handleRemoveColorway, handleFieldChange),
     []
   );
 

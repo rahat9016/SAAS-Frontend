@@ -1,7 +1,40 @@
 import { X } from "lucide-react";
 import { Checkbox } from "@/src/components/ui/checkbox";
 import { ColumnDef } from "@/src/components/ui/data-table";
+import { ColorwayTextField } from "@/src/lib/redux/features/colorway/colorwaySlice";
 import { IColorway } from "@/src/lib/redux/features/colorway/colorwayTypes";
+
+const editableCellClass =
+  "w-full bg-transparent border border-transparent rounded px-1 py-0.5 -mx-1 focus:outline-none";
+
+function EditableTextCell({
+  value,
+  code,
+  field,
+  type = "text",
+  onCommit,
+}: {
+  value: string;
+  code: string;
+  field: ColorwayTextField;
+  type?: string;
+  onCommit?: (code: string, field: ColorwayTextField, value: string) => void;
+}) {
+  return (
+    <input
+      key={value}
+      type={type}
+      defaultValue={value}
+      onBlur={(e) => {
+        if (e.target.value !== value) onCommit?.(code, field, e.target.value);
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") e.currentTarget.blur();
+      }}
+      className={editableCellClass}
+    />
+  );
+}
 
 function SwatchCell({ row }: { row: IColorway }) {
   return (
@@ -19,7 +52,8 @@ function SwatchCell({ row }: { row: IColorway }) {
 }
 
 export const GetArticleColorwayColumns = (
-  onRemove?: (code: string) => void
+  onRemove?: (code: string) => void,
+  onFieldChange?: (code: string, field: ColorwayTextField, value: string) => void
 ): ColumnDef<IColorway>[] => {
   return [
     {
@@ -99,6 +133,66 @@ export const GetArticleColorwayColumns = (
       accessorKey: "inTheme",
       align: "center",
       cell: (_value, row) => <Checkbox checked={row.inTheme} disabled className="mx-auto" />,
+    },
+    {
+      header: (
+        <>
+          Color
+          <br />
+          Start Date
+        </>
+      ),
+      accessorKey: "startDate",
+      filterLabel: "All",
+      cell: (value, row) => (
+        <EditableTextCell
+          value={value as string}
+          code={row.code}
+          field="startDate"
+          type="date"
+          onCommit={onFieldChange}
+        />
+      ),
+    },
+    {
+      header: (
+        <>
+          Color
+          <br />
+          End Date
+        </>
+      ),
+      accessorKey: "endDate",
+      filterLabel: "All",
+      cell: (value, row) => (
+        <EditableTextCell
+          value={value as string}
+          code={row.code}
+          field="endDate"
+          type="date"
+          onCommit={onFieldChange}
+        />
+      ),
+    },
+    {
+      header: (
+        <>
+          Stock
+          <br />
+          Clearance Date
+        </>
+      ),
+      accessorKey: "clearanceDate",
+      filterLabel: "All",
+      cell: (value, row) => (
+        <EditableTextCell
+          value={value as string}
+          code={row.code}
+          field="clearanceDate"
+          type="date"
+          onCommit={onFieldChange}
+        />
+      ),
     },
     {
       header: "",

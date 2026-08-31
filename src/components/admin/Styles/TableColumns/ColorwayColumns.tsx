@@ -340,56 +340,5 @@ export const GetColorwayColumns = (
         <FlagCell row={row} field="actualSms" onToggle={onToggle} />
       ),
     },
-    {
-      header: (
-        <>
-          Color
-          <br />
-          Start Date
-        </>
-      ),
-      accessorKey: "startDate",
-      filterLabel: "All",
-      cell: (value, row) => (
-        <EditableTextCell
-          value={value as string}
-          code={row.code}
-          field="startDate"
-          type="date"
-          onCommit={onFieldChange}
-        />
-      ),
-    },
-    {
-      header: (
-        <>
-          Color
-          <br />
-          End Date
-        </>
-      ),
-      accessorKey: "endDate",
-      filterLabel: "All",
-      cell: (value, row) => (
-        <EditableTextCell
-          value={value as string}
-          code={row.code}
-          field="endDate"
-          type="date"
-          onCommit={onFieldChange}
-        />
-      ),
-    },
-    {
-      header: (
-        <>
-          Stock
-          <br />
-          Clearance Date
-        </>
-      ),
-      accessorKey: "clearanceDate",
-      filterLabel: "All",
-    },
   ];
 };

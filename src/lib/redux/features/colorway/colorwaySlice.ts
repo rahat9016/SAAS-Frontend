@@ -172,7 +172,8 @@ export type ColorwayTextField =
   | "standard"
   | "pantone"
   | "startDate"
-  | "endDate";
+  | "endDate"
+  | "clearanceDate";
 
 const colorwaySlice = createSlice({
   name: "colorway",
