@@ -170,7 +170,9 @@ export type ColorwayTextField =
   | "spec"
   | "description"
   | "standard"
-  | "pantone";
+  | "pantone"
+  | "startDate"
+  | "endDate";
 
 const colorwaySlice = createSlice({
   name: "colorway",

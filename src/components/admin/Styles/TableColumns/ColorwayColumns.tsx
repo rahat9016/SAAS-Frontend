@@ -18,6 +18,7 @@ function EditableTextCell({
   field,
   placeholder,
   className,
+  type = "text",
   onCommit,
 }: {
   value: string;
@@ -25,11 +26,13 @@ function EditableTextCell({
   field: ColorwayTextField;
   placeholder?: string;
   className?: string;
+  type?: string;
   onCommit?: (code: string, field: ColorwayTextField, value: string) => void;
 }) {
   return (
     <input
       key={value}
+      type={type}
       defaultValue={value}
       placeholder={placeholder}
       onBlur={(e) => {
@@ -347,6 +350,15 @@ export const GetColorwayColumns = (
       ),
       accessorKey: "startDate",
       filterLabel: "All",
+      cell: (value, row) => (
+        <EditableTextCell
+          value={value as string}
+          code={row.code}
+          field="startDate"
+          type="date"
+          onCommit={onFieldChange}
+        />
+      ),
     },
     {
       header: (
@@ -358,6 +370,15 @@ export const GetColorwayColumns = (
       ),
       accessorKey: "endDate",
       filterLabel: "All",
+      cell: (value, row) => (
+        <EditableTextCell
+          value={value as string}
+          code={row.code}
+          field="endDate"
+          type="date"
+          onCommit={onFieldChange}
+        />
+      ),
     },
     {
       header: (
