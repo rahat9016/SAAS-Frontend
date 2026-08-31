@@ -95,7 +95,7 @@ function ImageCell({
     <button
       type="button"
       onClick={() => inputRef.current?.click()}
-      className="group relative w-8 h-8 mx-auto rounded border border-light-dark overflow-hidden cursor-pointer shrink-0"
+      className="group absolute inset-0 overflow-hidden cursor-pointer"
       style={!row.image ? { backgroundColor: row.colorHex || "#ffffff" } : undefined}
       title="Upload image"
     >
@@ -251,6 +251,7 @@ export const GetColorwayColumns = (
       header: "Image",
       accessorKey: "image",
       align: "center",
+      noPadding: true,
       cell: (_value, row) => (
         <ImageCell row={row} onUpload={onImageUpload} />
       ),
@@ -276,68 +277,6 @@ export const GetColorwayColumns = (
       align: "center",
       cell: (_value, row) => (
         <FlagCell row={row} field="inTheme" onToggle={onToggle} />
-      ),
-    },
-    {
-      header: (
-        <>
-          Sust
-          <br />
-          Label
-          <br />
-          Off
-        </>
-      ),
-      accessorKey: "sustLabelOff",
-      align: "center",
-      filterLabel: "All",
-      cell: (_value, row) => (
-        <FlagCell row={row} field="sustLabelOff" onToggle={onToggle} />
-      ),
-    },
-    {
-      header: (
-        <>
-          Plan
-          <br />
-          SMS
-        </>
-      ),
-      accessorKey: "planSms",
-      align: "center",
-      filterLabel: "All",
-      cell: (_value, row) => (
-        <FlagCell row={row} field="planSms" onToggle={onToggle} />
-      ),
-    },
-    {
-      header: (
-        <>
-          Plan
-          <br />
-          3D SMS
-        </>
-      ),
-      accessorKey: "plan3dSms",
-      align: "center",
-      filterLabel: "All",
-      cell: (_value, row) => (
-        <FlagCell row={row} field="plan3dSms" onToggle={onToggle} />
-      ),
-    },
-    {
-      header: (
-        <>
-          Actual
-          <br />
-          SMS
-        </>
-      ),
-      accessorKey: "actualSms",
-      align: "center",
-      filterLabel: "All",
-      cell: (_value, row) => (
-        <FlagCell row={row} field="actualSms" onToggle={onToggle} />
       ),
     },
   ];

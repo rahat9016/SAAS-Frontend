@@ -3,6 +3,7 @@ import { ReactNode } from "react";
 
 import { clearFilters } from "@/src/lib/redux/features/filter/filterSlice";
 import { useAppDispatch } from "@/src/lib/redux/hooks";
+import { cn } from "@/src/lib/utils";
 import { usePathname, useRouter } from "next/navigation";
 import Pagination from "../shared/Pagination";
 import Paragraph from "../shared/Paragraph";
@@ -30,6 +31,8 @@ export interface ColumnDef<T> {
   wrap?: boolean;
   /** Content shown in the optional per-column filter row (see `showColumnFilters`). Omit for a blank cell. */
   filterLabel?: ReactNode;
+  /** Strip cell padding so content (e.g. an image) can fill the full width/height of the column. */
+  noPadding?: boolean;
   cell?: (value: T[keyof T], row: T) => React.ReactNode;
 }
 
@@ -302,13 +305,15 @@ export function DataTable<T>({
                           key={`${rowIndex}-${idx}-${String(
                             column.accessorKey
                           )}`}
-                          className={`${
+                          className={cn(
                             isPlain
                               ? "whitespace-nowrap px-4 py-2.5 text-sm text-secondary-gary border-b border-light-dark/60"
                               : column.wrap
                               ? `whitespace-normal align-top py-3 px-5 text-sm text-secondary-gary border-b border-light-dark ${borderR}`
-                              : `max-w-50 truncate whitespace-nowrap px-5 text-sm text-secondary-gary border-b border-light-dark ${borderR}`
-                          } ${alignClass(column)}`}
+                              : `max-w-50 truncate whitespace-nowrap px-5 text-sm text-secondary-gary border-b border-light-dark ${borderR}`,
+                            alignClass(column),
+                            column.noPadding && "p-0 relative"
+                          )}
                         >
                           {column?.cell
                             ? column.cell(value, row)

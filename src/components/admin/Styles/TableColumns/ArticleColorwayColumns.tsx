@@ -39,7 +39,7 @@ function EditableTextCell({
 function SwatchCell({ row }: { row: IColorway }) {
   return (
     <div
-      className="w-8 h-8 mx-auto rounded border border-light-dark overflow-hidden shrink-0"
+      className="absolute inset-0 overflow-hidden"
       style={!row.image ? { backgroundColor: row.colorHex || "#ffffff" } : undefined}
       title={row.name}
     >
@@ -113,6 +113,7 @@ export const GetArticleColorwayColumns = (
       header: "Image",
       accessorKey: "image",
       align: "center",
+      noPadding: true,
       cell: (_value, row) => <SwatchCell row={row} />,
     },
     {
