@@ -1,8 +1,29 @@
 import { X } from "lucide-react";
 import { Checkbox } from "@/src/components/ui/checkbox";
 import { ColumnDef } from "@/src/components/ui/data-table";
-import { ColorwayTextField } from "@/src/lib/redux/features/colorway/colorwaySlice";
+import {
+  ColorwayFlag,
+  ColorwayTextField,
+} from "@/src/lib/redux/features/colorway/colorwaySlice";
 import { IColorway } from "@/src/lib/redux/features/colorway/colorwayTypes";
+
+function FlagCell({
+  row,
+  field,
+  onToggle,
+}: {
+  row: IColorway;
+  field: ColorwayFlag;
+  onToggle?: (code: string, field: ColorwayFlag, value: boolean) => void;
+}) {
+  return (
+    <Checkbox
+      checked={row[field]}
+      onCheckedChange={(checked) => onToggle?.(row.code, field, checked === true)}
+      className="mx-auto"
+    />
+  );
+}
 
 const editableCellClass =
   "w-full bg-transparent border border-transparent rounded px-1 py-0.5 -mx-1 focus:outline-none";
@@ -53,7 +74,8 @@ function SwatchCell({ row }: { row: IColorway }) {
 
 export const GetArticleColorwayColumns = (
   onRemove?: (code: string) => void,
-  onFieldChange?: (code: string, field: ColorwayTextField, value: string) => void
+  onFieldChange?: (code: string, field: ColorwayTextField, value: string) => void,
+  onToggle?: (code: string, field: ColorwayFlag, value: boolean) => void
 ): ColumnDef<IColorway>[] => {
   return [
     {
@@ -121,7 +143,7 @@ export const GetArticleColorwayColumns = (
       accessorKey: "active",
       align: "center",
       filterLabel: "All",
-      cell: (_value, row) => <Checkbox checked={row.active} disabled className="mx-auto" />,
+      cell: (_value, row) => <FlagCell row={row} field="active" onToggle={onToggle} />,
     },
     {
       header: (
@@ -133,7 +155,62 @@ export const GetArticleColorwayColumns = (
       ),
       accessorKey: "inTheme",
       align: "center",
-      cell: (_value, row) => <Checkbox checked={row.inTheme} disabled className="mx-auto" />,
+      filterLabel: "All",
+      cell: (_value, row) => <FlagCell row={row} field="inTheme" onToggle={onToggle} />,
+    },
+    {
+      header: (
+        <>
+          Sust
+          <br />
+          Label
+          <br />
+          Off
+        </>
+      ),
+      accessorKey: "sustLabelOff",
+      align: "center",
+      filterLabel: "All",
+      cell: (_value, row) => <FlagCell row={row} field="sustLabelOff" onToggle={onToggle} />,
+    },
+    {
+      header: (
+        <>
+          Plan
+          <br />
+          SMS
+        </>
+      ),
+      accessorKey: "planSms",
+      align: "center",
+      filterLabel: "All",
+      cell: (_value, row) => <FlagCell row={row} field="planSms" onToggle={onToggle} />,
+    },
+    {
+      header: (
+        <>
+          Plan
+          <br />
+          3D SMS
+        </>
+      ),
+      accessorKey: "plan3dSms",
+      align: "center",
+      filterLabel: "All",
+      cell: (_value, row) => <FlagCell row={row} field="plan3dSms" onToggle={onToggle} />,
+    },
+    {
+      header: (
+        <>
+          Actual
+          <br />
+          SMS
+        </>
+      ),
+      accessorKey: "actualSms",
+      align: "center",
+      filterLabel: "All",
+      cell: (_value, row) => <FlagCell row={row} field="actualSms" onToggle={onToggle} />,
     },
     {
       header: (

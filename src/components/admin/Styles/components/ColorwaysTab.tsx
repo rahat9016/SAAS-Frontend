@@ -1,15 +1,23 @@
 import { useMemo, useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { Palette } from "lucide-react";
 import { DataTable } from "@/src/components/ui/data-table";
 import {
+  ColorwayFlag,
   ColorwayTextField,
   mapColorwayToArticle,
   setColorwayField,
+  setColorwayFlag,
   unmapColorwayFromArticle,
 } from "@/src/lib/redux/features/colorway/colorwaySlice";
 import { useAppDispatch, useAppSelector } from "@/src/lib/redux/hooks";
 import { GetArticleColorwayColumns } from "../TableColumns/ArticleColorwayColumns";
 import MapColorwayModal from "../Form/MapColorwayModal";
+
+const colorwayStatusFilterOptions = [
+  { label: "All Status", value: "all" },
+  { label: "Active", value: "active" },
+  { label: "Inactive", value: "inactive" },
+];
 
 interface ColorwaysTabProps {
   articleId: string;
@@ -18,12 +26,30 @@ interface ColorwaysTabProps {
 export default function ColorwaysTab({ articleId }: ColorwaysTabProps) {
   const dispatch = useAppDispatch();
   const items = useAppSelector((state) => state.colorway.items);
+  const { sortBy } = useAppSelector((state) => state.filter);
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
+  const [search, setSearch] = useState("");
   const allItems = useMemo(() => Object.values(items), [items]);
-  const data = useMemo(
+  const articleItems = useMemo(
     () => allItems.filter((item) => item.articleIds.includes(articleId)),
     [allItems, articleId]
   );
+  const data = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    return articleItems.filter((item) => {
+      const matchesStatus =
+        !sortBy ||
+        (sortBy === "active" && item.active) ||
+        (sortBy === "inactive" && !item.active);
+      const matchesSearch =
+        !query ||
+        [item.name, item.colorway, item.spec, item.description, item.standard, item.pantone]
+          .join(" ")
+          .toLowerCase()
+          .includes(query);
+      return matchesStatus && matchesSearch;
+    });
+  }, [articleItems, search, sortBy]);
   const unmappedOptions = useMemo(
     () => allItems.filter((item) => !item.articleIds.includes(articleId)),
     [allItems, articleId]
@@ -38,43 +64,31 @@ export default function ColorwaysTab({ articleId }: ColorwaysTabProps) {
   const handleFieldChange = (code: string, field: ColorwayTextField, value: string) => {
     dispatch(setColorwayField({ code, field, value }));
   };
+  const handleToggleFlag = (code: string, field: ColorwayFlag, value: boolean) => {
+    dispatch(setColorwayFlag({ code, field, value }));
+  };
   const columns = useMemo(
-    () => GetArticleColorwayColumns(handleRemoveColorway, handleFieldChange),
+    () =>
+      GetArticleColorwayColumns(handleRemoveColorway, handleFieldChange, handleToggleFlag),
     []
   );
 
   return (
-    <div className="w-full bg-white border border-light-dark rounded-lg overflow-hidden flex flex-col shadow-sm mt-4">
-      {/* Top Action Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-2 p-3 border-b border-light-dark bg-white">
-        <button
-          type="button"
-          onClick={() => setIsMapModalOpen(true)}
-          className="h-9 px-4 inline-flex items-center text-sm text-primary font-semibold bg-primary/5 border border-primary/30 rounded-lg hover:bg-primary/10 transition-colors cursor-pointer"
-        >
-          New color way
-        </button>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            className="h-9 px-4 text-sm text-secondary-dark font-medium bg-white border border-light-dark rounded-lg hover:bg-light-dark/40 transition-colors cursor-pointer"
-          >
-            Mass Create SKUs
-          </button>
-          <button
-            type="button"
-            className="flex items-center gap-1 h-9 px-4 text-sm text-secondary-dark font-medium bg-white border border-light-dark rounded-lg hover:bg-light-dark/40 transition-colors cursor-pointer"
-          >
-            Actions <ChevronDown className="size-3.5" />
-          </button>
-        </div>
-      </div>
-
+    <div className="w-full mt-4">
       <DataTable
         columns={columns}
         data={data}
-        showSearch={false}
-        isShowStatus={false}
+        title="Colorways"
+        icon={<Palette />}
+        IsCreate
+        createTitle="New color way"
+        setIsModalOpen={setIsMapModalOpen}
+        showSearch
+        searchValue={search}
+        onSearchChange={(e) => setSearch(e.target.value)}
+        searchPlaceholder="Search colorway..."
+        isShowStatus
+        statusOptions={colorwayStatusFilterOptions}
         showColumnFilters
         totalItems={data.length}
         itemsPerPage={data.length || 10}
