@@ -9,7 +9,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           <div className="w-full bg-white">
             <DashboardHeader />
           </div>
-          <div className="p-3 sm:p-4 lg:p-6 w-full max-w-full">{children}</div>
+          <div className="p-3 sm:p-4 w-full ">{children}</div>
         </div>
       </div>
     </div>

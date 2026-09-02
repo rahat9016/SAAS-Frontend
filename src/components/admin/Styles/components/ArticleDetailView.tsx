@@ -1,5 +1,13 @@
 "use client";
 
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/src/components/ui/breadcrumb";
 import { cn } from "@/src/lib/utils";
 import {
   Camera,
@@ -51,7 +59,6 @@ const catNames: Record<string, string> = {
   sweatshirts: "Sweatshirts",
 };
 
-const MAIN_TABS = ["Style", "Sourcing", "Specification"];
 const SUB_TABS = [
   "Properties",
   "Colorways",
@@ -151,7 +158,6 @@ export default function ArticleDetailView({
     (state) => state.styleProperty.items[articleId]
   );
 
-  const [activeMainTab, setActiveMainTab] = useState("Style");
   const [activeSubTab, setActiveSubTab] = useState("Properties");
   const [selectedImage, setSelectedImage] = useState(0);
 
@@ -255,70 +261,80 @@ export default function ArticleDetailView({
 
   return (
     <div className="w-full space-y-4">
-      {/* Header bar */}
-      <div className="bg-white border border-light-dark rounded-lg px-5 py-4 flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center size-11 rounded-lg bg-primary/10 text-primary shrink-0">
-            <Shirt className="size-5" />
+      {/* Header card */}
+      <div className="bg-white border border-light-dark rounded-lg shadow-sm overflow-hidden">
+        <div className="px-5 py-4 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center size-11 rounded-lg bg-primary/10 text-primary shrink-0">
+              <Shirt className="size-5" />
+            </div>
+            <div className="font-bold text-lg text-secondary-dark tracking-wide">
+              FAMILIE MUNSHI
+            </div>
+            <div className="flex items-center border border-light-dark rounded-[6px] overflow-hidden h-11">
+              <span className="bg-primary/10 text-primary font-semibold px-3 h-full flex items-center gap-1 border-r border-light-dark text-sm cursor-pointer">
+                Style <ChevronDown className="size-3.5" />
+              </span>
+              <input
+                type="text"
+                defaultValue={articleId}
+                className="px-3 h-full text-sm font-semibold w-28 text-secondary-dark outline-none bg-transparent"
+              />
+            </div>
           </div>
-          <div className="font-bold text-lg text-secondary-dark tracking-wide">
-            FAMILIE MUNSHI
-          </div>
-          <div className="flex items-center border border-light-dark rounded-[6px] overflow-hidden h-11">
-            <span className="bg-primary/10 text-primary font-semibold px-3 h-full flex items-center gap-1 border-r border-light-dark text-sm cursor-pointer">
-              Style <ChevronDown className="size-3.5" />
-            </span>
-            <input
-              type="text"
-              defaultValue={articleId}
-              className="px-3 h-full text-sm font-semibold w-28 text-secondary-dark outline-none bg-transparent"
-            />
-          </div>
+
+          <span className="inline-block px-3 py-1.5 text-sm font-semibold rounded-md bg-primary/10 text-primary">
+            Product Developement
+          </span>
         </div>
 
-        <span className="inline-block px-3 py-1.5 text-sm font-medium rounded-md bg-light text-secondary-dark">
-          Product Developement
-        </span>
-      </div>
-
-      {/* Breadcrumb */}
-      <div className="text-xs md:text-sm text-secondary-gary font-medium">
-        <Link href="/admin/styles" className="hover:text-primary hover:underline">Style</Link> {" > "}
-        <Link href={`/admin/styles/${seasonId}`} className="hover:text-primary hover:underline">{seasonName}</Link> {" > "}
-        <Link href={`/admin/styles/${seasonId}/${departmentId}`} className="hover:text-primary hover:underline">{deptName}</Link> {" > "}
-        <Link href={`/admin/styles/${seasonId}/${departmentId}/${categoryId}`} className="hover:text-primary hover:underline">{categoryName}</Link> {" > "}
-        <span className="text-secondary-dark font-semibold">{articleId}</span>
-      </div>
-
-      {/* Main Tabs (Style | Sourcing | Specification) */}
-      <div className="flex gap-6 border-b border-light-dark">
-        {MAIN_TABS.map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveMainTab(tab)}
-            className={cn(
-              "text-base font-semibold pb-2 -mb-px border-b-2 transition-colors",
-              activeMainTab === tab
-                ? "text-primary border-primary"
-                : "text-secondary-dark border-transparent hover:text-primary"
-            )}
-          >
-            {tab}
-          </button>
-        ))}
+        {/* Breadcrumb */}
+        <div className="px-5 py-2.5 border-t border-light-dark bg-light/60">
+          <Breadcrumb>
+            <BreadcrumbList className="text-xs md:text-sm text-secondary-gary">
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link href="/admin/styles">Style</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link href={`/admin/styles/${seasonId}`}>{seasonName}</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link href={`/admin/styles/${seasonId}/${departmentId}`}>{deptName}</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link href={`/admin/styles/${seasonId}/${departmentId}/${categoryId}`}>{categoryName}</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage className="font-semibold">{articleId}</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
       </div>
 
       {/* Sub Tabs */}
-      <div className="flex gap-5 text-sm font-medium border-b border-light-dark">
+      <div className="flex w-max items-center gap-1 bg-white border border-light-dark rounded-lg p-1.5 shadow-sm overflow-x-auto scrollbar-hide">
         {SUB_TABS.map((subTab) => (
           <button
             key={subTab}
             onClick={() => setActiveSubTab(subTab)}
             className={cn(
-              "pb-2 px-1 -mb-px border-b-2 transition-colors",
+              "whitespace-nowrap px-4 py-2 text-sm font-semibold rounded-md transition-colors",
               activeSubTab === subTab
-                ? "text-primary border-primary font-semibold"
-                : "text-secondary-gary border-transparent hover:text-primary"
+                ? "bg-primary text-white shadow-sm"
+                : "text-secondary-dark hover:bg-light hover:text-primary"
             )}
           >
             {subTab}

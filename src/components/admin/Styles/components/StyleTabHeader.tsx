@@ -43,9 +43,9 @@ export default function StyleTabHeader() {
   return (
     <nav
       aria-label="Style sections"
-      className="w-full border-b border-border mb-6 overflow-x-auto scrollbar-hide"
+      className="w-full mb-3 overflow-x-auto scrollbar-hide"
     >
-      <div className="flex w-max min-w-full items-center gap-2">
+      <div className="flex w-max min-w-full items-center gap-1 bg-white border border-light-dark rounded-lg p-1.5 shadow-sm">
         {STYLE_TABS.map((tab) => {
           const isActive = isTabActive(tab, pathname);
           return (
@@ -54,10 +54,10 @@ export default function StyleTabHeader() {
               href={tab.href}
               aria-current={isActive ? "page" : undefined}
               className={cn(
-                "whitespace-nowrap px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors",
+                "whitespace-nowrap px-4 py-2 text-sm font-semibold rounded-md transition-colors",
                 isActive
-                  ? "border-primary text-primary"
-                  : "border-transparent text-secondary-dark hover:text-primary"
+                  ? "bg-primary text-white shadow-sm"
+                  : "text-secondary-dark hover:bg-light hover:text-primary"
               )}
             >
               {tab.label}

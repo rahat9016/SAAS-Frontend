@@ -2,6 +2,14 @@
 
 import { mockCategoriesList } from "@/src/components/admin/Categories/data/mockCategoryHierarchy";
 import { mockBranchesList } from "@/src/components/admin/RBAC/Branches/data/mockBranchData";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/src/components/ui/breadcrumb";
 import { Input } from "@/src/components/ui/input";
 import { useAppDispatch } from "@/src/lib/redux/hooks";
 import { createProperty } from "@/src/lib/redux/features/styleProperty/stylePropertySlice";
@@ -55,6 +63,24 @@ const promoteStatusStyles: Record<string, string> = {
   Approved: "bg-emerald-100 text-emerald-800",
 };
 
+const FILTERABLE_COLUMNS = {
+  Month: "month",
+  "Retail Price": "retailPrice",
+  FOB: "fob",
+  "Active Color": "activeColor",
+  "Size Range": "sizeRange",
+  Fabric: "fabric",
+  "Fabric Description": "fabricDescription",
+  Composition: "composition",
+  "Promote Status": "promoteStatus",
+  "Assigned Branch": "assignedBranch",
+  "Packing Code": "packingCode",
+  "Transport Mode": "transportMode",
+  Supplier: "supplier",
+  "Ex Delivery": "exDelivery",
+  Sustainability: "sustainability",
+} as const satisfies Record<string, keyof IArticleItem>;
+
 const initialArticles: IArticleItem[] = mockArticlesListGrouped.flatMap(
   (group) => group.items
 );
@@ -80,22 +106,26 @@ export default function ArticlesTable({
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
 
   const [search, setSearch] = useState("");
-  const [monthFilter, setMonthFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [dateFilter, setDateFilter] = useState("all");
+  const [columnFilters, setColumnFilters] = useState<
+    Partial<Record<keyof IArticleItem, string>>
+  >({});
 
-  const monthFilterOptions = useMemo(
-    () => Array.from(new Set(articles.map((a) => a.month))),
-    [articles]
-  );
-  const statusFilterOptions = useMemo(
-    () => Array.from(new Set(articles.map((a) => a.promoteStatus))),
-    [articles]
-  );
-  const dateFilterOptions = useMemo(
-    () => Array.from(new Set(articles.map((a) => a.exDelivery).filter(Boolean))),
-    [articles]
-  );
+  const setColumnFilter = (key: keyof IArticleItem, value: string) => {
+    setColumnFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const filterOptions = useMemo(() => {
+    const map = {} as Record<keyof IArticleItem, string[]>;
+    (Object.keys(FILTERABLE_COLUMNS) as (keyof typeof FILTERABLE_COLUMNS)[]).forEach(
+      (header) => {
+        const key = FILTERABLE_COLUMNS[header];
+        map[key] = Array.from(
+          new Set(articles.map((a) => a[key] as string).filter(Boolean))
+        ).sort();
+      }
+    );
+    return map;
+  }, [articles]);
 
   const filteredArticles = useMemo(() => {
     const q = search.toLowerCase().trim();
@@ -112,13 +142,15 @@ export default function ArticlesTable({
           .join(" ")
           .toLowerCase()
           .includes(q);
-      const matchesMonth = monthFilter === "all" || item.month === monthFilter;
-      const matchesStatus =
-        statusFilter === "all" || item.promoteStatus === statusFilter;
-      const matchesDate = dateFilter === "all" || item.exDelivery === dateFilter;
-      return matchesSearch && matchesMonth && matchesStatus && matchesDate;
+      const matchesColumns = (
+        Object.keys(columnFilters) as (keyof IArticleItem)[]
+      ).every((key) => {
+        const filterValue = columnFilters[key];
+        return !filterValue || filterValue === "all" || item[key] === filterValue;
+      });
+      return matchesSearch && matchesColumns;
     });
-  }, [articles, search, monthFilter, statusFilter, dateFilter]);
+  }, [articles, search, columnFilters]);
 
   const groupedArticles = useMemo(() => {
     const order: string[] = [];
@@ -238,14 +270,6 @@ export default function ArticlesTable({
 
   return (
     <div className="w-full space-y-4">
-      {/* Breadcrumb */}
-      <div className="text-xs md:text-sm text-secondary-gary font-medium">
-        <Link href="/admin/styles" className="hover:text-primary hover:underline">Style</Link> {" > "}
-        <Link href={`/admin/styles/${seasonId}`} className="hover:text-primary hover:underline">{seasonName}</Link> {" > "}
-        <Link href={`/admin/styles/${seasonId}/${departmentId}`} className="hover:text-primary hover:underline">{deptName}</Link> {" > "}
-        <span className="text-secondary-dark font-semibold">{categoryName}</span>
-      </div>
-
       {/* Header card */}
       <div className="flex flex-col lg:flex-row lg:items-center gap-3 bg-white border border-light-dark rounded-lg px-5 py-4">
         <div className="flex items-center gap-3">
@@ -256,9 +280,31 @@ export default function ArticlesTable({
             <h1 className="text-xl md:text-2xl text-secondary-dark font-bold tracking-tight">
               Articles
             </h1>
-            <p className="text-xs text-secondary-gary mt-0.5">
-              Use the column filter row below to narrow by Month, Promote Status or Ex Delivery — or search across all fields.
-            </p>
+            <Breadcrumb>
+              <BreadcrumbList className="text-xs md:text-sm text-secondary-gary">
+                <BreadcrumbItem>
+                  <BreadcrumbLink asChild>
+                    <Link href="/admin/styles">Style</Link>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbLink asChild>
+                    <Link href={`/admin/styles/${seasonId}`}>{seasonName}</Link>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbLink asChild>
+                    <Link href={`/admin/styles/${seasonId}/${departmentId}`}>{deptName}</Link>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>{categoryName}</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
           </div>
         </div>
 
@@ -320,57 +366,32 @@ export default function ArticlesTable({
               </tr>
               {/* Column filter row */}
               <tr className="bg-primary/5 border-b border-light-dark">
-                <td className={`${columnClass} text-secondary-gary`}>All</td>
-                <td className={`${columnClass} text-secondary-gary`}>All</td>
-                <td className={`${columnClass} text-secondary-gary`}>All</td>
-                <td className={columnClass}>
-                  <select
-                    value={monthFilter}
-                    onChange={(e) => setMonthFilter(e.target.value)}
-                    className="w-full bg-transparent text-secondary-dark font-medium focus:outline-none"
-                  >
-                    <option value="all">All</option>
-                    {monthFilterOptions.map((m) => (
-                      <option key={m} value={m}>{m}</option>
-                    ))}
-                  </select>
-                </td>
-                <td className={`${columnClass} text-secondary-gary`}>All</td>
-                <td className={`${columnClass} text-secondary-gary`}>All</td>
-                <td className={`${columnClass} text-secondary-gary`}>All</td>
-                <td className={`${columnClass} text-secondary-gary`}>All</td>
-                <td className={`${columnClass} text-secondary-gary`}>All</td>
-                <td className={`${columnClass} text-secondary-gary`}>All</td>
-                <td className={`${columnClass} text-secondary-gary`}>All</td>
-                <td className={columnClass}>
-                  <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className="w-full bg-transparent text-secondary-dark font-medium focus:outline-none"
-                  >
-                    <option value="all">All</option>
-                    {statusFilterOptions.map((s) => (
-                      <option key={s} value={s}>{s}</option>
-                    ))}
-                  </select>
-                </td>
-                <td className={`${columnClass} text-secondary-gary`}>All</td>
-                <td className={`${columnClass} text-secondary-gary`}>All</td>
-                <td className={`${columnClass} text-secondary-gary`}>All</td>
-                <td className={`${columnClass} text-secondary-gary`}>All</td>
-                <td className={columnClass}>
-                  <select
-                    value={dateFilter}
-                    onChange={(e) => setDateFilter(e.target.value)}
-                    className="w-full bg-transparent text-secondary-dark font-medium focus:outline-none"
-                  >
-                    <option value="all">All</option>
-                    {dateFilterOptions.map((d) => (
-                      <option key={d} value={d}>{d}</option>
-                    ))}
-                  </select>
-                </td>
-                <td className={`py-3 px-4 text-secondary-gary`}>All</td>
+                {columns.map((col) => {
+                  const fieldKey = (FILTERABLE_COLUMNS as Record<string, keyof IArticleItem>)[
+                    col.header
+                  ];
+                  if (!fieldKey) {
+                    return (
+                      <td key={col.header} className={`${columnClass} text-secondary-gary`}>
+                        All
+                      </td>
+                    );
+                  }
+                  return (
+                    <td key={col.header} className={columnClass}>
+                      <select
+                        value={columnFilters[fieldKey] ?? "all"}
+                        onChange={(e) => setColumnFilter(fieldKey, e.target.value)}
+                        className="w-full bg-transparent text-secondary-dark font-medium focus:outline-none"
+                      >
+                        <option value="all">All</option>
+                        {filterOptions[fieldKey]?.map((value) => (
+                          <option key={value} value={value}>{value}</option>
+                        ))}
+                      </select>
+                    </td>
+                  );
+                })}
               </tr>
             </thead>
 
