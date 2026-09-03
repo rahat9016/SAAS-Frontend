@@ -103,8 +103,8 @@ export default function ColorwaysTab({ articleId }: ColorwaysTabProps) {
     () => allItems.filter((item) => !item.articleIds.includes(articleId)),
     [allItems, articleId]
   );
-  const handleMapColorway = (code: string) => {
-    dispatch(mapColorwayToArticle({ code, articleId }));
+  const handleMapColorway = (codes: string[]) => {
+    codes.forEach((code) => dispatch(mapColorwayToArticle({ code, articleId })));
     setIsMapModalOpen(false);
   };
   const handleRemoveColorway = (code: string) => {
