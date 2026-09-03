@@ -74,6 +74,7 @@ const promoteStatusStyles: Record<string, string> = {
 };
 
 const FILTERABLE_COLUMNS = {
+  Style: "style",
   Fit: "fit",
   Month: "month",
   "Retail Price": "retailPrice",
