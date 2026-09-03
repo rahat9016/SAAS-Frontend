@@ -127,19 +127,43 @@ function ImageCell({
   );
 }
 
+function CheckboxMark({ checked }: { checked: boolean }) {
+  return (
+    <span
+      className={cn(
+        "flex items-center justify-center size-3.5 shrink-0 rounded-[4px] border",
+        checked ? "bg-primary border-primary text-white" : "border-input"
+      )}
+    >
+      {checked && <Check className="size-2.5" />}
+    </span>
+  );
+}
+
 export function ColumnFilterSelect({
   value,
   options,
   onChange,
   renderLabel,
 }: {
-  value: string;
+  value: string[];
   options: string[];
-  onChange: (value: string) => void;
+  onChange: (value: string[]) => void;
   renderLabel?: (value: string) => string;
 }) {
   const [open, setOpen] = useState(false);
-  const label = value === "all" ? "All" : renderLabel ? renderLabel(value) : value;
+  const label =
+    value.length === 0
+      ? "All"
+      : value.length === 1
+      ? renderLabel
+        ? renderLabel(value[0])
+        : value[0]
+      : `${value.length} selected`;
+
+  const toggle = (opt: string) => {
+    onChange(value.includes(opt) ? value.filter((v) => v !== opt) : [...value, opt]);
+  };
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -161,27 +185,19 @@ export function ColumnFilterSelect({
               <CommandItem
                 value="all"
                 onSelect={() => {
-                  onChange("all");
-                  setOpen(false);
+                  onChange([]);
                 }}
               >
-                <Check
-                  className={cn("size-3.5", value === "all" ? "opacity-100" : "opacity-0")}
-                />
+                <CheckboxMark checked={value.length === 0} />
                 All
               </CommandItem>
               {options.map((opt) => (
                 <CommandItem
                   key={opt}
                   value={opt}
-                  onSelect={() => {
-                    onChange(opt);
-                    setOpen(false);
-                  }}
+                  onSelect={() => toggle(opt)}
                 >
-                  <Check
-                    className={cn("size-3.5", value === opt ? "opacity-100" : "opacity-0")}
-                  />
+                  <CheckboxMark checked={value.includes(opt)} />
                   {renderLabel ? renderLabel(opt) : opt}
                 </CommandItem>
               ))}
@@ -224,15 +240,15 @@ export const GetColorwayColumns = (
   onImageUpload?: (code: string, image: string) => void,
   onFieldChange?: (code: string, field: ColorwayTextField, value: string) => void,
   filterOptions: Partial<Record<ColorwayFilterableField, string[]>> = {},
-  columnFilters: Partial<Record<ColorwayFilterableField, string>> = {},
-  onColumnFilterChange?: (field: ColorwayFilterableField, value: string) => void
+  columnFilters: Partial<Record<ColorwayFilterableField, string[]>> = {},
+  onColumnFilterChange?: (field: ColorwayFilterableField, value: string[]) => void
 ): ColumnDef<IColorway>[] => {
   const columnFilter = (
     field: ColorwayFilterableField,
     renderLabel?: (value: string) => string
   ) => (
     <ColumnFilterSelect
-      value={columnFilters[field] ?? "all"}
+      value={columnFilters[field] ?? []}
       options={filterOptions[field] ?? []}
       onChange={(value) => onColumnFilterChange?.(field, value)}
       renderLabel={renderLabel}

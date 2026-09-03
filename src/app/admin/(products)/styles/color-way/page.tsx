@@ -33,10 +33,10 @@ export default function StyleColorWayPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [columnFilters, setColumnFilters] = useState<
-    Partial<Record<ColorwayFilterableField, string>>
+    Partial<Record<ColorwayFilterableField, string[]>>
   >({});
 
-  const handleColumnFilterChange = (field: ColorwayFilterableField, value: string) => {
+  const handleColumnFilterChange = (field: ColorwayFilterableField, value: string[]) => {
     setColumnFilters((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -72,12 +72,11 @@ export default function StyleColorWayPage() {
         const matchesColumns = (
           Object.keys(columnFilters) as ColorwayFilterableField[]
         ).every((field) => {
-          const filterValue = columnFilters[field];
-          if (!filterValue || filterValue === "all") return true;
-          if (field === "active") return String(item.active) === filterValue;
-          return String(item[field] ?? "")
-            .toLowerCase()
-            .includes(filterValue.toLowerCase());
+          const selected = columnFilters[field];
+          if (!selected || selected.length === 0) return true;
+          if (field === "active") return selected.includes(String(item.active));
+          const itemValue = String(item[field] ?? "").toLowerCase();
+          return selected.some((v) => itemValue.includes(v.toLowerCase()));
         });
         return matchesStatus && matchesSearch && matchesColumns;
       })

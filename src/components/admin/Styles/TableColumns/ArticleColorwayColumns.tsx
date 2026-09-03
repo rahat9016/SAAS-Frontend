@@ -93,15 +93,15 @@ export const GetArticleColorwayColumns = (
   onFieldChange?: (code: string, field: ColorwayTextField, value: string) => void,
   onToggle?: (code: string, field: ColorwayFlag, value: boolean) => void,
   filterOptions: Partial<Record<ArticleColorwayFilterableField, string[]>> = {},
-  columnFilters: Partial<Record<ArticleColorwayFilterableField, string>> = {},
-  onColumnFilterChange?: (field: ArticleColorwayFilterableField, value: string) => void
+  columnFilters: Partial<Record<ArticleColorwayFilterableField, string[]>> = {},
+  onColumnFilterChange?: (field: ArticleColorwayFilterableField, value: string[]) => void
 ): ColumnDef<IColorway>[] => {
   const columnFilter = (
     field: ArticleColorwayFilterableField,
     renderLabel?: (value: string) => string
   ) => (
     <ColumnFilterSelect
-      value={columnFilters[field] ?? "all"}
+      value={columnFilters[field] ?? []}
       options={filterOptions[field] ?? []}
       onChange={(value) => onColumnFilterChange?.(field, value)}
       renderLabel={renderLabel}

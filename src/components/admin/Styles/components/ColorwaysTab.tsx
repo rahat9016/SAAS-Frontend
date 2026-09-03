@@ -43,12 +43,12 @@ export default function ColorwaysTab({ articleId }: ColorwaysTabProps) {
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [columnFilters, setColumnFilters] = useState<
-    Partial<Record<ArticleColorwayFilterableField, string>>
+    Partial<Record<ArticleColorwayFilterableField, string[]>>
   >({});
 
   const handleColumnFilterChange = (
     field: ArticleColorwayFilterableField,
-    value: string
+    value: string[]
   ) => {
     setColumnFilters((prev) => ({ ...prev, [field]: value }));
   };
@@ -88,14 +88,13 @@ export default function ColorwaysTab({ articleId }: ColorwaysTabProps) {
       const matchesColumns = (
         Object.keys(columnFilters) as ArticleColorwayFilterableField[]
       ).every((field) => {
-        const filterValue = columnFilters[field];
-        if (!filterValue || filterValue === "all") return true;
+        const selected = columnFilters[field];
+        if (!selected || selected.length === 0) return true;
         if ((flagFilterFields as readonly string[]).includes(field)) {
-          return String(item[field]) === filterValue;
+          return selected.includes(String(item[field]));
         }
-        return String(item[field] ?? "")
-          .toLowerCase()
-          .includes(filterValue.toLowerCase());
+        const itemValue = String(item[field] ?? "").toLowerCase();
+        return selected.some((v) => itemValue.includes(v.toLowerCase()));
       });
       return matchesStatus && matchesSearch && matchesColumns;
     });

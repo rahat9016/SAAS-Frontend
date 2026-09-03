@@ -98,17 +98,39 @@ const initialArticles: IArticleItem[] = mockArticlesListGrouped.flatMap(
 
 const columnClass = "py-3 px-4 border-r border-light-dark last:border-r-0";
 
+function CheckboxMark({ checked }: { checked: boolean }) {
+  return (
+    <span
+      className={cn(
+        "flex items-center justify-center size-3.5 shrink-0 rounded-[4px] border",
+        checked ? "bg-primary border-primary text-white" : "border-input"
+      )}
+    >
+      {checked && <Check className="size-2.5" />}
+    </span>
+  );
+}
+
 function ColumnFilterSelect({
   value,
   options,
   onChange,
 }: {
-  value: string;
+  value: string[];
   options: string[];
-  onChange: (value: string) => void;
+  onChange: (value: string[]) => void;
 }) {
   const [open, setOpen] = useState(false);
-  const label = value === "all" ? "All" : value;
+  const label =
+    value.length === 0
+      ? "All"
+      : value.length === 1
+      ? value[0]
+      : `${value.length} selected`;
+
+  const toggle = (opt: string) => {
+    onChange(value.includes(opt) ? value.filter((v) => v !== opt) : [...value, opt]);
+  };
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -130,27 +152,15 @@ function ColumnFilterSelect({
               <CommandItem
                 value="all"
                 onSelect={() => {
-                  onChange("all");
-                  setOpen(false);
+                  onChange([]);
                 }}
               >
-                <Check
-                  className={cn("size-3.5", value === "all" ? "opacity-100" : "opacity-0")}
-                />
+                <CheckboxMark checked={value.length === 0} />
                 All
               </CommandItem>
               {options.map((opt) => (
-                <CommandItem
-                  key={opt}
-                  value={opt}
-                  onSelect={() => {
-                    onChange(opt);
-                    setOpen(false);
-                  }}
-                >
-                  <Check
-                    className={cn("size-3.5", value === opt ? "opacity-100" : "opacity-0")}
-                  />
+                <CommandItem key={opt} value={opt} onSelect={() => toggle(opt)}>
+                  <CheckboxMark checked={value.includes(opt)} />
                   {opt}
                 </CommandItem>
               ))}
@@ -182,10 +192,10 @@ export default function ArticlesTable({
 
   const [search, setSearch] = useState("");
   const [columnFilters, setColumnFilters] = useState<
-    Partial<Record<keyof IArticleItem, string>>
+    Partial<Record<keyof IArticleItem, string[]>>
   >({});
 
-  const setColumnFilter = (key: keyof IArticleItem, value: string) => {
+  const setColumnFilter = (key: keyof IArticleItem, value: string[]) => {
     setColumnFilters((prev) => ({ ...prev, [key]: value }));
   };
 
@@ -220,8 +230,8 @@ export default function ArticlesTable({
       const matchesColumns = (
         Object.keys(columnFilters) as (keyof IArticleItem)[]
       ).every((key) => {
-        const filterValue = columnFilters[key];
-        return !filterValue || filterValue === "all" || item[key] === filterValue;
+        const selected = columnFilters[key];
+        return !selected || selected.length === 0 || selected.includes(String(item[key]));
       });
       return matchesSearch && matchesColumns;
     });
@@ -455,7 +465,7 @@ export default function ArticlesTable({
                   return (
                     <td key={col.header} className={columnClass}>
                       <ColumnFilterSelect
-                        value={columnFilters[fieldKey] ?? "all"}
+                        value={columnFilters[fieldKey] ?? []}
                         options={filterOptions[fieldKey] ?? []}
                         onChange={(value) => setColumnFilter(fieldKey, value)}
                       />
