@@ -10,8 +10,21 @@ import {
   unmapColorwayFromArticle,
 } from "@/src/lib/redux/features/colorway/colorwaySlice";
 import { useAppDispatch, useAppSelector } from "@/src/lib/redux/hooks";
-import { GetArticleColorwayColumns } from "../TableColumns/ArticleColorwayColumns";
+import {
+  ArticleColorwayFilterableField,
+  GetArticleColorwayColumns,
+} from "../TableColumns/ArticleColorwayColumns";
 import MapColorwayModal from "../Form/MapColorwayModal";
+
+const textFilterFields = ["name", "colorway", "spec", "standard", "pantone"] as const;
+const flagFilterFields = [
+  "active",
+  "inTheme",
+  "sustLabelOff",
+  "planSms",
+  "plan3dSms",
+  "actualSms",
+] as const;
 
 const colorwayStatusFilterOptions = [
   { label: "All Status", value: "all" },
@@ -29,11 +42,36 @@ export default function ColorwaysTab({ articleId }: ColorwaysTabProps) {
   const { sortBy } = useAppSelector((state) => state.filter);
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [columnFilters, setColumnFilters] = useState<
+    Partial<Record<ArticleColorwayFilterableField, string>>
+  >({});
+
+  const handleColumnFilterChange = (
+    field: ArticleColorwayFilterableField,
+    value: string
+  ) => {
+    setColumnFilters((prev) => ({ ...prev, [field]: value }));
+  };
+
   const allItems = useMemo(() => Object.values(items), [items]);
   const articleItems = useMemo(
     () => allItems.filter((item) => item.articleIds.includes(articleId)),
     [allItems, articleId]
   );
+
+  const filterOptions = useMemo(() => {
+    const map: Partial<Record<ArticleColorwayFilterableField, string[]>> = {};
+    textFilterFields.forEach((field) => {
+      map[field] = Array.from(
+        new Set(articleItems.map((item) => item[field]).filter(Boolean))
+      ).sort();
+    });
+    flagFilterFields.forEach((field) => {
+      map[field] = ["true", "false"];
+    });
+    return map;
+  }, [articleItems]);
+
   const data = useMemo(() => {
     const query = search.trim().toLowerCase();
     return articleItems.filter((item) => {
@@ -47,9 +85,21 @@ export default function ColorwaysTab({ articleId }: ColorwaysTabProps) {
           .join(" ")
           .toLowerCase()
           .includes(query);
-      return matchesStatus && matchesSearch;
+      const matchesColumns = (
+        Object.keys(columnFilters) as ArticleColorwayFilterableField[]
+      ).every((field) => {
+        const filterValue = columnFilters[field];
+        if (!filterValue || filterValue === "all") return true;
+        if ((flagFilterFields as readonly string[]).includes(field)) {
+          return String(item[field]) === filterValue;
+        }
+        return String(item[field] ?? "")
+          .toLowerCase()
+          .includes(filterValue.toLowerCase());
+      });
+      return matchesStatus && matchesSearch && matchesColumns;
     });
-  }, [articleItems, search, sortBy]);
+  }, [articleItems, search, sortBy, columnFilters]);
   const unmappedOptions = useMemo(
     () => allItems.filter((item) => !item.articleIds.includes(articleId)),
     [allItems, articleId]
@@ -69,8 +119,15 @@ export default function ColorwaysTab({ articleId }: ColorwaysTabProps) {
   };
   const columns = useMemo(
     () =>
-      GetArticleColorwayColumns(handleRemoveColorway, handleFieldChange, handleToggleFlag),
-    []
+      GetArticleColorwayColumns(
+        handleRemoveColorway,
+        handleFieldChange,
+        handleToggleFlag,
+        filterOptions,
+        columnFilters,
+        handleColumnFilterChange
+      ),
+    [filterOptions, columnFilters]
   );
 
   return (

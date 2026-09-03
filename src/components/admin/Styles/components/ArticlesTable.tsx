@@ -10,14 +10,24 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/src/components/ui/breadcrumb";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/src/components/ui/command";
 import { Input } from "@/src/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/src/components/ui/popover";
+import { cn } from "@/src/lib/utils";
 import { useAppDispatch } from "@/src/lib/redux/hooks";
 import { createProperty } from "@/src/lib/redux/features/styleProperty/stylePropertySlice";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
-import { ChevronDown, ChevronRight, Plus, Search, Shirt } from "lucide-react";
+import { Check, ChevronDown, ChevronRight, ChevronsUpDown, Plus, Search, Shirt } from "lucide-react";
 import { IArticleItem, mockArticlesListGrouped } from "../data/mockStyleData";
 import CreateStyleProperty from "../Form/CreateStyleProperty";
 import PropertyCreatedDialog from "../Form/PropertyCreatedDialog";
@@ -87,6 +97,70 @@ const initialArticles: IArticleItem[] = mockArticlesListGrouped.flatMap(
 );
 
 const columnClass = "py-3 px-4 border-r border-light-dark last:border-r-0";
+
+function ColumnFilterSelect({
+  value,
+  options,
+  onChange,
+}: {
+  value: string;
+  options: string[];
+  onChange: (value: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const label = value === "all" ? "All" : value;
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className="w-full flex items-center justify-between gap-1 bg-transparent text-secondary-dark font-medium focus:outline-none"
+        >
+          <span className="truncate">{label}</span>
+          <ChevronsUpDown className="size-3 shrink-0 opacity-50" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-40 p-0" align="start">
+        <Command>
+          <CommandInput placeholder="Search..." className="h-8 text-xs" />
+          <CommandList>
+            <CommandEmpty>No results.</CommandEmpty>
+            <CommandGroup>
+              <CommandItem
+                value="all"
+                onSelect={() => {
+                  onChange("all");
+                  setOpen(false);
+                }}
+              >
+                <Check
+                  className={cn("size-3.5", value === "all" ? "opacity-100" : "opacity-0")}
+                />
+                All
+              </CommandItem>
+              {options.map((opt) => (
+                <CommandItem
+                  key={opt}
+                  value={opt}
+                  onSelect={() => {
+                    onChange(opt);
+                    setOpen(false);
+                  }}
+                >
+                  <Check
+                    className={cn("size-3.5", value === opt ? "opacity-100" : "opacity-0")}
+                  />
+                  {opt}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+}
 
 export default function ArticlesTable({
   seasonId,
@@ -380,16 +454,11 @@ export default function ArticlesTable({
                   }
                   return (
                     <td key={col.header} className={columnClass}>
-                      <select
+                      <ColumnFilterSelect
                         value={columnFilters[fieldKey] ?? "all"}
-                        onChange={(e) => setColumnFilter(fieldKey, e.target.value)}
-                        className="w-full bg-transparent text-secondary-dark font-medium focus:outline-none"
-                      >
-                        <option value="all">All</option>
-                        {filterOptions[fieldKey]?.map((value) => (
-                          <option key={value} value={value}>{value}</option>
-                        ))}
-                      </select>
+                        options={filterOptions[fieldKey] ?? []}
+                        onChange={(value) => setColumnFilter(fieldKey, value)}
+                      />
                     </td>
                   );
                 })}

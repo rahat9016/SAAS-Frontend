@@ -1,7 +1,17 @@
-import { Upload } from "lucide-react";
-import { useRef } from "react";
+import { Check, ChevronsUpDown, Upload } from "lucide-react";
+import { useRef, useState } from "react";
 import { Checkbox } from "@/src/components/ui/checkbox";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/src/components/ui/command";
 import { ColumnDef } from "@/src/components/ui/data-table";
+import { Popover, PopoverContent, PopoverTrigger } from "@/src/components/ui/popover";
+import { cn } from "@/src/lib/utils";
 import {
   ColorwayFlag,
   ColorwayTextField,
@@ -117,6 +127,72 @@ function ImageCell({
   );
 }
 
+export function ColumnFilterSelect({
+  value,
+  options,
+  onChange,
+  renderLabel,
+}: {
+  value: string;
+  options: string[];
+  onChange: (value: string) => void;
+  renderLabel?: (value: string) => string;
+}) {
+  const [open, setOpen] = useState(false);
+  const label = value === "all" ? "All" : renderLabel ? renderLabel(value) : value;
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className="w-full flex items-center justify-between gap-1 bg-transparent text-secondary-dark font-medium focus:outline-none"
+        >
+          <span className="truncate">{label}</span>
+          <ChevronsUpDown className="size-3 shrink-0 opacity-50" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-40 p-0" align="start">
+        <Command>
+          <CommandInput placeholder="Search..." className="h-8 text-xs" />
+          <CommandList>
+            <CommandEmpty>No results.</CommandEmpty>
+            <CommandGroup>
+              <CommandItem
+                value="all"
+                onSelect={() => {
+                  onChange("all");
+                  setOpen(false);
+                }}
+              >
+                <Check
+                  className={cn("size-3.5", value === "all" ? "opacity-100" : "opacity-0")}
+                />
+                All
+              </CommandItem>
+              {options.map((opt) => (
+                <CommandItem
+                  key={opt}
+                  value={opt}
+                  onSelect={() => {
+                    onChange(opt);
+                    setOpen(false);
+                  }}
+                >
+                  <Check
+                    className={cn("size-3.5", value === opt ? "opacity-100" : "opacity-0")}
+                  />
+                  {renderLabel ? renderLabel(opt) : opt}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 function FlagCell({
   row,
   field,
@@ -135,11 +211,34 @@ function FlagCell({
   );
 }
 
+export type ColorwayFilterableField =
+  | "name"
+  | "colorway"
+  | "spec"
+  | "standard"
+  | "pantone"
+  | "active";
+
 export const GetColorwayColumns = (
   onToggle?: (code: string, field: ColorwayFlag, value: boolean) => void,
   onImageUpload?: (code: string, image: string) => void,
-  onFieldChange?: (code: string, field: ColorwayTextField, value: string) => void
+  onFieldChange?: (code: string, field: ColorwayTextField, value: string) => void,
+  filterOptions: Partial<Record<ColorwayFilterableField, string[]>> = {},
+  columnFilters: Partial<Record<ColorwayFilterableField, string>> = {},
+  onColumnFilterChange?: (field: ColorwayFilterableField, value: string) => void
 ): ColumnDef<IColorway>[] => {
+  const columnFilter = (
+    field: ColorwayFilterableField,
+    renderLabel?: (value: string) => string
+  ) => (
+    <ColumnFilterSelect
+      value={columnFilters[field] ?? "all"}
+      options={filterOptions[field] ?? []}
+      onChange={(value) => onColumnFilterChange?.(field, value)}
+      renderLabel={renderLabel}
+    />
+  );
+
   return [
     {
       header: (
@@ -150,7 +249,7 @@ export const GetColorwayColumns = (
         </>
       ),
       accessorKey: "name",
-      filterLabel: "All",
+      filterLabel: columnFilter("name"),
       cell: (value, row) => (
         <EditableTextCell
           value={value as string}
@@ -168,7 +267,7 @@ export const GetColorwayColumns = (
         </span>
       ),
       accessorKey: "colorway",
-      filterLabel: "All",
+      filterLabel: columnFilter("colorway"),
       cell: (value, row) => (
         <EditableTextCell
           value={value as string}
@@ -189,7 +288,7 @@ export const GetColorwayColumns = (
         </>
       ),
       accessorKey: "spec",
-      filterLabel: "All",
+      filterLabel: columnFilter("spec"),
       cell: (value, row) => (
         <EditableTextCell
           value={value as string}
@@ -204,7 +303,6 @@ export const GetColorwayColumns = (
     {
       header: "Description",
       accessorKey: "description",
-      filterLabel: "All",
       cell: (value, row) => (
         <EditableTextCell
           value={value as string}
@@ -224,7 +322,7 @@ export const GetColorwayColumns = (
         </>
       ),
       accessorKey: "standard",
-      filterLabel: "All",
+      filterLabel: columnFilter("standard"),
       cell: (value, row) => (
         <EditableStandardCell
           value={value as string}
@@ -236,7 +334,7 @@ export const GetColorwayColumns = (
     {
       header: "Pantone",
       accessorKey: "pantone",
-      filterLabel: "All",
+      filterLabel: columnFilter("pantone"),
       cell: (value, row) => (
         <EditableTextCell
           value={value as string}
@@ -260,7 +358,9 @@ export const GetColorwayColumns = (
       header: "Active",
       accessorKey: "active",
       align: "center",
-      filterLabel: "All",
+      filterLabel: columnFilter("active", (v) =>
+        v === "true" ? "Active" : "Inactive"
+      ),
       cell: (_value, row) => (
         <FlagCell row={row} field="active" onToggle={onToggle} />
       ),

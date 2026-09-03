@@ -15,7 +15,10 @@ import {
 } from "@/src/lib/redux/features/colorway/colorwaySlice";
 import CreateColorway from "@/src/components/admin/Styles/Form/CreateColorway";
 import { ColorwayFormValues } from "@/src/components/admin/Styles/Schema/colorwaySchema";
-import { GetColorwayColumns } from "@/src/components/admin/Styles/TableColumns/ColorwayColumns";
+import {
+  ColorwayFilterableField,
+  GetColorwayColumns,
+} from "@/src/components/admin/Styles/TableColumns/ColorwayColumns";
 
 const colorwayStatusFilterOptions = [
   { label: "All Status", value: "all" },
@@ -29,6 +32,28 @@ export default function StyleColorWayPage() {
   const { sortBy } = useAppSelector((state) => state.filter);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [columnFilters, setColumnFilters] = useState<
+    Partial<Record<ColorwayFilterableField, string>>
+  >({});
+
+  const handleColumnFilterChange = (field: ColorwayFilterableField, value: string) => {
+    setColumnFilters((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const textFilterFields = ["name", "colorway", "spec", "standard", "pantone"] as const;
+
+  const filterOptions = useMemo(() => {
+    const all = Object.values(items);
+    const map: Partial<Record<ColorwayFilterableField, string[]>> = {
+      active: ["true", "false"],
+    };
+    textFilterFields.forEach((field) => {
+      map[field] = Array.from(
+        new Set(all.map((item) => item[field]).filter(Boolean))
+      ).sort();
+    });
+    return map;
+  }, [items]);
 
   const data = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -44,12 +69,22 @@ export default function StyleColorWayPage() {
             .join(" ")
             .toLowerCase()
             .includes(query);
-        return matchesStatus && matchesSearch;
+        const matchesColumns = (
+          Object.keys(columnFilters) as ColorwayFilterableField[]
+        ).every((field) => {
+          const filterValue = columnFilters[field];
+          if (!filterValue || filterValue === "all") return true;
+          if (field === "active") return String(item.active) === filterValue;
+          return String(item[field] ?? "")
+            .toLowerCase()
+            .includes(filterValue.toLowerCase());
+        });
+        return matchesStatus && matchesSearch && matchesColumns;
       })
       .sort(
         (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
-  }, [items, sortBy, search]);
+  }, [items, sortBy, search, columnFilters]);
   const handleToggleFlag = (code: string, field: ColorwayFlag, value: boolean) => {
     dispatch(setColorwayFlag({ code, field, value }));
   };
@@ -60,8 +95,16 @@ export default function StyleColorWayPage() {
     dispatch(setColorwayField({ code, field, value }));
   };
   const columns = useMemo(
-    () => GetColorwayColumns(handleToggleFlag, handleImageUpload, handleFieldChange),
-    []
+    () =>
+      GetColorwayColumns(
+        handleToggleFlag,
+        handleImageUpload,
+        handleFieldChange,
+        filterOptions,
+        columnFilters,
+        handleColumnFilterChange
+      ),
+    [filterOptions, columnFilters]
   );
 
   const handleCreateColorway = (values: ColorwayFormValues) => {

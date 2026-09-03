@@ -6,6 +6,7 @@ import {
   ColorwayTextField,
 } from "@/src/lib/redux/features/colorway/colorwaySlice";
 import { IColorway } from "@/src/lib/redux/features/colorway/colorwayTypes";
+import { ColumnFilterSelect } from "./ColorwayColumns";
 
 function FlagCell({
   row,
@@ -72,11 +73,41 @@ function SwatchCell({ row }: { row: IColorway }) {
   );
 }
 
+export type ArticleColorwayFilterableField =
+  | "name"
+  | "colorway"
+  | "spec"
+  | "standard"
+  | "pantone"
+  | "active"
+  | "inTheme"
+  | "sustLabelOff"
+  | "planSms"
+  | "plan3dSms"
+  | "actualSms";
+
+const boolLabel = (v: string) => (v === "true" ? "Yes" : "No");
+
 export const GetArticleColorwayColumns = (
   onRemove?: (code: string) => void,
   onFieldChange?: (code: string, field: ColorwayTextField, value: string) => void,
-  onToggle?: (code: string, field: ColorwayFlag, value: boolean) => void
+  onToggle?: (code: string, field: ColorwayFlag, value: boolean) => void,
+  filterOptions: Partial<Record<ArticleColorwayFilterableField, string[]>> = {},
+  columnFilters: Partial<Record<ArticleColorwayFilterableField, string>> = {},
+  onColumnFilterChange?: (field: ArticleColorwayFilterableField, value: string) => void
 ): ColumnDef<IColorway>[] => {
+  const columnFilter = (
+    field: ArticleColorwayFilterableField,
+    renderLabel?: (value: string) => string
+  ) => (
+    <ColumnFilterSelect
+      value={columnFilters[field] ?? "all"}
+      options={filterOptions[field] ?? []}
+      onChange={(value) => onColumnFilterChange?.(field, value)}
+      renderLabel={renderLabel}
+    />
+  );
+
   return [
     {
       header: (
@@ -87,7 +118,7 @@ export const GetArticleColorwayColumns = (
         </>
       ),
       accessorKey: "name",
-      filterLabel: "All",
+      filterLabel: columnFilter("name"),
     },
     {
       header: (
@@ -96,7 +127,7 @@ export const GetArticleColorwayColumns = (
         </span>
       ),
       accessorKey: "colorway",
-      filterLabel: "All",
+      filterLabel: columnFilter("colorway"),
       cell: (value) => <span className="text-primary font-medium">{value as string}</span>,
     },
     {
@@ -108,12 +139,11 @@ export const GetArticleColorwayColumns = (
         </>
       ),
       accessorKey: "spec",
-      filterLabel: "All",
+      filterLabel: columnFilter("spec"),
     },
     {
       header: "Description",
       accessorKey: "description",
-      filterLabel: "All",
     },
     {
       header: (
@@ -124,12 +154,12 @@ export const GetArticleColorwayColumns = (
         </>
       ),
       accessorKey: "standard",
-      filterLabel: "All",
+      filterLabel: columnFilter("standard"),
     },
     {
       header: "Pantone",
       accessorKey: "pantone",
-      filterLabel: "All",
+      filterLabel: columnFilter("pantone"),
     },
     {
       header: "Image",
@@ -142,7 +172,7 @@ export const GetArticleColorwayColumns = (
       header: "Active",
       accessorKey: "active",
       align: "center",
-      filterLabel: "All",
+      filterLabel: columnFilter("active", boolLabel),
       cell: (_value, row) => <FlagCell row={row} field="active" onToggle={onToggle} />,
     },
     {
@@ -155,7 +185,7 @@ export const GetArticleColorwayColumns = (
       ),
       accessorKey: "inTheme",
       align: "center",
-      filterLabel: "All",
+      filterLabel: columnFilter("inTheme", boolLabel),
       cell: (_value, row) => <FlagCell row={row} field="inTheme" onToggle={onToggle} />,
     },
     {
@@ -170,7 +200,7 @@ export const GetArticleColorwayColumns = (
       ),
       accessorKey: "sustLabelOff",
       align: "center",
-      filterLabel: "All",
+      filterLabel: columnFilter("sustLabelOff", boolLabel),
       cell: (_value, row) => <FlagCell row={row} field="sustLabelOff" onToggle={onToggle} />,
     },
     {
@@ -183,7 +213,7 @@ export const GetArticleColorwayColumns = (
       ),
       accessorKey: "planSms",
       align: "center",
-      filterLabel: "All",
+      filterLabel: columnFilter("planSms", boolLabel),
       cell: (_value, row) => <FlagCell row={row} field="planSms" onToggle={onToggle} />,
     },
     {
@@ -196,7 +226,7 @@ export const GetArticleColorwayColumns = (
       ),
       accessorKey: "plan3dSms",
       align: "center",
-      filterLabel: "All",
+      filterLabel: columnFilter("plan3dSms", boolLabel),
       cell: (_value, row) => <FlagCell row={row} field="plan3dSms" onToggle={onToggle} />,
     },
     {
@@ -209,7 +239,7 @@ export const GetArticleColorwayColumns = (
       ),
       accessorKey: "actualSms",
       align: "center",
-      filterLabel: "All",
+      filterLabel: columnFilter("actualSms", boolLabel),
       cell: (_value, row) => <FlagCell row={row} field="actualSms" onToggle={onToggle} />,
     },
     {
@@ -221,7 +251,6 @@ export const GetArticleColorwayColumns = (
         </>
       ),
       accessorKey: "startDate",
-      filterLabel: "All",
       cell: (value, row) => (
         <EditableTextCell
           value={value as string}
@@ -241,7 +270,6 @@ export const GetArticleColorwayColumns = (
         </>
       ),
       accessorKey: "endDate",
-      filterLabel: "All",
       cell: (value, row) => (
         <EditableTextCell
           value={value as string}
@@ -261,7 +289,6 @@ export const GetArticleColorwayColumns = (
         </>
       ),
       accessorKey: "clearanceDate",
-      filterLabel: "All",
       cell: (value, row) => (
         <EditableTextCell
           value={value as string}
