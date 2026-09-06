@@ -81,9 +81,3 @@ export const materialHierarchy: Record<MaterialType, Record<string, string[]>> =
     "Blended Yarn": ["Cotton-Poly Blend", "Cotton-Spandex Blend"],
   },
 };
-
-export const getMaterialClasses = (type: string): string[] =>
-  Object.keys(materialHierarchy[type as MaterialType] ?? {});
-
-export const getMaterialSubClasses = (type: string, materialClass: string): string[] =>
-  (materialHierarchy[type as MaterialType] ?? {})[materialClass] ?? [];

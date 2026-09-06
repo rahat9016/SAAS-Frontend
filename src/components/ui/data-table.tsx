@@ -1,5 +1,5 @@
-import { Plus, Search } from "lucide-react";
-import { ReactNode } from "react";
+import { ChevronDown, ChevronRight, Plus, Search } from "lucide-react";
+import { Fragment, ReactNode, useState } from "react";
 
 import { clearFilters } from "@/src/lib/redux/features/filter/filterSlice";
 import { useAppDispatch } from "@/src/lib/redux/hooks";
@@ -36,9 +36,25 @@ export interface ColumnDef<T> {
   cell?: (value: T[keyof T], row: T) => React.ReactNode;
 }
 
+/** One collapsible section of rows (see `groups`). */
+export interface DataTableGroup<T> {
+  /** Stable id — drives the collapsed/expanded state. */
+  key: string;
+  label: ReactNode;
+  items: T[];
+}
+
 export interface DataTableProps<T> {
   columns: ColumnDef<T>[];
-  data: T[];
+  /** Flat rows. Ignored when `groups` is set. */
+  data?: T[];
+  /**
+   * Render rows under collapsible group headers instead of a flat list.
+   * Grouped tables show every row at once, so the pagination bar is hidden.
+   */
+  groups?: DataTableGroup<T>[];
+  /** Shown inside an expanded group that has no rows. */
+  groupEmptyMessage?: ReactNode;
   tabs?: {
     name: string;
     route?: string;
@@ -77,7 +93,9 @@ export interface DataTableProps<T> {
 
 export function DataTable<T>({
   columns,
-  data,
+  data = [],
+  groups,
+  groupEmptyMessage = "No data found",
   tabs = [],
   variant = "default",
   isLoading = false,
@@ -108,6 +126,67 @@ export function DataTable<T>({
   const pathname = usePathname();
   const isPlain = variant === "plain";
   const skeletonRows = isPlain ? 4 : itemsPerPage;
+  const isGrouped = !!groups;
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(
+    () => new Set()
+  );
+
+  const toggleGroup = (key: string) => {
+    setCollapsedGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  };
+
+  const renderRow = (row: T, rowKey: string) => (
+    <TableRow
+      className={
+        isPlain
+          ? "h-12 even:bg-light/40 hover:bg-primary/5 transition-colors"
+          : "h-18"
+      }
+      key={rowKey}
+    >
+      {columns.map((column, idx) => {
+        const value = row[column.accessorKey];
+        const borderR =
+          !isPlain && idx < columns.length - 1
+            ? "border-r border-light-dark"
+            : "";
+        return (
+          <TableCell
+            key={`${rowKey}-${idx}-${String(column.accessorKey)}`}
+            className={cn(
+              isPlain
+                ? "whitespace-nowrap px-4 py-2.5 text-sm text-secondary-gary border-b border-light-dark/60"
+                : column.wrap
+                ? `whitespace-normal align-top py-3 px-5 text-sm text-secondary-gary border-b border-light-dark ${borderR}`
+                : `max-w-50 truncate whitespace-nowrap px-5 text-sm text-secondary-gary border-b border-light-dark ${borderR}`,
+              alignClass(column),
+              column.noPadding && "p-0 relative"
+            )}
+          >
+            {column?.cell ? column.cell(value, row) : (value as React.ReactNode)}
+          </TableCell>
+        );
+      })}
+    </TableRow>
+  );
+
+  const emptyRow = (
+    <TableRow>
+      <TableCell
+        colSpan={columns.length}
+        className={`w-full text-center ${
+          isPlain ? "h-32 text-sm text-secondary-gary" : "h-[50vh]"
+        }`}
+      >
+        No data found
+      </TableCell>
+    </TableRow>
+  );
 
   return (
     <>
@@ -271,64 +350,63 @@ export function DataTable<T>({
                     ))}
                   </TableRow>
                 ))
-              ) : data.length === 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className={`w-full text-center ${
-                      isPlain
-                        ? "h-32 text-sm text-secondary-gary"
-                        : "h-[50vh]"
-                    }`}
-                  >
-                    No data found
-                  </TableCell>
-                </TableRow>
-              ) : (
-                data.map((row, rowIndex) => (
-                  <TableRow
-                    className={
-                      isPlain
-                        ? "h-12 even:bg-light/40 hover:bg-primary/5 transition-colors"
-                        : "h-18"
-                    }
-                    key={rowIndex}
-                  >
-                    {columns.map((column, idx) => {
-                      const value = row[column.accessorKey];
-                      const borderR =
-                        !isPlain && idx < columns.length - 1
-                          ? "border-r border-light-dark"
-                          : "";
-                      return (
-                        <TableCell
-                          key={`${rowIndex}-${idx}-${String(
-                            column.accessorKey
-                          )}`}
-                          className={cn(
-                            isPlain
-                              ? "whitespace-nowrap px-4 py-2.5 text-sm text-secondary-gary border-b border-light-dark/60"
-                              : column.wrap
-                              ? `whitespace-normal align-top py-3 px-5 text-sm text-secondary-gary border-b border-light-dark ${borderR}`
-                              : `max-w-50 truncate whitespace-nowrap px-5 text-sm text-secondary-gary border-b border-light-dark ${borderR}`,
-                            alignClass(column),
-                            column.noPadding && "p-0 relative"
+              ) : isGrouped ? (
+                groups.length === 0 ? (
+                  emptyRow
+                ) : (
+                  groups.map((group) => {
+                    const isCollapsed = collapsedGroups.has(group.key);
+                    return (
+                      <Fragment key={group.key}>
+                        <TableRow className="bg-light hover:bg-light border-y border-light-dark">
+                          <TableCell colSpan={columns.length} className="p-0">
+                            <button
+                              type="button"
+                              onClick={() => toggleGroup(group.key)}
+                              className="w-full flex items-center gap-2 py-2.5 px-5 text-sm font-semibold text-secondary-dark hover:bg-light-dark/40 transition-colors cursor-pointer"
+                            >
+                              {isCollapsed ? (
+                                <ChevronRight className="size-4 text-primary" />
+                              ) : (
+                                <ChevronDown className="size-4 text-primary" />
+                              )}
+                              {group.label}
+                              <span className="rounded-full border border-light-dark bg-white px-2 py-0.5 text-xs font-medium text-secondary-gary">
+                                {group.items.length.toString().padStart(2, "0")}
+                              </span>
+                            </button>
+                          </TableCell>
+                        </TableRow>
+
+                        {!isCollapsed && group.items.length === 0 && (
+                          <TableRow>
+                            <TableCell
+                              colSpan={columns.length}
+                              className="py-4 px-5 text-sm text-secondary-gary italic border-b border-light-dark"
+                            >
+                              {groupEmptyMessage}
+                            </TableCell>
+                          </TableRow>
+                        )}
+
+                        {!isCollapsed &&
+                          group.items.map((row, rowIndex) =>
+                            renderRow(row, `${group.key}-${rowIndex}`)
                           )}
-                        >
-                          {column?.cell
-                            ? column.cell(value, row)
-                            : (value as React.ReactNode)}
-                        </TableCell>
-                      );
-                    })}
-                  </TableRow>
-                ))
+                      </Fragment>
+                    );
+                  })
+                )
+              ) : data.length === 0 ? (
+                emptyRow
+              ) : (
+                data.map((row, rowIndex) => renderRow(row, String(rowIndex)))
               )}
             </TableBody>
           </Table>
         </div>
 
-        {!isPlain && (
+        {!isPlain && !isGrouped && (
           <div className="bg-white border border-t-0 border-light-dark  rounded-b-lg">
             <Pagination
               currentPage={currentPage}

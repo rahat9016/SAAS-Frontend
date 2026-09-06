@@ -1,7 +1,7 @@
 "use client";
 
-import MaterialsTable from "@/src/components/admin/Materials/MaterialsTable";
+import MaterialListTab from "@/src/components/admin/Materials/tabs/MaterialListTab";
 
 export default function StyleMaterialPage() {
-  return <MaterialsTable />;
+  return <MaterialListTab />;
 }
